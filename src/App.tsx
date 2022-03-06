@@ -11,7 +11,7 @@ const App = () => (
     <Router history={history}>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="login" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/app" element={<TimerApp />} />
       </Routes>
