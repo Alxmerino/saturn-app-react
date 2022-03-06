@@ -5,16 +5,19 @@ import { store, history } from './store/store';
 import { Route, Routes } from 'react-router-dom';
 
 import { Home, Login, Signup, TimerApp } from './containers';
+import BaseLayout from './components/layout/BaseLayout';
 
 const App = () => (
   <Provider store={store}>
     <Router history={history}>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/app" element={<TimerApp />} />
-      </Routes>
+      <BaseLayout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/app" element={<TimerApp />} />
+        </Routes>
+      </BaseLayout>
     </Router>
   </Provider>
 );
