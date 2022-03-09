@@ -5,7 +5,7 @@ import { store, history } from './store/store';
 import { Route, Routes } from 'react-router-dom';
 
 import { Home, Login, Signup, TimerApp } from './containers';
-import BaseLayout from './components/layout/BaseLayout';
+import { BaseLayout } from './components/layout';
 
 const App = () => (
   <Provider store={store}>
