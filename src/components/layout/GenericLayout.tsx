@@ -1,14 +1,16 @@
 import React from 'react';
-import { Stack } from '@mui/material';
+import { Container, Stack } from '@mui/material';
 
-interface GenericLayoutProps {
+interface GenericLayoutProps extends Record<string, unknown> {
   vAlign?: string;
   children: JSX.Element | JSX.Element[];
+  maxWidth?: false | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | undefined;
 }
 
 const GenericLayout = ({
   vAlign = 'top',
   children,
+  maxWidth,
 }: GenericLayoutProps): JSX.Element => {
   const vAlignMap: Record<string, string> = {
     top: 'flex-start',
@@ -18,7 +20,11 @@ const GenericLayout = ({
 
   return (
     <Stack justifyContent={vAlignMap[vAlign]} height="inherit">
-      {children}
+      {maxWidth !== null ? (
+        <Container maxWidth={maxWidth}>{children}</Container>
+      ) : (
+        { children }
+      )}
     </Stack>
   );
 };
