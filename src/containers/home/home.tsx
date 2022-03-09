@@ -1,22 +1,35 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Stack } from '@mui/material';
+import { push } from 'redux-first-history';
+
+import { Button, Text } from '../../components/common';
+import { useAppDispatch } from '../../app/hooks';
+import { GenericLayout } from '../../components/layout';
 
 const Home = () => {
+  const dispatch = useAppDispatch();
+  const handleLoginClick = () => {
+    dispatch(push('/login'));
+  };
+
+  const handleSignupClick = () => {
+    dispatch(push('/signup'));
+  };
+
   return (
-    <>
-      <ul>
-        <li>
-          <Link to="/">Home</Link>
-        </li>
-        <li>
-          <Link to="/login">Login</Link>
-        </li>
-        <li>
-          <Link to="/signup">Signup</Link>
-        </li>
-      </ul>
-      <h1>Homepage</h1>
-    </>
+    <GenericLayout vAlign="center">
+      <Text component="h1" variant="h3" align="center">
+        Saturn Time Tracker
+      </Text>
+      <Stack direction="row" spacing={2} justifyContent="center" mt={3}>
+        <Button onClick={handleLoginClick} type="primary">
+          Login
+        </Button>
+        <Button onClick={handleSignupClick} type="primary">
+          Signup
+        </Button>
+      </Stack>
+    </GenericLayout>
   );
 };
 
