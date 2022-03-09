@@ -42,6 +42,7 @@
     "@typescript-eslint/no-invalid-void-type": 0,
     "@typescript-eslint/promise-function-async": 0,
     "@typescript-eslint/no-unused-vars": 0,
+    "@typescript-eslint/no-explicit-any":0,
     "react/prop-types": 0
   }
 }
