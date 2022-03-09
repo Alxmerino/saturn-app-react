@@ -2,8 +2,8 @@ import React from 'react';
 import { Stack } from '@mui/material';
 import { push } from 'redux-first-history';
 
-import { Button, Text } from '../../components/common';
 import { useAppDispatch } from '../../app/hooks';
+import { Button, Text } from '../../components/common';
 import { GenericLayout } from '../../components/layout';
 
 const Home = () => {
