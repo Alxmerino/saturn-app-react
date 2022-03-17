@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
@@ -7,21 +7,8 @@ import Typography from '@mui/material/Typography';
 import { push } from 'redux-first-history';
 
 import { useAppDispatch } from '../../app/hooks';
-import { Button, Text } from '../../components/common';
+import { Button, Copyright } from '../../components/common';
 import { GenericLayout } from '../../components/layout';
-
-function Copyright(props: any) {
-  return (
-    <Text variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://amayamedia.com/">
-        René Merino
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Text>
-  );
-}
 
 const Login = (): JSX.Element => {
   const dispatch = useAppDispatch();
