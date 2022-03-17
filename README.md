@@ -1,4 +1,5 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) template.
+# Saturn Time Tracker
+[![Netlify Status](https://api.netlify.com/api/v1/badges/0c4a6a12-8707-493d-b8f1-cc0e6035f5b5/deploy-status)](https://app.netlify.com/sites/saturn-timer/deploys)
 
 ## Available Scripts
 
