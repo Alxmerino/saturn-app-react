@@ -1,16 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import { Link, Grid, Box, Typography } from '@mui/material';
 import { push } from 'redux-first-history';
 
-import { useAppDispatch } from '../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { Button, Copyright } from '../../components/common';
 import { GenericLayout } from '../../components/layout';
+import { login, selectLoggedIn } from '../../store/User/UserSlice';
+import { Routes } from '../../config/constants';
 
 const Login = (): JSX.Element => {
+  const loggedIn = useAppSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -21,11 +21,19 @@ const Login = (): JSX.Element => {
       email: data.get('email'),
       password: data.get('password'),
     });
+    dispatch(login());
+    dispatch(push(Routes.APP));
   };
 
   const handleSignUp = () => {
     dispatch(push('/signup'));
   };
+
+  useEffect(() => {
+    if (loggedIn) {
+      dispatch(push(Routes.APP));
+    }
+  });
 
   return (
     <GenericLayout vAlign="center" maxWidth="xs">
