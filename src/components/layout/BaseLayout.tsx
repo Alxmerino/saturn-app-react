@@ -1,12 +1,17 @@
 import React from 'react';
 import {
+  colors,
   Container,
   createTheme,
   CssBaseline,
   ThemeProvider,
 } from '@mui/material';
 
-const theme = createTheme();
+const theme = createTheme({
+  palette: {
+    blue: colors.blue,
+  },
+});
 
 interface BaseLayoutProps {
   children: JSX.Element;

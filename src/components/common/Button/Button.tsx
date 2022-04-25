@@ -10,6 +10,8 @@ const Button: React.FC<ButtonProps> = (props: ButtonProps): JSX.Element => {
   const { children, type } = props;
   const btnPropsMap: Record<string, any> = {
     primary: 'contained',
+    outlined: 'outlined',
+    clean: 'text',
   };
 
   return (
