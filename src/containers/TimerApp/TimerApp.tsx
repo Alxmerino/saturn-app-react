@@ -6,19 +6,14 @@ import {
   Box,
   Divider,
   IconButton,
-  Input,
   Link,
   ListItemIcon,
   ListItemText,
   Menu,
   MenuItem,
-  Stack,
-  TextField,
 } from '@mui/material';
 import {
-  Add,
   MoreVert,
-  DeveloperBoard,
   ExpandMore,
   PlayArrow,
   Pause,
@@ -31,17 +26,14 @@ import { push } from 'redux-first-history';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { logout, selectLoggedIn } from '../../store/User/UserSlice';
 import { Routes } from '../../config/constants';
-import { Button, Text } from '../../components/common';
+import { ProjectMenu, Text } from '../../components/common';
+import { TimerAppHeader } from '../../components/Timer';
 
 const TimerApp = () => {
   const loggedIn = useAppSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
   const [expanded, setExpanded] = useState<string | false>(false);
-  const [projectAnchorEl, setProjectAnchorEl] = useState<null | HTMLElement>(
-    null
-  );
   const [timerAnchorEl, setTimerAnchorEl] = useState<null | HTMLElement>(null);
-  const projectOpen = Boolean(projectAnchorEl);
   const timerOpen = Boolean(timerAnchorEl);
 
   const handleTimerClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -49,13 +41,6 @@ const TimerApp = () => {
   };
   const handleTimerClose = () => {
     setTimerAnchorEl(null);
-  };
-
-  const handleProjectClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setProjectAnchorEl(event.currentTarget);
-  };
-  const handleProjectClose = () => {
-    setProjectAnchorEl(null);
   };
 
   const handleLogOut = () => {
@@ -133,60 +118,7 @@ const TimerApp = () => {
         <Text component="h1" variant="h6" align="center">
           Saturn Time Tracker
         </Text>
-        {/* @todo: Add Component */}
-        {/* Start Timer Header Component */}
-        <Stack direction="row" pt={3} spacing={2}>
-          <TextField
-            id="timer-description"
-            size="small"
-            fullWidth
-            label="What are you working on?"
-          />
-          <TextField
-            id="timer-limit"
-            size="small"
-            label="For how long?"
-            sx={{
-              width: 300,
-            }}
-          />
-          <Button
-            type="outlined"
-            id="project-select-button"
-            aria-controls={projectOpen ? 'basic-menu' : undefined}
-            aria-haspopup="true"
-            aria-expanded={projectOpen ? 'true' : undefined}
-            onClick={handleProjectClick}
-          >
-            <DeveloperBoard />
-          </Button>
-          <Menu
-            id="basic-menu"
-            anchorEl={projectAnchorEl}
-            open={projectOpen}
-            onClose={handleProjectClose}
-            MenuListProps={{
-              'aria-labelledby': 'basic-button',
-            }}
-          >
-            <MenuItem>
-              <Input
-                placeholder="Project Name"
-                inputProps={{ 'aria-label': 'description' }}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    handleProjectClose();
-                  }
-                }}
-              />
-            </MenuItem>
-            <MenuItem onClick={handleProjectClose}>TEST-123</MenuItem>
-          </Menu>
-          <Button type="primary">
-            <Add />
-          </Button>
-        </Stack>
-        {/* End Timer Header Component */}
+        <TimerAppHeader />
       </Box>
 
       {/* @todo: Add active timer */}
@@ -294,9 +226,7 @@ const TimerApp = () => {
                         {timer.project}
                       </Text>
                     ) : (
-                      <IconButton size="small" sx={{ color: 'grey.600' }}>
-                        <DeveloperBoard />
-                      </IconButton>
+                      <ProjectMenu color="action" />
                     )}
                   </div>
                   <Box
