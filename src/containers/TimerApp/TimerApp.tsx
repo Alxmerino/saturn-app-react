@@ -27,7 +27,7 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { logout, selectLoggedIn } from '../../store/User/UserSlice';
 import { Routes } from '../../config/constants';
 import { ProjectMenu, Text } from '../../components/common';
-import { TimerAppHeader } from '../../components/Timer';
+import { TimerHeader } from '../../components/Timer';
 
 const TimerApp = () => {
   const loggedIn = useAppSelector(selectLoggedIn);
@@ -118,7 +118,7 @@ const TimerApp = () => {
         <Text component="h1" variant="h6" align="center">
           Saturn Time Tracker
         </Text>
-        <TimerAppHeader />
+        <TimerHeader />
       </Box>
 
       {/* @todo: Add active timer */}
