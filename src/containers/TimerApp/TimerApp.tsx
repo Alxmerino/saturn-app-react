@@ -4,19 +4,28 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
+  Divider,
   IconButton,
   Input,
   Link,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
   Stack,
   TextField,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import DeveloperBoardIcon from '@mui/icons-material/DeveloperBoard';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import PauseIcon from '@mui/icons-material/Pause';
+import {
+  Add,
+  MoreVert,
+  DeveloperBoard,
+  ExpandMore,
+  PlayArrow,
+  Pause,
+  SendTimeExtension,
+  RotateLeft,
+  Delete,
+} from '@mui/icons-material';
 import { push } from 'redux-first-history';
 
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
@@ -31,7 +40,16 @@ const TimerApp = () => {
   const [projectAnchorEl, setProjectAnchorEl] = useState<null | HTMLElement>(
     null
   );
+  const [timerAnchorEl, setTimerAnchorEl] = useState<null | HTMLElement>(null);
   const projectOpen = Boolean(projectAnchorEl);
+  const timerOpen = Boolean(timerAnchorEl);
+
+  const handleTimerClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setTimerAnchorEl(event.currentTarget);
+  };
+  const handleTimerClose = () => {
+    setTimerAnchorEl(null);
+  };
 
   const handleProjectClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setProjectAnchorEl(event.currentTarget);
@@ -140,7 +158,7 @@ const TimerApp = () => {
             aria-expanded={projectOpen ? 'true' : undefined}
             onClick={handleProjectClick}
           >
-            <DeveloperBoardIcon />
+            <DeveloperBoard />
           </Button>
           <Menu
             id="basic-menu"
@@ -165,7 +183,7 @@ const TimerApp = () => {
             <MenuItem onClick={handleProjectClose}>TEST-123</MenuItem>
           </Menu>
           <Button type="primary">
-            <AddIcon />
+            <Add />
           </Button>
         </Stack>
         {/* End Timer Header Component */}
@@ -185,7 +203,7 @@ const TimerApp = () => {
             sx={{ borderTop: '1px solid #e0e0e0' }}
           >
             <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
+              expandIcon={<ExpandMore />}
               aria-controls={`panel${i}-content`}
               id={`panel${i}-header`}
               sx={{
@@ -216,9 +234,9 @@ const TimerApp = () => {
                   key={timer.description}
                   sx={{
                     py: 1,
-                    px: 2,
+                    pr: 2,
                     display: 'flex',
-                    justifyContent: 'space-between',
+                    // justifyContent: 'space-between',
                     alignItems: 'center',
                     backgroundColor: timer.active ? 'blue.50' : '',
                     borderBottomWidth: 1,
@@ -226,6 +244,45 @@ const TimerApp = () => {
                     borderBottomColor: 'grey.300',
                   }}
                 >
+                  <IconButton
+                    color="primary"
+                    size="small"
+                    sx={{ mr: 1 }}
+                    onClick={(e) => i === 0 && handleTimerClick(e)}
+                  >
+                    <MoreVert />
+                  </IconButton>
+                  {i === 0 && (
+                    <Menu
+                      id="more-menu"
+                      anchorEl={timerAnchorEl}
+                      open={timerOpen}
+                      onClose={handleTimerClose}
+                      MenuListProps={{
+                        'aria-labelledby': 'basic-button',
+                      }}
+                    >
+                      <MenuItem onClick={handleTimerClose}>
+                        <ListItemIcon>
+                          <SendTimeExtension fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Log Time</ListItemText>
+                      </MenuItem>
+                      <Divider />
+                      <MenuItem onClick={handleTimerClose}>
+                        <ListItemIcon>
+                          <RotateLeft fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Reset</ListItemText>
+                      </MenuItem>
+                      <MenuItem onClick={handleTimerClose}>
+                        <ListItemIcon>
+                          <Delete fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Delete</ListItemText>
+                      </MenuItem>
+                    </Menu>
+                  )}
                   <div>
                     <Text>{timer.description}</Text>
                     {timer.project !== '' ? (
@@ -238,14 +295,20 @@ const TimerApp = () => {
                       </Text>
                     ) : (
                       <IconButton size="small" sx={{ color: 'grey.600' }}>
-                        <DeveloperBoardIcon />
+                        <DeveloperBoard />
                       </IconButton>
                     )}
                   </div>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      marginLeft: 'auto',
+                    }}
+                  >
                     <Text color="grey.700">{`${timer.time}/${timer.planned}`}</Text>
                     <IconButton color="primary" size="small" sx={{ ml: 1 }}>
-                      {timer.active ? <PauseIcon /> : <PlayArrowIcon />}
+                      {timer.active ? <Pause /> : <PlayArrow />}
                     </IconButton>
                   </Box>
                 </Box>
