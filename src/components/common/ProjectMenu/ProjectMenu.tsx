@@ -26,7 +26,7 @@ const ProjectMenu = ({ color }: ProjectMenuProps) => {
   if (color === 'primary') {
     buttonEl = (
       <Button
-        type="outlined"
+        kind="outlined"
         id="project-select-button"
         aria-controls={projectOpen ? 'project-menu' : undefined}
         aria-haspopup="true"

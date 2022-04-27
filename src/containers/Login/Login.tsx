@@ -10,7 +10,7 @@ import { login, selectLoggedIn } from '../../store/User/UserSlice';
 import { Routes } from '../../config/constants';
 
 const Login = (): JSX.Element => {
-  const loggedIn = useAppSelector(selectLoggedIn);
+  const loggedIn: boolean = useAppSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -78,6 +78,7 @@ const Login = (): JSX.Element => {
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
+            kind="primary"
           >
             Sign In
           </Button>
