@@ -2,6 +2,8 @@ import { combineReducers } from 'redux';
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import { createReduxHistoryContext } from 'redux-first-history';
 import { createBrowserHistory } from 'history';
+import logger from 'redux-logger';
+
 import userReducer from './User/UserSlice';
 import timerReducer from './Timer/TimerSlice';
 
@@ -15,7 +17,8 @@ export const store = configureStore({
     timer: timerReducer,
     // more reducers
   }),
-  middleware: [routerMiddleware],
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(routerMiddleware).concat(logger),
 });
 
 export const history = createReduxHistory(store);
