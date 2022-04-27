@@ -1,6 +1,6 @@
 interface Timestamps {
-  created_at?: Date;
-  updated_at?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export type ProjectCode =
@@ -20,19 +20,20 @@ export interface User {
 export interface Project extends Timestamps {
   id: string;
   title: string;
-  user_id: string;
-  color_code: ProjectCode;
+  userId: string;
+  colorCode: ProjectCode;
 }
 
 interface Task extends Timestamps {
   id: string;
   title: string;
   running: boolean;
-  project_id: Project | null;
-  user_id: string;
+  projectId: Project | null;
+  userId: string;
   duration: number | null;
-  start_time: number | null;
-  end_time: number | null;
+  startTime: number | null;
+  endTime: number | null;
+  plannedTime: string | null;
 }
 
 export interface TimerItem extends Task {}
