@@ -1,5 +1,5 @@
 import { Duration } from 'date-fns';
-import { each, isNaN } from 'lodash';
+import { each, isNaN, isNil } from 'lodash';
 import { durationMap, durationMapShort } from '../../config/constants';
 
 /**
@@ -64,20 +64,18 @@ export const getDurationFromString = (timeStr = ''): Duration => {
  * Format duration object into a human readable form
  * @param duration
  */
-export const formatDurationFromObject = (duration: {
-  [x: string]: string;
-}): string => {
+export const formatDurationFromObject = (duration: Duration): string => {
   let durationStr = '';
 
-  if ('hours' in duration) {
+  if (!isNil(duration.hours)) {
     durationStr += `${duration.hours}${durationMapShort.hours} `;
   }
 
-  if ('minutes' in duration) {
+  if (!isNil(duration.minutes)) {
     durationStr += `${duration.minutes}${durationMapShort.minutes} `;
   }
 
-  if ('seconds' in duration) {
+  if (!isNil(duration.seconds)) {
     durationStr += `${duration.seconds}${durationMapShort.seconds}`;
   }
 
