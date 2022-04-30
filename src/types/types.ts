@@ -33,7 +33,7 @@ interface Task extends Timestamps {
   duration: number | null;
   startTime: Date | null;
   endTime: Date | null;
-  plannedTime: string | null;
+  plannedTime: Duration | null;
 }
 
 export interface TimerItemTask extends Task {}
