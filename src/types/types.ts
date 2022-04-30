@@ -28,12 +28,12 @@ interface Task extends Timestamps {
   id: string;
   title: string;
   running: boolean;
-  projectId: Project | null;
+  project: Project | null;
   userId: string;
   duration: number | null;
-  startTime: number | null;
-  endTime: number | null;
+  startTime: Date | null;
+  endTime: Date | null;
   plannedTime: string | null;
 }
 
-export interface TimerItem extends Task {}
+export interface TimerItemTask extends Task {}
