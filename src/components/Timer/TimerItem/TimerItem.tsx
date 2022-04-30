@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { isNil } from 'lodash';
 
 import {
   Box,
@@ -19,16 +20,10 @@ import {
 } from '@mui/icons-material';
 
 import { ProjectMenu, Text } from '../../common';
+import { TimerItemTask } from '../../../types/types';
 
 export interface TimerItemProps {
-  timer: {
-    description: string;
-    project: string;
-    color: string;
-    active: boolean;
-    time: string;
-    planned: string;
-  };
+  timer: TimerItemTask;
 }
 
 const TimerItem = ({ timer }: TimerItemProps) => {
@@ -49,7 +44,7 @@ const TimerItem = ({ timer }: TimerItemProps) => {
         pr: 2,
         display: 'flex',
         alignItems: 'center',
-        backgroundColor: timer.active ? 'blue.50' : '',
+        backgroundColor: timer.running ? 'blue.50' : '',
         borderBottomWidth: 1,
         borderBottomStyle: 'solid',
         borderBottomColor: 'grey.300',
@@ -93,10 +88,14 @@ const TimerItem = ({ timer }: TimerItemProps) => {
         </MenuItem>
       </Menu>
       <div>
-        <Text>{timer.description}</Text>
-        {timer.project !== '' ? (
-          <Text component="strong" fontWeight="bold" color={timer.color}>
-            {timer.project}
+        <Text>{timer.title}</Text>
+        {!isNil(timer.project) ? (
+          <Text
+            component="strong"
+            fontWeight="bold"
+            color={timer.project.colorCode}
+          >
+            {timer.project.id}
           </Text>
         ) : (
           <ProjectMenu color="action" />
@@ -109,9 +108,14 @@ const TimerItem = ({ timer }: TimerItemProps) => {
           marginLeft: 'auto',
         }}
       >
-        <Text color="grey.700">{`${timer.time}/${timer.planned}`}</Text>
+        <Text color="grey.700">
+          <>
+            <span>[DURATION]</span>
+            {!isNil(timer.plannedTime) ? <span>/{timer.plannedTime}</span> : ''}
+          </>
+        </Text>
         <IconButton color="primary" size="small" sx={{ ml: 1 }}>
-          {timer.active ? <Pause /> : <PlayArrow />}
+          {timer.running ? <Pause /> : <PlayArrow />}
         </IconButton>
       </Box>
     </Box>

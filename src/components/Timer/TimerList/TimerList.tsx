@@ -8,53 +8,21 @@ import {
 } from '@mui/material';
 import { ExpandMore } from '@mui/icons-material';
 
-import { ProjectMenu, Text } from '../../common';
+import { Text } from '../../common';
 import { TimerItem } from '../index';
+import { TimerItemTask } from '../../../types/types';
 
 export interface TimerListProps {
   date: string;
+  timers: TimerItemTask[];
 }
 
-const TimerList = ({ date }: TimerListProps) => {
+const TimerList = ({ date, timers }: TimerListProps) => {
   const [expanded, setExpanded] = useState<boolean>(true);
+
   const handleChange = () => {
     setExpanded(!expanded);
   };
-
-  const timers = [
-    {
-      description: 'This is a timer',
-      project: 'PG-1567',
-      color: 'purple',
-      active: false,
-      time: '01:37:32',
-      planned: '2h',
-    },
-    {
-      description: 'This is another timer',
-      project: 'PG-1568',
-      color: 'blue',
-      active: true,
-      time: '00:28:15',
-      planned: '3h',
-    },
-    {
-      description: '[int] Marketing Standup',
-      project: 'WM-2',
-      color: 'green',
-      active: false,
-      time: '03:46:54',
-      planned: '',
-    },
-    {
-      description: '[ext] Design Discovery',
-      project: '',
-      color: 'deepOrange',
-      active: false,
-      time: '00:00:00',
-      planned: '1h 30',
-    },
-  ];
 
   return (
     <Accordion
@@ -90,7 +58,7 @@ const TimerList = ({ date }: TimerListProps) => {
       </AccordionSummary>
       <AccordionDetails sx={{ padding: 0 }}>
         {timers.map((timer) => (
-          <TimerItem timer={timer} key={timer.time} />
+          <TimerItem timer={timer} key={timer.id} />
         ))}
       </AccordionDetails>
     </Accordion>

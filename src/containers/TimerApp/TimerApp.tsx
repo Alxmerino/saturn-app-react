@@ -7,10 +7,12 @@ import { logout, selectLoggedIn } from '../../store/User/UserSlice';
 import { Routes } from '../../config/constants';
 import { Text } from '../../components/common';
 import { TimerHeader, TimerList } from '../../components/Timer';
+import { selectTimersByDate } from '../../store/Timer/TimerSlice';
 
 const TimerApp = () => {
-  const loggedIn = useAppSelector(selectLoggedIn);
+  const loggedIn: boolean = useAppSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
+  const timersByDate = useAppSelector(selectTimersByDate);
 
   const handleLogOut = () => {
     dispatch(logout());
@@ -54,9 +56,11 @@ const TimerApp = () => {
       {/* @todo: Add active timer */}
       {/* @todo: Add timer list */}
       <Box pt={2}>
-        {dates.map((date, i) => (
-          <TimerList date={date} key={i} />
-        ))}
+        {Object.keys(timersByDate).map((date: string) => {
+          return (
+            <TimerList date={date} timers={timersByDate[date]} key={date} />
+          );
+        })}
       </Box>
 
       <Link variant="body2" onClick={handleLogOut}>
