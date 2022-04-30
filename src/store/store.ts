@@ -18,7 +18,11 @@ export const store = configureStore({
     // more reducers
   }),
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(routerMiddleware).concat(logger),
+    getDefaultMiddleware({
+      serializableCheck: false,
+    })
+      .concat(routerMiddleware)
+      .concat(logger),
 });
 
 export const history = createReduxHistory(store);
