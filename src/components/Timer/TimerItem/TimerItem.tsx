@@ -21,6 +21,7 @@ import {
 
 import { ProjectMenu, Text } from '../../common';
 import { TimerItemTask } from '../../../types/types';
+import { formatDurationFromObject } from '../../../services/utils';
 
 export interface TimerItemProps {
   timer: TimerItemTask;
@@ -111,7 +112,11 @@ const TimerItem = ({ timer }: TimerItemProps) => {
         <Text color="grey.700">
           <>
             <span>[DURATION]</span>
-            {!isNil(timer.plannedTime) ? <span>/{timer.plannedTime}</span> : ''}
+            {!isNil(timer.plannedTime) ? (
+              <span>/{formatDurationFromObject(timer.plannedTime)}</span>
+            ) : (
+              ''
+            )}
           </>
         </Text>
         <IconButton color="primary" size="small" sx={{ ml: 1 }}>

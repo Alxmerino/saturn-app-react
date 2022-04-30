@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Link } from '@mui/material';
+import { Box, Link, Paper } from '@mui/material';
 import { push } from 'redux-first-history';
 
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
@@ -13,6 +13,7 @@ const TimerApp = () => {
   const loggedIn: boolean = useAppSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
   const timersByDate = useAppSelector(selectTimersByDate);
+  const timersByDateArray = Object.keys(timersByDate);
 
   const handleLogOut = () => {
     dispatch(logout());
@@ -27,15 +28,6 @@ const TimerApp = () => {
       dispatch(push(Routes.HOME));
     }
   });
-
-  // @todo: remove Sample data
-  function addDays(date: Date, days: number) {
-    const copy = new Date(Number(date.getDate()));
-    copy.setDate(date.getDate() + days);
-    return copy;
-  }
-  const now: Date = new Date();
-  const dates = ['Today', 'Yesterday', 'Mon, 25 Mar'];
 
   return (
     <>
@@ -53,14 +45,18 @@ const TimerApp = () => {
         <TimerHeader />
       </Box>
 
-      {/* @todo: Add active timer */}
-      {/* @todo: Add timer list */}
       <Box pt={2}>
-        {Object.keys(timersByDate).map((date: string) => {
-          return (
+        {timersByDateArray.length > 0 ? (
+          timersByDateArray.map((date: string) => (
             <TimerList date={date} timers={timersByDate[date]} key={date} />
-          );
-        })}
+          ))
+        ) : (
+          <Paper elevation={3}>
+            <Box px={2} py={3} textAlign="center">
+              Work on something exciting!
+            </Box>
+          </Paper>
+        )}
       </Box>
 
       <Link variant="body2" onClick={handleLogOut}>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Stack, TextField } from '@mui/material';
 import { Add } from '@mui/icons-material';
 
+import { getDurationFromString } from '../../../services/utils';
 import { useAppDispatch } from '../../../app/hooks';
 import { addTimer } from '../../../store/Timer/TimerSlice';
 import { Button, ProjectMenu } from '../../common';
@@ -27,7 +28,8 @@ const TimerHeader = () => {
     dispatch(
       addTimer({
         title,
-        plannedTime,
+        // @todo: Throw error if plannedTime is not a valid duration
+        plannedTime: getDurationFromString(plannedTime),
       })
     );
     setTitle('');
