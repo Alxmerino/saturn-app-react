@@ -54,6 +54,10 @@ export const parseDurationFromString = (timeString: string): Duration => {
  * @param timeStr
  */
 export const getDurationFromString = (timeStr = ''): Duration => {
+  if (timeStr === '') {
+    return {};
+  }
+
   const returnStr = timeStr.toUpperCase();
   const cleanedTimeStrArr = returnStr.match(/[a-zA-Z]+|[0-9]+/g) ?? [];
 
@@ -80,4 +84,8 @@ export const formatDurationFromObject = (duration: Duration): string => {
   }
 
   return durationStr;
+};
+
+export const hasDuration = (duration: Duration): boolean => {
+  return Object.keys(duration).length > 0;
 };
