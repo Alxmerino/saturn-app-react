@@ -19,15 +19,15 @@ export const durationMapShort: { [x: string]: string } = {
 
 export const colorMap: { [x: string]: string } = {
   blue: '#2196f3',
-  black: '#000000',
-  grey: '#9e9e9e',
-  pink: '#e91e63',
+  turquoise: '#009688',
   green: '#4caf50',
-  red: '#b71c1c',
+  lime: '#cddc39',
   yellow: '#ffeb3b',
   orange: '#ff9800',
-  turquoise: '#009688',
+  red: '#b71c1c',
+  pink: '#e91e63',
   purple: '#9c27b0',
   violet: '#673ab7',
-  lime: '#cddc39',
+  grey: '#9e9e9e',
+  black: '#000000',
 };
