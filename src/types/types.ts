@@ -3,13 +3,19 @@ interface Timestamps {
   updatedAt?: Date;
 }
 
-export type ProjectCode =
+export type ColorCode =
   | 'blue'
+  | 'black'
+  | 'grey'
+  | 'pink'
   | 'green'
   | 'red'
   | 'yellow'
   | 'orange'
-  | 'purple';
+  | 'turquoise'
+  | 'purple'
+  | 'violet'
+  | 'lime';
 
 export interface User {
   id: string;
@@ -21,7 +27,7 @@ export interface Project extends Timestamps {
   id: string;
   title: string;
   userId: string;
-  colorCode: ProjectCode;
+  colorCode: ColorCode;
 }
 
 interface Task extends Timestamps {
