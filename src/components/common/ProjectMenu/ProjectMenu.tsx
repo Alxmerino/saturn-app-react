@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 
 import { IconButton, Input, Menu, MenuItem } from '@mui/material';
-import { DeveloperBoard } from '@mui/icons-material';
+import { DeveloperBoard, FormatColorFill } from '@mui/icons-material';
 
 import { Button } from '../../common';
 
 export interface ProjectMenuProps {
   color?: Partial<'action' | 'primary' | 'secondary'>;
+  inputValue?: string;
+  setInputValue?: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const ProjectMenu = ({ color }: ProjectMenuProps) => {
+const ProjectMenu = ({
+  color,
+  inputValue,
+  setInputValue,
+}: ProjectMenuProps) => {
   const [projectMenuEl, setProjectMenuEl] = useState<null | HTMLElement>(null);
   const projectOpen = Boolean(projectMenuEl);
 
@@ -18,8 +24,21 @@ const ProjectMenu = ({ color }: ProjectMenuProps) => {
   ) => {
     setProjectMenuEl(event.currentTarget);
   };
+
   const handleProjectMenuClose = () => {
     setProjectMenuEl(null);
+  };
+
+  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (setInputValue) {
+      setInputValue(event.target.value);
+    }
+  };
+
+  const handleOnKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleProjectMenuClose();
+    }
   };
 
   let buttonEl;
@@ -58,16 +77,19 @@ const ProjectMenu = ({ color }: ProjectMenuProps) => {
       >
         <MenuItem>
           <Input
+            autoFocus={true}
+            disableUnderline={true}
+            margin="dense"
             placeholder="Project Name"
             inputProps={{ 'aria-label': 'description' }}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter') {
-                handleProjectMenuClose();
-              }
-            }}
+            onChange={handleOnChange}
+            onKeyPress={handleOnKeyPress}
+            value={inputValue}
           />
+          <IconButton>
+            <FormatColorFill />
+          </IconButton>
         </MenuItem>
-        <MenuItem onClick={handleProjectMenuClose}>TEST-123</MenuItem>
       </Menu>
     </>
   );

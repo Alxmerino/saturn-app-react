@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Stack, TextField } from '@mui/material';
 import { Add } from '@mui/icons-material';
 
-import { getDurationFromString } from '../../../services/utils';
+import { getDurationFromString, hasDuration } from '../../../services/utils';
 import { useAppDispatch } from '../../../app/hooks';
 import { addTimer } from '../../../store/Timer/TimerSlice';
 import { Button, ProjectMenu } from '../../common';
@@ -11,6 +11,7 @@ const TimerHeader = () => {
   const dispatch = useAppDispatch();
   const [title, setTitle] = useState<string>('');
   const [plannedTime, setPlannedTime] = useState<string>('');
+  const [projectTitle, setProjectTitle] = useState<string>('');
   const [canAdd, setCanAdd] = useState<boolean>(false);
 
   const handleOnTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,19 +26,23 @@ const TimerHeader = () => {
   };
 
   const handleTimerAdd = () => {
+    const plannedTimeDuration = getDurationFromString(plannedTime);
     dispatch(
       addTimer({
         title,
         // @todo: Throw error if plannedTime is not a valid duration
-        plannedTime: getDurationFromString(plannedTime),
+        plannedTime: hasDuration(plannedTimeDuration)
+          ? plannedTimeDuration
+          : null,
       })
     );
     setTitle('');
     setPlannedTime('');
+    setProjectTitle('');
     setCanAdd(false);
   };
 
-  const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleOnKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       handleTimerAdd();
     }
@@ -52,7 +57,7 @@ const TimerHeader = () => {
         label="What are you working on?"
         value={title}
         onChange={handleOnTitleChange}
-        onKeyPress={onKeyPress}
+        onKeyPress={handleOnKeyPress}
       />
       <TextField
         id="timer-limit"
@@ -60,12 +65,16 @@ const TimerHeader = () => {
         label="For how long?"
         value={plannedTime}
         onChange={handlePlannedTimeChange}
-        onKeyPress={onKeyPress}
+        onKeyPress={handleOnKeyPress}
         sx={{
           width: 300,
         }}
       />
-      <ProjectMenu color="primary" />
+      <ProjectMenu
+        color="primary"
+        inputValue={projectTitle}
+        setInputValue={setProjectTitle}
+      />
       <Button kind="primary" onClick={handleTimerAdd} disabled={!canAdd}>
         <Add />
       </Button>
