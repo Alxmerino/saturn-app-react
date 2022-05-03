@@ -6,12 +6,13 @@ import { getDurationFromString, hasDuration } from '../../../services/utils';
 import { useAppDispatch } from '../../../app/hooks';
 import { addTimer } from '../../../store/Timer/TimerSlice';
 import { Button, ProjectMenu } from '../../common';
+import { ColorCode, Project } from '../../../types/types';
 
 const TimerHeader = () => {
   const dispatch = useAppDispatch();
   const [title, setTitle] = useState<string>('');
   const [plannedTime, setPlannedTime] = useState<string>('');
-  const [projectTitle, setProjectTitle] = useState<string>('');
+  const [project, setProject] = useState<Partial<Project> | null>(null);
   const [canAdd, setCanAdd] = useState<boolean>(false);
 
   const handleOnTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,6 +28,13 @@ const TimerHeader = () => {
 
   const handleTimerAdd = () => {
     const plannedTimeDuration = getDurationFromString(plannedTime);
+    const timerProject = {
+      id: new Date().valueOf().toString(),
+      userId: 'test-user-id',
+      title: project?.title ?? '',
+      colorCode: project?.colorCode as ColorCode,
+    };
+
     dispatch(
       addTimer({
         title,
@@ -34,11 +42,12 @@ const TimerHeader = () => {
         plannedTime: hasDuration(plannedTimeDuration)
           ? plannedTimeDuration
           : null,
+        project: timerProject,
       })
     );
     setTitle('');
     setPlannedTime('');
-    setProjectTitle('');
+    setProject(null);
     setCanAdd(false);
   };
 
@@ -70,11 +79,7 @@ const TimerHeader = () => {
           width: 300,
         }}
       />
-      <ProjectMenu
-        color="primary"
-        inputValue={projectTitle}
-        setInputValue={setProjectTitle}
-      />
+      <ProjectMenu color="primary" project={project} setProject={setProject} />
       <Button kind="primary" onClick={handleTimerAdd} disabled={!canAdd}>
         <Add />
       </Button>

@@ -27,7 +27,7 @@ export interface Project extends Timestamps {
   id: string;
   title: string;
   userId: string;
-  colorCode: ColorCode;
+  colorCode: ColorCode | null;
 }
 
 interface Task extends Timestamps {

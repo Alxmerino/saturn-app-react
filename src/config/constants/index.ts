@@ -18,7 +18,7 @@ export const durationMapShort: { [x: string]: string } = {
 };
 
 export const colorMap: { [x: string]: string } = {
-  blue: '#2196f3',
+  blue: '#1565c0',
   turquoise: '#009688',
   green: '#4caf50',
   lime: '#cddc39',
