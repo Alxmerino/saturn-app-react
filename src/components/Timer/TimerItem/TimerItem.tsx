@@ -22,6 +22,7 @@ import {
 import { ProjectMenu, Text } from '../../common';
 import { TimerItemTask } from '../../../types/types';
 import { formatDurationFromObject } from '../../../services/utils';
+import { colorMap } from '../../../config/constants';
 
 export interface TimerItemProps {
   timer: TimerItemTask;
@@ -94,9 +95,9 @@ const TimerItem = ({ timer }: TimerItemProps) => {
           <Text
             component="strong"
             fontWeight="bold"
-            color={timer.project.colorCode}
+            color={colorMap[timer.project.colorCode ?? 'black']}
           >
-            {timer.project.id}
+            {timer.project.title}
           </Text>
         ) : (
           <ProjectMenu color="action" />
