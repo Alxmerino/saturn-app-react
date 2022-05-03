@@ -42,11 +42,19 @@ export const TimerSlice = createSlice({
 
       state.push(newTimer);
     },
+    removeTimer(state: TimerItemTask[], action: PayloadAction<string>) {
+      const id = action.payload;
+      // state.filter((timer: TimerItemTask) => timer.id !== id);
+      const index = state.findIndex((item) => item.id === id);
+      if (index !== -1) {
+        state.splice(index, 1);
+      }
+    },
   },
   extraReducers: {},
 });
 
-export const { addTimer } = TimerSlice.actions;
+export const { addTimer, removeTimer } = TimerSlice.actions;
 export const selectTimers = (state: RootState) => state.timer;
 export const selectTimersByDate = (state: RootState) => {
   return groupBy(state.timer, (timer) => {

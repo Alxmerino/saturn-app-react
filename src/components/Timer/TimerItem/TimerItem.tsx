@@ -22,12 +22,15 @@ import {
 import { ProjectMenu, Text } from '../../common';
 import { TimerItemTask } from '../../../types/types';
 import { formatDurationFromObject } from '../../../services/utils';
+import { removeTimer } from '../../../store/Timer/TimerSlice';
+import { useAppDispatch } from '../../../app/hooks';
 
 export interface TimerItemProps {
   timer: TimerItemTask;
 }
 
 const TimerItem = ({ timer }: TimerItemProps) => {
+  const dispatch = useAppDispatch();
   const [timerAnchorEl, setTimerAnchorEl] = useState<null | HTMLElement>(null);
   // @todo: Add action on slice to update project
   const timerOpen = Boolean(timerAnchorEl);
@@ -37,6 +40,11 @@ const TimerItem = ({ timer }: TimerItemProps) => {
   };
   const handleTimerClose = () => {
     setTimerAnchorEl(null);
+  };
+
+  const handleTimerDelete = () => {
+    dispatch(removeTimer(timer.id));
+    handleTimerClose();
   };
 
   return (
@@ -82,7 +90,12 @@ const TimerItem = ({ timer }: TimerItemProps) => {
           </ListItemIcon>
           <ListItemText>Reset</ListItemText>
         </MenuItem>
-        <MenuItem onClick={handleTimerClose}>
+        <MenuItem
+          onClick={() => {
+            handleTimerDelete();
+            handleTimerClose();
+          }}
+        >
           <ListItemIcon>
             <Delete fontSize="small" />
           </ListItemIcon>
