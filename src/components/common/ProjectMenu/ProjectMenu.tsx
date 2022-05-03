@@ -6,7 +6,7 @@ import { Circle, DeveloperBoard, FormatColorFill } from '@mui/icons-material';
 import './ProjectMenu.scss';
 import { Button } from '../../common';
 import { colorMap } from '../../../config/constants';
-import { Project } from '../../../types/types';
+import { ColorCode, Project } from '../../../types/types';
 import { isNil } from 'lodash';
 
 export interface ProjectMenuProps {
@@ -83,7 +83,7 @@ const ProjectMenu = ({ color, project, setProject }: ProjectMenuProps) => {
       setProject((state) => ({
         ...state,
         title: projectTitle,
-        color: colorCode,
+        colorCode: colorCode as ColorCode,
       }));
     }
   }, [projectTitle, colorCode]);
