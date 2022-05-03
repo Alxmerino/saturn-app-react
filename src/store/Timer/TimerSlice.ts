@@ -29,7 +29,7 @@ export const TimerSlice = createSlice({
         // @todo: Add unique id
         id: nowTS.toString(),
         title: title,
-        running: false,
+        running: true,
         project: project ?? null,
         // @todo: Get proper user id
         userId: nowTS.toString(),
@@ -50,11 +50,30 @@ export const TimerSlice = createSlice({
         state.splice(index, 1);
       }
     },
+    startTimer(state: TimerItemTask[], action: PayloadAction<string>) {
+      const id = action.payload;
+      const timer = state.find((item) => item.id === id);
+      if (timer) {
+        timer.running = true;
+        timer.startTime = new Date();
+        // @TODO: Calculate duration
+      }
+    },
+    stopTimer(state: TimerItemTask[], action: PayloadAction<string>) {
+      const id = action.payload;
+      const timer = state.find((item) => item.id === id);
+      if (timer) {
+        timer.running = false;
+        timer.endTime = new Date();
+        // @TODO: Calculate duration
+      }
+    },
   },
   extraReducers: {},
 });
 
-export const { addTimer, removeTimer } = TimerSlice.actions;
+export const { addTimer, removeTimer, startTimer, stopTimer } =
+  TimerSlice.actions;
 export const selectTimers = (state: RootState) => state.timer;
 export const selectTimersByDate = (state: RootState) => {
   return groupBy(state.timer, (timer) => {

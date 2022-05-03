@@ -22,7 +22,11 @@ import {
 import { ProjectMenu, Text } from '../../common';
 import { TimerItemTask } from '../../../types/types';
 import { formatDurationFromObject } from '../../../services/utils';
-import { removeTimer } from '../../../store/Timer/TimerSlice';
+import {
+  removeTimer,
+  startTimer,
+  stopTimer,
+} from '../../../store/Timer/TimerSlice';
 import { useAppDispatch } from '../../../app/hooks';
 
 export interface TimerItemProps {
@@ -43,8 +47,19 @@ const TimerItem = ({ timer }: TimerItemProps) => {
   };
 
   const handleTimerDelete = () => {
-    dispatch(removeTimer(timer.id));
-    handleTimerClose();
+    // @todo: Better way to confirm delete?
+    if (confirm('Are you sure you want to delete this timer?')) {
+      dispatch(removeTimer(timer.id));
+      handleTimerClose();
+    }
+  };
+
+  const handleTimerStart = () => {
+    dispatch(startTimer(timer.id));
+  };
+
+  const handleTimerStop = () => {
+    dispatch(stopTimer(timer.id));
   };
 
   return (
@@ -115,7 +130,7 @@ const TimerItem = ({ timer }: TimerItemProps) => {
       >
         <Text color="grey.700">
           <>
-            <span>[DURATION]</span>
+            <span>@{timer.duration ?? '00:00'}</span>
             {!isNil(timer.plannedTime) ? (
               <span>/{formatDurationFromObject(timer.plannedTime)}</span>
             ) : (
@@ -123,7 +138,12 @@ const TimerItem = ({ timer }: TimerItemProps) => {
             )}
           </>
         </Text>
-        <IconButton color="primary" size="small" sx={{ ml: 1 }}>
+        <IconButton
+          color="primary"
+          size="small"
+          sx={{ ml: 1 }}
+          onClick={timer.running ? handleTimerStop : handleTimerStart}
+        >
           {timer.running ? <Pause /> : <PlayArrow />}
         </IconButton>
       </Box>
