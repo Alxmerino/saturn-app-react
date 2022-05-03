@@ -55,6 +55,11 @@ const ProjectMenu = ({ color, project, setProject }: ProjectMenuProps) => {
   };
 
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.value.toLowerCase() === 'vmg-1') {
+      setProjectTitle('');
+      alert('STOP! This project name will make the sky fall over your head!');
+      return;
+    }
     setProjectTitle(event.target.value);
   };
 
