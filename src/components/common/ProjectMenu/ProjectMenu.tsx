@@ -1,10 +1,10 @@
 import React, { SetStateAction, useEffect, useState } from 'react';
 
-import { IconButton, Input, Menu, MenuItem } from '@mui/material';
+import { IconButton, Input, Link, Menu, MenuItem } from '@mui/material';
 import { Circle, DeveloperBoard, FormatColorFill } from '@mui/icons-material';
 
 import './ProjectMenu.scss';
-import { Button } from '../../common';
+import { Button, Text } from '../../common';
 import { colorMap } from '../../../config/constants';
 import { ColorCode, Project } from '../../../types/types';
 import { isNil } from 'lodash';
@@ -27,7 +27,7 @@ const ProjectMenu = ({ color, project, setProject }: ProjectMenuProps) => {
   const projectColorOpen = Boolean(projectMenuColorEl);
 
   const handleProjectMenuClick = (
-    event: React.MouseEvent<HTMLButtonElement>
+    event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>
   ) => {
     setProjectMenuEl(event.currentTarget);
   };
@@ -118,6 +118,18 @@ const ProjectMenu = ({ color, project, setProject }: ProjectMenuProps) => {
           }}
         />
       </Button>
+    );
+  } else if (projectTitle !== '') {
+    buttonEl = (
+      <Link href="#" underline="none" onClick={handleProjectMenuClick}>
+        <Text
+          component="strong"
+          fontWeight="bold"
+          color={colorMap[colorCode ?? 'black']}
+        >
+          {projectTitle}
+        </Text>
+      </Link>
     );
   } else {
     buttonEl = (

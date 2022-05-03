@@ -22,7 +22,6 @@ import {
 import { ProjectMenu, Text } from '../../common';
 import { TimerItemTask } from '../../../types/types';
 import { formatDurationFromObject } from '../../../services/utils';
-import { colorMap } from '../../../config/constants';
 
 export interface TimerItemProps {
   timer: TimerItemTask;
@@ -30,6 +29,7 @@ export interface TimerItemProps {
 
 const TimerItem = ({ timer }: TimerItemProps) => {
   const [timerAnchorEl, setTimerAnchorEl] = useState<null | HTMLElement>(null);
+  // @todo: Add action on slice to update project
   const timerOpen = Boolean(timerAnchorEl);
 
   const handleTimerClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -91,17 +91,7 @@ const TimerItem = ({ timer }: TimerItemProps) => {
       </Menu>
       <div>
         <Text>{timer.title}</Text>
-        {!isNil(timer.project) ? (
-          <Text
-            component="strong"
-            fontWeight="bold"
-            color={colorMap[timer.project.colorCode ?? 'black']}
-          >
-            {timer.project.title}
-          </Text>
-        ) : (
-          <ProjectMenu color="action" />
-        )}
+        <ProjectMenu color="action" project={timer.project} />
       </div>
       <Box
         sx={{
