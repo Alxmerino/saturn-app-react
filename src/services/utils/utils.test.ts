@@ -1,5 +1,5 @@
 import React from 'react';
-import { getDurationFromString } from './parse-time';
+import { getDurationFromString, getTotalDuration } from './parse-time';
 
 test('It parses ISO 8601 date strings', () => {
   const timeStr1 = '3h';
@@ -36,4 +36,16 @@ test('It parses ISO 8601 date strings', () => {
     minutes: 45,
     seconds: 57,
   });
+});
+
+test('It gets the sum of a durations array', () => {
+  const durations = [
+    { hours: 1 },
+    { minutes: 15 },
+    { hours: 3, minutes: 45 },
+    { hours: 1, minutes: 20 },
+    { hours: 0, minutes: 10, seconds: 0 },
+  ];
+
+  expect(getTotalDuration(durations)).toBe('6h 30m');
 });

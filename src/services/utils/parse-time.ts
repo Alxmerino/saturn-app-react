@@ -89,3 +89,20 @@ export const formatDurationFromObject = (duration: Duration): string => {
 export const hasDuration = (duration: Duration): boolean => {
   return Object.keys(duration).length > 0;
 };
+
+export const getTotalDuration = (durations: Duration[]): string => {
+  let totalHours = 0;
+  let totalMinutes = 0;
+  durations.forEach((duration) => {
+    totalHours += duration.hours ?? 0;
+    totalMinutes += duration.minutes ?? 0;
+  });
+
+  // Convert minutes to hours
+  if (totalMinutes > 60) {
+    totalHours += Math.floor(totalMinutes / 60);
+    totalMinutes = totalMinutes % 60;
+  }
+
+  return `${totalHours}${durationMapShort.hours} ${totalMinutes}${durationMapShort.minutes}`;
+};

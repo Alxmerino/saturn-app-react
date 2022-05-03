@@ -11,6 +11,8 @@ import { ExpandMore } from '@mui/icons-material';
 import { Text } from '../../common';
 import { TimerItem } from '../index';
 import { TimerItemTask } from '../../../types/types';
+import { isToday, parse } from 'date-fns';
+import { getTotalDuration } from '../../../services/utils';
 
 export interface TimerListProps {
   date: string;
@@ -18,7 +20,12 @@ export interface TimerListProps {
 }
 
 const TimerList = ({ date, timers }: TimerListProps) => {
+  const now: Date = new Date();
+  const headerDate: Date = parse(date, 'yyyy-MM-dd', now);
   const [expanded, setExpanded] = useState<boolean>(true);
+  const totalPlannedTime = getTotalDuration(
+    timers.map((timer) => timer.plannedTime ?? {})
+  );
 
   const handleChange = () => {
     setExpanded(!expanded);
@@ -49,10 +56,10 @@ const TimerList = ({ date, timers }: TimerListProps) => {
           }}
         >
           <Text component="strong" fontWeight="bold">
-            {date}
+            {isToday(headerDate) ? 'Today' : headerDate.toDateString()}
           </Text>
           <Text component="strong" fontWeight="bold">
-            6h 20m/7h
+            {`@6h 20m${totalPlannedTime ? `/${totalPlannedTime}` : ''}`}
           </Text>
         </Box>
       </AccordionSummary>

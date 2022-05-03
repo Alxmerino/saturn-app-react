@@ -3,6 +3,7 @@ import { groupBy } from 'lodash';
 
 import { RootState } from '../store';
 import { TimerItemTask } from '../../types/types';
+import { format } from 'date-fns';
 
 // @todo: Add initial State from server?
 interface TimerState {
@@ -49,8 +50,7 @@ export const { addTimer } = TimerSlice.actions;
 export const selectTimers = (state: RootState) => state.timer;
 export const selectTimersByDate = (state: RootState) => {
   return groupBy(state.timer, (timer) => {
-    // @todo: Better way to get date?
-    return timer.createdAt.getDay();
+    return format(timer.createdAt, 'yyyy-MM-dd');
   });
 };
 export default TimerSlice.reducer;
