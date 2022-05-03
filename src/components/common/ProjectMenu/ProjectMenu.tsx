@@ -26,8 +26,6 @@ const ProjectMenu = ({ color, project, setProject }: ProjectMenuProps) => {
   const projectOpen = Boolean(projectMenuEl);
   const projectColorOpen = Boolean(projectMenuColorEl);
 
-  console.log('PROJECT OBJECT', project);
-
   const handleProjectMenuClick = (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
