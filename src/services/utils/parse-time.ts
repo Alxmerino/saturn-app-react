@@ -1,6 +1,7 @@
-import { Duration } from 'date-fns';
+import { differenceInSeconds, Duration } from 'date-fns';
 import { each, isNaN, isNil } from 'lodash';
 import { durationMap, durationMapShort } from '../../config/constants';
+import { TimerItemTask } from '../../types/types';
 
 /**
  * Parse the time string and convert it into an ISO 8601 string.
@@ -86,6 +87,21 @@ export const formatDurationFromObject = (duration: Duration): string => {
   return durationStr;
 };
 
+export const formatDuration = (
+  duration: number,
+  durationType = 'seconds'
+): string => {
+  const formatTypes: { [x: string]: number } = {
+    seconds: 1000,
+    minutes: 1000 * 60,
+    hours: 1000 * 60 * 60,
+  };
+
+  return new Date(duration * formatTypes[durationType])
+    .toISOString()
+    .substr(11, 8);
+};
+
 export const hasDuration = (duration: Duration): boolean => {
   return Object.keys(duration).length > 0;
 };
@@ -105,4 +121,18 @@ export const getTotalDuration = (durations: Duration[]): string => {
   }
 
   return `${totalHours}${durationMapShort.hours} ${totalMinutes}${durationMapShort.minutes}`;
+};
+
+export const getTimerDuration = (timer: TimerItemTask): number => {
+  return (
+    timer.duration.length &&
+    timer.duration
+      .map(({ startTime, endTime }) => {
+        return differenceInSeconds(
+          new Date(endTime ?? 0),
+          new Date(startTime ?? 0)
+        );
+      })
+      .reduce((a: number, b: number) => a + b, 0)
+  );
 };

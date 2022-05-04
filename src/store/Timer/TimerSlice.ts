@@ -43,15 +43,14 @@ export const TimerSlice = createSlice({
       const nowTS: number = now.getTime();
 
       const newTimer: TimerItemTask = {
-        // @todo: Add unique id
         id: nanoid(),
         title: title,
         running: true,
         project: project ?? null,
         // @todo: Get proper user id
         userId: nowTS.toString(),
-        duration: null,
-        startTime: null,
+        duration: [],
+        startTime: now,
         endTime: null,
         createdAt: now,
         plannedTime: plannedTime,
@@ -79,7 +78,6 @@ export const TimerSlice = createSlice({
       if (timer) {
         timer.running = true;
         timer.startTime = new Date();
-        // @TODO: Calculate duration
       }
 
       // Save to local storage
@@ -91,7 +89,12 @@ export const TimerSlice = createSlice({
       if (timer) {
         timer.running = false;
         timer.endTime = new Date();
-        // @TODO: Calculate duration
+
+        // Add a duration entry
+        timer.duration.push({
+          startTime: timer.startTime,
+          endTime: timer.endTime,
+        });
       }
 
       // Save to local storage

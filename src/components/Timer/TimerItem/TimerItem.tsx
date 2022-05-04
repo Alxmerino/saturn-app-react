@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { differenceInSeconds } from 'date-fns';
 import { isNil } from 'lodash';
 
 import {
@@ -21,7 +22,11 @@ import {
 
 import { ProjectMenu, Text } from '../../common';
 import { TimerItemTask } from '../../../types/types';
-import { formatDurationFromObject } from '../../../services/utils';
+import {
+  formatDurationFromObject,
+  formatDuration,
+  getTimerDuration,
+} from '../../../services/utils';
 import {
   removeTimer,
   startTimer,
@@ -35,6 +40,9 @@ export interface TimerItemProps {
 
 const TimerItem = ({ timer }: TimerItemProps) => {
   const dispatch = useAppDispatch();
+  const [durationInSeconds, setDurationInSeconds] = useState<number>(
+    getTimerDuration(timer)
+  );
   const [timerAnchorEl, setTimerAnchorEl] = useState<null | HTMLElement>(null);
   // @todo: Add action on slice to update project
   const timerOpen = Boolean(timerAnchorEl);
@@ -42,6 +50,7 @@ const TimerItem = ({ timer }: TimerItemProps) => {
   const handleTimerClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setTimerAnchorEl(event.currentTarget);
   };
+
   const handleTimerClose = () => {
     setTimerAnchorEl(null);
   };
@@ -61,6 +70,30 @@ const TimerItem = ({ timer }: TimerItemProps) => {
   const handleTimerStop = () => {
     dispatch(stopTimer(timer.id));
   };
+
+  /**
+   * Calculate the duration of the timer
+   */
+  useEffect(() => {
+    let timerInterval: any;
+    if (timer.running) {
+      timerInterval = setInterval(() => {
+        const now = Date.now();
+        const existingDuration = getTimerDuration(timer);
+
+        const timeDiffInSeconds = differenceInSeconds(
+          now,
+          new Date(timer.startTime ?? 0)
+        );
+
+        setDurationInSeconds(existingDuration + timeDiffInSeconds);
+      }, 1000);
+    }
+
+    return () => {
+      clearInterval(timerInterval);
+    };
+  }, [timer.running]);
 
   return (
     <Box
@@ -130,7 +163,7 @@ const TimerItem = ({ timer }: TimerItemProps) => {
       >
         <Text color="grey.700">
           <>
-            <span>@{timer.duration ?? '00:00'}</span>
+            <span>{formatDuration(durationInSeconds)}</span>
             {!isNil(timer.plannedTime) ? (
               <span>/{formatDurationFromObject(timer.plannedTime)}</span>
             ) : (

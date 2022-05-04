@@ -30,15 +30,18 @@ export interface Project extends Timestamps {
   colorCode: ColorCode | null;
 }
 
-interface Task extends Timestamps {
+interface StartEndTime {
+  startTime: Date | string | null;
+  endTime: Date | string | null;
+}
+
+interface Task extends StartEndTime, Timestamps {
   id: string;
   title: string;
   running: boolean;
   project: Project | null;
   userId: string;
-  duration: number | null;
-  startTime: Date | null;
-  endTime: Date | null;
+  duration: StartEndTime[];
   plannedTime: Duration | null;
 }
 
