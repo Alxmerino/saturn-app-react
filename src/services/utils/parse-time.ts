@@ -87,7 +87,7 @@ export const formatDurationFromObject = (duration: Duration): string => {
   return durationStr;
 };
 
-export const formatDuration = (
+export const formatDurationString = (
   duration: number,
   durationType = 'seconds'
 ): string => {

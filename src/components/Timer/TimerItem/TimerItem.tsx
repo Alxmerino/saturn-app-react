@@ -24,7 +24,7 @@ import { ProjectMenu, Text } from '../../common';
 import { TimerItemTask } from '../../../types/types';
 import {
   formatDurationFromObject,
-  formatDuration,
+  formatDurationString,
   getTimerDuration,
 } from '../../../services/utils';
 import {
