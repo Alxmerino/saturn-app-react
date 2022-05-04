@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Stack, TextField } from '@mui/material';
+import { nanoid } from '@reduxjs/toolkit';
 import { Add } from '@mui/icons-material';
 
 import { getDurationFromString, hasDuration } from '../../../services/utils';
@@ -29,7 +30,7 @@ const TimerHeader = () => {
   const handleTimerAdd = () => {
     const plannedTimeDuration = getDurationFromString(plannedTime);
     const timerProject = {
-      id: new Date().valueOf().toString(),
+      id: nanoid(),
       userId: 'test-user-id',
       title: project?.title ?? '',
       colorCode: project?.colorCode as ColorCode,

@@ -1,6 +1,6 @@
 interface Timestamps {
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
 }
 
 export type ColorCode =

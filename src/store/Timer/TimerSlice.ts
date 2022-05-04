@@ -1,9 +1,10 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit';
 import { groupBy } from 'lodash';
 
 import { RootState } from '../store';
 import { TimerItemTask } from '../../types/types';
 import { format } from 'date-fns';
+import LocalStore from '../../services/utils/local-store';
 
 // @todo: Add initial State from server?
 interface TimerState {
@@ -11,9 +12,25 @@ interface TimerState {
 }
 const initialState: TimerItemTask[] = [];
 
+const reducerName = 'timer';
+
 export const TimerSlice = createSlice({
-  name: 'timer',
-  initialState,
+  name: reducerName,
+  initialState() {
+    const localState: TimerItemTask[] = LocalStore.get(reducerName);
+
+    // Parse dates from string to Date
+    if (localState) {
+      localState.forEach((timer) => {
+        timer.createdAt = timer.createdAt ? new Date(timer.createdAt) : null;
+        timer.updatedAt = timer.updatedAt ? new Date(timer.updatedAt) : null;
+        timer.startTime = timer.startTime ? new Date(timer.startTime) : null;
+        timer.endTime = timer.endTime ? new Date(timer.endTime) : null;
+      });
+    }
+
+    return localState || initialState;
+  },
   reducers: {
     addTimer(
       state: TimerItemTask[],
@@ -27,7 +44,7 @@ export const TimerSlice = createSlice({
 
       const newTimer: TimerItemTask = {
         // @todo: Add unique id
-        id: nowTS.toString(),
+        id: nanoid(),
         title: title,
         running: true,
         project: project ?? null,
@@ -41,6 +58,9 @@ export const TimerSlice = createSlice({
       };
 
       state.push(newTimer);
+
+      // Save to local storage
+      LocalStore.set(reducerName, state);
     },
     removeTimer(state: TimerItemTask[], action: PayloadAction<string>) {
       const id = action.payload;
@@ -49,6 +69,9 @@ export const TimerSlice = createSlice({
       if (index !== -1) {
         state.splice(index, 1);
       }
+
+      // Save to local storage
+      LocalStore.set(reducerName, state);
     },
     startTimer(state: TimerItemTask[], action: PayloadAction<string>) {
       const id = action.payload;
@@ -58,6 +81,9 @@ export const TimerSlice = createSlice({
         timer.startTime = new Date();
         // @TODO: Calculate duration
       }
+
+      // Save to local storage
+      LocalStore.set(reducerName, state);
     },
     stopTimer(state: TimerItemTask[], action: PayloadAction<string>) {
       const id = action.payload;
@@ -67,6 +93,9 @@ export const TimerSlice = createSlice({
         timer.endTime = new Date();
         // @TODO: Calculate duration
       }
+
+      // Save to local storage
+      LocalStore.set(reducerName, state);
     },
   },
   extraReducers: {},
