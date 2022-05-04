@@ -1,5 +1,5 @@
 import { createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit';
-import { groupBy } from 'lodash';
+import { groupBy, orderBy } from 'lodash';
 
 import { RootState } from '../store';
 import { TimerItemTask } from '../../types/types';
@@ -108,7 +108,8 @@ export const { addTimer, removeTimer, startTimer, stopTimer } =
   TimerSlice.actions;
 export const selectTimers = (state: RootState) => state.timer;
 export const selectTimersByDate = (state: RootState) => {
-  return groupBy(state.timer, (timer) => {
+  const sortedTimers = orderBy(state.timer, 'createdAt', 'desc');
+  return groupBy(sortedTimers, (timer) => {
     return format(timer.createdAt, 'yyyy-MM-dd');
   });
 };
