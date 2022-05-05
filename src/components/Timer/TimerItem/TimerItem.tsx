@@ -36,9 +36,10 @@ import { useAppDispatch } from '../../../app/hooks';
 
 export interface TimerItemProps {
   timer: TimerItemTask;
+  onDurationUpdate?: (duration: number) => void;
 }
 
-const TimerItem = ({ timer }: TimerItemProps) => {
+const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
   const dispatch = useAppDispatch();
   const [durationInSeconds, setDurationInSeconds] = useState<number>(
     getTimerDuration(timer)
@@ -86,7 +87,11 @@ const TimerItem = ({ timer }: TimerItemProps) => {
           new Date(timer.startTime ?? 0)
         );
 
-        setDurationInSeconds(existingDuration + timeDiffInSeconds);
+        const totalDuration = existingDuration + timeDiffInSeconds;
+        setDurationInSeconds(totalDuration);
+        if (onDurationUpdate) {
+          onDurationUpdate(timeDiffInSeconds);
+        }
       }, 1000);
     }
 
@@ -163,7 +168,7 @@ const TimerItem = ({ timer }: TimerItemProps) => {
       >
         <Text color="grey.700">
           <>
-            <span>{formatDuration(durationInSeconds)}</span>
+            <span>{formatDurationString(durationInSeconds)}</span>
             {!isNil(timer.plannedTime) ? (
               <span>/{formatDurationFromObject(timer.plannedTime)}</span>
             ) : (

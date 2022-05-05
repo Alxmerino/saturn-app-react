@@ -11,8 +11,12 @@ import { ExpandMore } from '@mui/icons-material';
 import { Text } from '../../common';
 import { TimerItem } from '../index';
 import { TimerItemTask } from '../../../types/types';
-import { isToday, parse } from 'date-fns';
-import { getTotalDuration } from '../../../services/utils';
+import { isToday, isYesterday, parse } from 'date-fns';
+import {
+  getTotalDuration,
+  getTimerDuration,
+  formatDurationString,
+} from '../../../services/utils';
 
 export interface TimerListProps {
   date: string;
@@ -26,6 +30,18 @@ const TimerList = ({ date, timers }: TimerListProps) => {
   const totalPlannedTime = getTotalDuration(
     timers.map((timer) => timer.plannedTime ?? {})
   );
+  const totalDurationInSeconds = timers
+    .map((timer) => {
+      return getTimerDuration(timer);
+    })
+    .reduce((acc: number, curr: number) => acc + curr, 0);
+  const [totalDuration, setTotalDuration] = useState<number>(
+    totalDurationInSeconds
+  );
+
+  const handleTimerDurationUpdate = (duration: number) => {
+    setTotalDuration(totalDuration + duration);
+  };
 
   const handleChange = () => {
     setExpanded(!expanded);
@@ -56,16 +72,27 @@ const TimerList = ({ date, timers }: TimerListProps) => {
           }}
         >
           <Text component="strong" fontWeight="bold">
-            {isToday(headerDate) ? 'Today' : headerDate.toDateString()}
+            {isToday(headerDate)
+              ? 'Today'
+              : isYesterday(headerDate)
+              ? 'Yesterday'
+              : headerDate.toDateString()}
           </Text>
           <Text component="strong" fontWeight="bold">
-            {`@6h 20m${totalPlannedTime ? `/${totalPlannedTime}` : ''}`}
+            <>
+              <span>{formatDurationString(totalDuration)}</span>
+              {totalPlannedTime && <span>/{totalPlannedTime}</span>}
+            </>
           </Text>
         </Box>
       </AccordionSummary>
       <AccordionDetails sx={{ padding: 0 }}>
         {timers.map((timer) => (
-          <TimerItem timer={timer} key={timer.id} />
+          <TimerItem
+            timer={timer}
+            key={timer.id}
+            onDurationUpdate={handleTimerDurationUpdate}
+          />
         ))}
       </AccordionDetails>
     </Accordion>

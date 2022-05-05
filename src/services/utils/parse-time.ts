@@ -107,11 +107,14 @@ export const hasDuration = (duration: Duration): boolean => {
 };
 
 export const getTotalDuration = (durations: Duration[]): string => {
+  let durationStr = '';
   let totalHours = 0;
   let totalMinutes = 0;
+  let totalSeconds = 0;
   durations.forEach((duration) => {
     totalHours += duration.hours ?? 0;
     totalMinutes += duration.minutes ?? 0;
+    totalSeconds += duration.seconds ?? 0;
   });
 
   // Convert minutes to hours
@@ -120,7 +123,25 @@ export const getTotalDuration = (durations: Duration[]): string => {
     totalMinutes = totalMinutes % 60;
   }
 
-  return `${totalHours}${durationMapShort.hours} ${totalMinutes}${durationMapShort.minutes}`;
+  // Convert seconds to minutes
+  if (totalSeconds > 60) {
+    totalMinutes += Math.floor(totalSeconds / 60);
+  }
+
+  // Return nothing if no hours and minutes
+  if (!totalHours && !totalMinutes) {
+    return '';
+  }
+
+  if (totalHours) {
+    durationStr += `${totalHours}${durationMapShort.hours} `;
+  }
+
+  if (totalMinutes) {
+    durationStr += `${totalMinutes}${durationMapShort.minutes} `;
+  }
+
+  return durationStr;
 };
 
 export const getTimerDuration = (timer: TimerItemTask): number => {
