@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import {
   Accordion,
@@ -30,13 +30,17 @@ const TimerList = ({ date, timers }: TimerListProps) => {
   const totalPlannedTime = getTotalDuration(
     timers.map((timer) => timer.plannedTime ?? {})
   );
-  const totalDurationInSeconds = timers
-    .map((timer) => {
-      return getTimerDuration(timer);
-    })
-    .reduce((acc: number, curr: number) => acc + curr, 0);
+
+  const getTotalTimersDuration = useMemo(() => {
+    return timers
+      .map((timer) => {
+        return getTimerDuration(timer);
+      })
+      .reduce((acc: number, curr: number) => acc + curr, 0);
+  }, [timers]);
+
   const [totalDuration, setTotalDuration] = useState<number>(
-    totalDurationInSeconds
+    getTotalTimersDuration
   );
 
   const handleTimerDurationUpdate = (duration: number) => {

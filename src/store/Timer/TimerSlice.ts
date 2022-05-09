@@ -100,11 +100,24 @@ export const TimerSlice = createSlice({
       // Save to local storage
       LocalStore.set(reducerName, state);
     },
+    resetTimer(state: TimerItemTask[], action: PayloadAction<string>) {
+      const id = action.payload;
+      const timer = state.find((item) => item.id === id);
+      if (timer) {
+        timer.running = false;
+        timer.startTime = null;
+        timer.endTime = null;
+        timer.duration = [];
+      }
+
+      // Save to local storage
+      LocalStore.set(reducerName, state);
+    },
   },
   extraReducers: {},
 });
 
-export const { addTimer, removeTimer, startTimer, stopTimer } =
+export const { addTimer, removeTimer, startTimer, stopTimer, resetTimer } =
   TimerSlice.actions;
 export const selectTimers = (state: RootState) => state.timer;
 export const selectTimersByDate = (state: RootState) => {

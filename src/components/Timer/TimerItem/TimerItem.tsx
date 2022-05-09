@@ -29,6 +29,7 @@ import {
 } from '../../../services/utils';
 import {
   removeTimer,
+  resetTimer,
   startTimer,
   stopTimer,
 } from '../../../store/Timer/TimerSlice';
@@ -40,6 +41,7 @@ export interface TimerItemProps {
 }
 
 const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
+  const canLogTime = false;
   const dispatch = useAppDispatch();
   const [durationInSeconds, setDurationInSeconds] = useState<number>(
     getTimerDuration(timer)
@@ -54,6 +56,15 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
 
   const handleTimerClose = () => {
     setTimerAnchorEl(null);
+  };
+
+  const handleTimerReset = () => {
+    dispatch(resetTimer(timer.id));
+    setDurationInSeconds(0);
+    if (onDurationUpdate) {
+      onDurationUpdate(0);
+    }
+    handleTimerClose();
   };
 
   const handleTimerDelete = () => {
@@ -130,25 +141,24 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
           'aria-labelledby': 'basic-button',
         }}
       >
-        <MenuItem onClick={handleTimerClose}>
-          <ListItemIcon>
-            <SendTimeExtension fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Log Time</ListItemText>
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={handleTimerClose}>
+        {canLogTime && (
+          <>
+            <MenuItem onClick={handleTimerClose}>
+              <ListItemIcon>
+                <SendTimeExtension fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Log Time</ListItemText>
+            </MenuItem>
+            <Divider />
+          </>
+        )}
+        <MenuItem onClick={handleTimerReset}>
           <ListItemIcon>
             <RotateLeft fontSize="small" />
           </ListItemIcon>
           <ListItemText>Reset</ListItemText>
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleTimerDelete();
-            handleTimerClose();
-          }}
-        >
+        <MenuItem onClick={handleTimerDelete}>
           <ListItemIcon>
             <Delete fontSize="small" />
           </ListItemIcon>
