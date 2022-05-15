@@ -62,6 +62,7 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
       duration: false,
     }
   );
+  const [timerRunningOnEdit, setTimerRunningOnEdit] = useState<boolean>(false);
   const [timerAnchorEl, setTimerAnchorEl] = useState<null | HTMLElement>(null);
   const timerOpen = Boolean(timerAnchorEl);
 
@@ -107,9 +108,10 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
     });
 
     // Pause timer if editing duration
-    if (field === 'duration') {
+    if (field !== 'title') {
       if (timer.running) {
         handleTimerStop();
+        setTimerRunningOnEdit(true);
       }
     }
   };
@@ -145,6 +147,12 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
           ...newTimerProps,
         })
       );
+
+      // Restart timer if it was running on edit
+      if (timerRunningOnEdit) {
+        handleTimerStart();
+        setTimerRunningOnEdit(false);
+      }
     }
   };
 
@@ -187,10 +195,6 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
       };
 
       if (!isEqual(timer.project, timerProject)) {
-        console.log(timer.title, {
-          old: timer.project,
-          new: timerProject,
-        });
         dispatch(
           updateTimer({
             ...timer,
