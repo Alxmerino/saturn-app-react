@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import {
   Accordion,
@@ -39,9 +39,7 @@ const TimerList = ({ date, timers }: TimerListProps) => {
       .reduce((acc: number, curr: number) => acc + curr, 0);
   }, [timers]);
 
-  const [totalDuration, setTotalDuration] = useState<number>(
-    getTotalTimersDuration
-  );
+  const [totalDuration, setTotalDuration] = useState<number>(0);
 
   const handleTimerDurationUpdate = (duration: number) => {
     setTotalDuration(totalDuration + duration);
@@ -50,6 +48,10 @@ const TimerList = ({ date, timers }: TimerListProps) => {
   const handleChange = () => {
     setExpanded(!expanded);
   };
+
+  useEffect((): void => {
+    setTotalDuration(getTotalTimersDuration);
+  }, [timers]);
 
   return (
     <Accordion
