@@ -12,13 +12,25 @@ import { isNil } from 'lodash';
 export interface ProjectMenuProps {
   color?: Partial<'action' | 'primary' | 'secondary'>;
   project?: Partial<Project> | null;
+  projectMenuEl: null | HTMLElement;
   setProject?: React.Dispatch<SetStateAction<Partial<Project> | null>>;
+  onOpen?: (x: any) => void;
+  onClose?: (x: any) => void;
 }
 
-const ProjectMenu = ({ color, project, setProject }: ProjectMenuProps) => {
-  const [projectMenuEl, setProjectMenuEl] = useState<null | HTMLElement>(null);
+const ProjectMenu = ({
+  color,
+  project,
+  setProject,
+  projectMenuEl,
+  onOpen,
+  onClose,
+}: ProjectMenuProps) => {
   const [projectMenuColorEl, setProjectMenuColorEl] =
     useState<null | HTMLElement>(null);
+  const [tempProjectTitle, setTempProjectTitle] = useState<string>(
+    project?.title ?? ''
+  );
   const [projectTitle, setProjectTitle] = useState<string>(
     project?.title ?? ''
   );
@@ -29,7 +41,9 @@ const ProjectMenu = ({ color, project, setProject }: ProjectMenuProps) => {
   const handleProjectMenuClick = (
     event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>
   ) => {
-    setProjectMenuEl(event.currentTarget);
+    if (onOpen) {
+      onOpen(event.target);
+    }
   };
 
   const handleProjectColorMenuClick = (
@@ -39,7 +53,10 @@ const ProjectMenu = ({ color, project, setProject }: ProjectMenuProps) => {
   };
 
   const handleProjectMenuClose = () => {
-    setProjectMenuEl(null);
+    setProjectTitle(tempProjectTitle);
+    if (onClose) {
+      onClose(null);
+    }
   };
 
   const handleProjectColorMenuClose = () => {
@@ -60,7 +77,7 @@ const ProjectMenu = ({ color, project, setProject }: ProjectMenuProps) => {
       alert('STOP! This project name will make the sky fall on your head!');
       return;
     }
-    setProjectTitle(event.target.value);
+    setTempProjectTitle(event.target.value);
   };
 
   const handleOnKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -160,11 +177,11 @@ const ProjectMenu = ({ color, project, setProject }: ProjectMenuProps) => {
             inputProps={{ 'aria-label': 'description' }}
             onChange={handleOnChange}
             onKeyPress={handleOnKeyPress}
-            value={projectTitle}
+            value={tempProjectTitle}
           />
           <IconButton
             onClick={handleProjectColorMenuClick}
-            disabled={!projectTitle}
+            disabled={!tempProjectTitle}
           >
             <FormatColorFill sx={{ color: colorMap[colorCode] ?? '' }} />
           </IconButton>

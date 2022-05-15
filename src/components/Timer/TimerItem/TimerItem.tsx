@@ -21,19 +21,21 @@ import {
 } from '@mui/icons-material';
 
 import { ProjectMenu, Text } from '../../common';
-import { TimerItemTask } from '../../../types/types';
+import { ColorCode, Project, TimerItemTask } from '../../../types/types';
 import {
   formatDurationFromObject,
   formatDurationString,
   getTimerDuration,
 } from '../../../services/utils';
 import {
+  updateTimer,
   removeTimer,
   resetTimer,
   startTimer,
   stopTimer,
 } from '../../../store/Timer/TimerSlice';
 import { useAppDispatch } from '../../../app/hooks';
+import { nanoid } from '@reduxjs/toolkit';
 
 export interface TimerItemProps {
   timer: TimerItemTask;
@@ -43,6 +45,10 @@ export interface TimerItemProps {
 const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
   const canLogTime = false;
   const dispatch = useAppDispatch();
+  const [projectMenuEl, setProjectMenuEl] = useState<null | HTMLElement>(null);
+  const [project, setProject] = useState<Partial<Project> | null>(
+    timer.project
+  );
   const [durationInSeconds, setDurationInSeconds] = useState<number>(
     getTimerDuration(timer)
   );
@@ -111,6 +117,24 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
     };
   }, [timer.running]);
 
+  // Update the project if it changes
+  useEffect(() => {
+    if (project !== null) {
+      const timerProject = {
+        id: nanoid(),
+        userId: 'test-user-id',
+        title: project?.title ?? '',
+        colorCode: project?.colorCode as ColorCode,
+      };
+      dispatch(
+        updateTimer({
+          ...timer,
+          project: timerProject,
+        })
+      );
+    }
+  }, [project]);
+
   return (
     <Box
       sx={{
@@ -167,7 +191,14 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
       </Menu>
       <div>
         <Text>{timer.title}</Text>
-        <ProjectMenu color="action" project={timer.project} />
+        <ProjectMenu
+          color="action"
+          project={project}
+          setProject={setProject}
+          projectMenuEl={projectMenuEl}
+          onOpen={(el: HTMLElement) => setProjectMenuEl(el)}
+          onClose={() => setProjectMenuEl(null)}
+        />
       </div>
       <Box
         sx={{

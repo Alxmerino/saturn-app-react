@@ -15,6 +15,7 @@ const TimerHeader = () => {
   const [plannedTime, setPlannedTime] = useState<string>('');
   const [project, setProject] = useState<Partial<Project> | null>(null);
   const [canAdd, setCanAdd] = useState<boolean>(false);
+  const [projectMenuEl, setProjectMenuEl] = useState<null | HTMLElement>(null);
 
   const handleOnTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -43,7 +44,7 @@ const TimerHeader = () => {
         plannedTime: hasDuration(plannedTimeDuration)
           ? plannedTimeDuration
           : null,
-        project: timerProject,
+        project: timerProject.title !== '' ? timerProject : null,
       })
     );
     setTitle('');
@@ -80,7 +81,14 @@ const TimerHeader = () => {
           width: 300,
         }}
       />
-      <ProjectMenu color="primary" project={project} setProject={setProject} />
+      <ProjectMenu
+        color="primary"
+        project={project}
+        setProject={setProject}
+        projectMenuEl={projectMenuEl}
+        onOpen={(el: HTMLElement) => setProjectMenuEl(el)}
+        onClose={() => setProjectMenuEl(null)}
+      />
       <Button kind="primary" onClick={handleTimerAdd} disabled={!canAdd}>
         <Add />
       </Button>

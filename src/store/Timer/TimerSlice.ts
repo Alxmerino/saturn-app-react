@@ -113,12 +113,34 @@ export const TimerSlice = createSlice({
       // Save to local storage
       LocalStore.set(reducerName, state);
     },
+    updateTimer(
+      state: TimerItemTask[],
+      action: PayloadAction<
+        Pick<TimerItemTask, 'id' | 'title' | 'plannedTime' | 'project'>
+      >
+    ) {
+      const timer = state.find((item) => item.id === action.payload.id);
+      if (timer) {
+        timer.title = action.payload.title;
+        timer.plannedTime = action.payload.plannedTime;
+        timer.project = action.payload.project;
+      }
+
+      // Save to local storage
+      LocalStore.set(reducerName, state);
+    },
   },
   extraReducers: {},
 });
 
-export const { addTimer, removeTimer, startTimer, stopTimer, resetTimer } =
-  TimerSlice.actions;
+export const {
+  addTimer,
+  updateTimer,
+  removeTimer,
+  startTimer,
+  stopTimer,
+  resetTimer,
+} = TimerSlice.actions;
 export const selectTimers = (state: RootState) => state.timer;
 export const selectTimersByDate = (state: RootState) => {
   const sortedTimers = orderBy(state.timer, 'createdAt', 'desc');
