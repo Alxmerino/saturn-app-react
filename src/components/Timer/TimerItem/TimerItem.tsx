@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { differenceInSeconds } from 'date-fns';
-import { isNil } from 'lodash';
+import { isEqual, isNil } from 'lodash';
 
 import {
   Box,
@@ -10,6 +10,7 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  TextField,
 } from '@mui/material';
 import {
   MoreVert,
@@ -25,7 +26,9 @@ import { ColorCode, Project, TimerItemTask } from '../../../types/types';
 import {
   formatDurationFromObject,
   formatDurationString,
+  getDurationFromString,
   getTimerDuration,
+  hasDuration,
 } from '../../../services/utils';
 import {
   updateTimer,
@@ -52,8 +55,14 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
   const [durationInSeconds, setDurationInSeconds] = useState<number>(
     getTimerDuration(timer)
   );
+  const [fieldsEditable, setFieldsEditable] = useState<Record<string, boolean>>(
+    {
+      title: false,
+      plannedTime: false,
+      duration: false,
+    }
+  );
   const [timerAnchorEl, setTimerAnchorEl] = useState<null | HTMLElement>(null);
-  // @todo: Add action on slice to update project
   const timerOpen = Boolean(timerAnchorEl);
 
   const handleTimerClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -89,6 +98,56 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
     dispatch(stopTimer(timer.id));
   };
 
+  const handleEditableField = (field: string) => {
+    setFieldsEditable({
+      title: false,
+      plannedTime: false,
+      duration: false,
+      [field]: !fieldsEditable[field],
+    });
+
+    // Pause timer if editing duration
+    if (field === 'duration') {
+      if (timer.running) {
+        handleTimerStop();
+      }
+    }
+  };
+
+  const handleEditableFieldPress = (
+    e: any, // Used any so we can use e.target.value
+    field: string
+  ) => {
+    if (e.key === 'Enter') {
+      handleEditableField(field);
+      const newTimerProps = {
+        ...timer,
+      };
+
+      switch (field) {
+        case 'title':
+          newTimerProps.title = e.target.value;
+          break;
+        case 'plannedTime':
+          // @todo: Throw error if plannedTime is not a valid duration
+          newTimerProps.plannedTime = hasDuration(e.target.value)
+            ? getDurationFromString(e.target.value)
+            : null;
+          break;
+        case 'duration':
+          // @Todo: Handle duration update
+          break;
+      }
+
+      // @todo: Only update if the value has changed
+      dispatch(
+        updateTimer({
+          ...newTimerProps,
+        })
+      );
+    }
+  };
+
   /**
    * Calculate the duration of the timer
    */
@@ -121,19 +180,88 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
   useEffect(() => {
     if (project !== null) {
       const timerProject = {
-        id: nanoid(),
+        id: project?.id ?? nanoid(),
         userId: 'test-user-id',
         title: project?.title ?? '',
         colorCode: project?.colorCode as ColorCode,
       };
-      dispatch(
-        updateTimer({
-          ...timer,
-          project: timerProject,
-        })
-      );
+
+      if (!isEqual(timer.project, timerProject)) {
+        console.log(timer.title, {
+          old: timer.project,
+          new: timerProject,
+        });
+        dispatch(
+          updateTimer({
+            ...timer,
+            project: timerProject,
+          })
+        );
+      }
+      console.groupEnd();
     }
   }, [project]);
+
+  const RenderPlannedTime = () => {
+    if (isNil(timer.plannedTime)) {
+      return null;
+    }
+
+    return fieldsEditable.plannedTime ? (
+      <>
+        /
+        <TextField
+          id="planned-time"
+          fullWidth
+          hiddenLabel
+          autoFocus
+          size="small"
+          variant="standard"
+          defaultValue={formatDurationFromObject(timer.plannedTime)}
+          onKeyPress={(e) => handleEditableFieldPress(e, 'plannedTime')}
+          onBlur={() => handleEditableField('plannedTime')}
+          sx={{ width: '60px', px: 0.5 }}
+        />
+      </>
+    ) : (
+      <Text
+        color="grey.700"
+        component="span"
+        onClick={() => handleEditableField('plannedTime')}
+        sx={{ cursor: 'pointer' }}
+      >
+        {/* Using backticks here because TS is being weird and will throw and error on the Text component */}
+        {`/${formatDurationFromObject(timer.plannedTime)}`}
+      </Text>
+    );
+  };
+
+  const RenderDuration = () => {
+    // @todo: Handle duration update
+    return fieldsEditable.duration ? (
+      <TextField
+        id="planned-time"
+        fullWidth
+        hiddenLabel
+        autoFocus
+        size="small"
+        variant="standard"
+        defaultValue={formatDurationString(Number(durationInSeconds))}
+        onKeyPress={(e) => handleEditableFieldPress(e, 'duration')}
+        onBlur={() => handleEditableField('duration')}
+        sx={{ width: '75px', px: 0.5 }}
+      />
+    ) : (
+      <Text
+        color="grey.700"
+        component="span"
+        // onClick={() => handleEditableField('duration')}
+        // sx={{ cursor: 'pointer' }}
+      >
+        {formatDurationString(durationInSeconds)}
+      </Text>
+    );
+  };
 
   return (
     <Box
@@ -189,8 +317,32 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
           <ListItemText>Delete</ListItemText>
         </MenuItem>
       </Menu>
-      <div>
-        <Text>{timer.title}</Text>
+      <Box
+        sx={{
+          flex: 1,
+          pr: 2,
+        }}
+      >
+        {fieldsEditable.title ? (
+          <TextField
+            fullWidth
+            hiddenLabel
+            autoFocus
+            id="timer-title"
+            size="small"
+            variant="standard"
+            defaultValue={timer.title}
+            onKeyPress={(e) => handleEditableFieldPress(e, 'title')}
+            onBlur={() => handleEditableField('title')}
+          />
+        ) : (
+          <Text
+            onClick={() => handleEditableField('title')}
+            sx={{ cursor: 'pointer' }}
+          >
+            {timer.title}
+          </Text>
+        )}
         <ProjectMenu
           color="action"
           project={project}
@@ -199,7 +351,7 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
           onOpen={(el: HTMLElement) => setProjectMenuEl(el)}
           onClose={() => setProjectMenuEl(null)}
         />
-      </div>
+      </Box>
       <Box
         sx={{
           display: 'flex',
@@ -207,16 +359,11 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
           marginLeft: 'auto',
         }}
       >
-        <Text color="grey.700">
-          <>
-            <span>{formatDurationString(durationInSeconds)}</span>
-            {!isNil(timer.plannedTime) ? (
-              <span>/{formatDurationFromObject(timer.plannedTime)}</span>
-            ) : (
-              ''
-            )}
-          </>
-        </Text>
+        <>
+          <RenderDuration />
+          <RenderPlannedTime />
+        </>
+
         <IconButton
           color="primary"
           size="small"
