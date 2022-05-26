@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { nanoid } from '@reduxjs/toolkit';
 import { differenceInSeconds } from 'date-fns';
 import { isEqual, isNil } from 'lodash';
 
@@ -38,7 +39,6 @@ import {
   stopTimer,
 } from '../../../store/Timer/TimerSlice';
 import { useAppDispatch } from '../../../app/hooks';
-import { nanoid } from '@reduxjs/toolkit';
 
 export interface TimerItemProps {
   timer: TimerItemTask;
@@ -241,16 +241,15 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
   };
 
   const RenderDuration = () => {
-    // @todo: Handle duration update
     return fieldsEditable.duration ? (
       <TextField
-        id="planned-time"
+        id="duration-time"
         fullWidth
         hiddenLabel
         autoFocus
         size="small"
         variant="standard"
-        defaultValue={formatDurationString(Number(durationInSeconds))}
+        defaultValue={formatDurationString(durationInSeconds)}
         onKeyPress={(e) => handleEditableFieldPress(e, 'duration')}
         onBlur={() => handleEditableField('duration')}
         sx={{ width: '75px', px: 0.5 }}
@@ -259,8 +258,8 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
       <Text
         color="grey.700"
         component="span"
-        // onClick={() => handleEditableField('duration')}
-        // sx={{ cursor: 'pointer' }}
+        onClick={() => handleEditableField('duration')}
+        sx={{ cursor: 'pointer' }}
       >
         {formatDurationString(durationInSeconds)}
       </Text>
