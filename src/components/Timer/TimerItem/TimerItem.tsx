@@ -120,6 +120,11 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
     e: any, // Used any so we can use e.target.value
     field: string
   ) => {
+    if (e.key === 'Escape') {
+      handleEditableField(field);
+      return;
+    }
+
     if (e.key === 'Enter') {
       handleEditableField(field);
       const newTimerProps = {
