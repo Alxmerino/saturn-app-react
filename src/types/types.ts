@@ -33,6 +33,7 @@ export interface Project extends Timestamps {
 interface StartEndTime {
   startTime: Date | string | null;
   endTime: Date | string | null;
+  manualUpdate?: boolean;
 }
 
 interface Task extends StartEndTime, Timestamps {

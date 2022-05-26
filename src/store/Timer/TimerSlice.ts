@@ -116,14 +116,20 @@ export const TimerSlice = createSlice({
     updateTimer(
       state: TimerItemTask[],
       action: PayloadAction<
-        Pick<TimerItemTask, 'id' | 'title' | 'plannedTime' | 'project'>
+        Pick<
+          TimerItemTask,
+          'id' | 'title' | 'plannedTime' | 'project' | 'duration'
+        >
       >
     ) {
       const timer = state.find((item) => item.id === action.payload.id);
       if (timer) {
-        timer.title = action.payload.title;
-        timer.plannedTime = action.payload.plannedTime;
-        timer.project = action.payload.project;
+        const { title, plannedTime, project, duration } = action.payload;
+
+        timer.title = title;
+        timer.plannedTime = plannedTime;
+        timer.project = project;
+        timer.duration = duration;
       }
 
       // Save to local storage

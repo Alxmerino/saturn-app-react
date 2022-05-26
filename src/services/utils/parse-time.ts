@@ -1,4 +1,9 @@
-import { differenceInSeconds, Duration } from 'date-fns';
+import {
+  differenceInSeconds,
+  Duration,
+  hoursToSeconds,
+  minutesToSeconds,
+} from 'date-fns';
 import { each, isNaN, isNil } from 'lodash';
 import { durationMap, durationMapShort } from '../../config/constants';
 import { TimerItemTask } from '../../types/types';
@@ -27,8 +32,8 @@ export const createISOString = (timeStr: string[]): string => {
 };
 
 /**
- * Return a Duration object from the time string. Currently only supports
- * hours, minutes, and seconds.
+ * Return a Duration object from a human readable time string. e.g. 3h 20m.
+ * Currently only supports hours, minutes, and seconds.
  *
  * @param timeString
  */
@@ -47,6 +52,44 @@ export const parseDurationFromString = (timeString: string): Duration => {
   });
 
   return duration;
+};
+
+/**
+ * Return a Duration object from a time string. e.g. 02:30:15
+ * @todo: Handle error validation
+ * @param timeString
+ */
+export const parseDurationFromTimeString = (timeString: string): Duration => {
+  const [hours, minutes, seconds] = timeString.split(':');
+
+  return {
+    hours: +hours,
+    minutes: +minutes,
+    seconds: +seconds,
+  };
+};
+
+export const getSecondsFromDuration = (duration: Duration): number => {
+  let durationInSeconds = 0;
+  if (!hasDuration(duration)) {
+    return durationInSeconds;
+  }
+
+  for (const time in duration) {
+    switch (time) {
+      case 'hours':
+        durationInSeconds += hoursToSeconds(duration[time] ?? 0);
+        break;
+      case 'minutes':
+        durationInSeconds += minutesToSeconds(duration[time] ?? 0);
+        break;
+      case 'seconds':
+        durationInSeconds += duration[time] ?? 0;
+        break;
+    }
+  }
+
+  return durationInSeconds;
 };
 
 /**

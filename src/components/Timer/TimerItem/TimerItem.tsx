@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { nanoid } from '@reduxjs/toolkit';
-import { differenceInSeconds } from 'date-fns';
+import { add, differenceInSeconds } from 'date-fns';
 import { isEqual, isNil } from 'lodash';
 
 import {
@@ -29,7 +29,9 @@ import {
   formatDurationString,
   getDurationFromString,
   getTimerDuration,
+  parseDurationFromTimeString,
   hasDuration,
+  getSecondsFromDuration,
 } from '../../../services/utils';
 import {
   updateTimer,
@@ -142,7 +144,31 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
             : null;
           break;
         case 'duration':
-          // @Todo: Handle duration update
+          // @todo: Rethink how to handle adding and subtracting duration
+          const totalDesiredDuration = getSecondsFromDuration(
+            parseDurationFromTimeString(e.target.value)
+          );
+          const durationDiffInSeconds =
+            totalDesiredDuration - durationInSeconds;
+
+          // Only update if there's an actual duration update
+          if (durationDiffInSeconds !== 0) {
+            const duration = [...newTimerProps.duration];
+            const { startTime } = duration[duration.length - 1];
+
+            duration.push({
+              manualUpdate: true,
+              startTime,
+              endTime: add(new Date(startTime ?? 0), {
+                seconds: durationDiffInSeconds,
+              }).toISOString(),
+            });
+
+            newTimerProps.duration = duration;
+
+            // Update timer total duration display
+            setDurationInSeconds(durationInSeconds + durationDiffInSeconds);
+          }
           break;
       }
 
