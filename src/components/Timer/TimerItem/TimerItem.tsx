@@ -70,7 +70,7 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
     setTimerAnchorEl(event.currentTarget);
   };
 
-  const handleTimerClose = () => {
+  const handleTimerMenuClose = () => {
     setTimerAnchorEl(null);
   };
 
@@ -80,14 +80,14 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
     if (onDurationUpdate) {
       onDurationUpdate(0);
     }
-    handleTimerClose();
+    handleTimerMenuClose();
   };
 
   const handleTimerDelete = () => {
     // @todo: Better way to confirm delete?
     if (confirm('Are you sure you want to delete this timer?')) {
       dispatch(removeTimer(timer.id));
-      handleTimerClose();
+      handleTimerMenuClose();
     }
   };
 
@@ -296,14 +296,14 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
         id="more-menu"
         anchorEl={timerAnchorEl}
         open={timerOpen}
-        onClose={handleTimerClose}
+        onClose={handleTimerMenuClose}
         MenuListProps={{
           'aria-labelledby': 'basic-button',
         }}
       >
         {canLogTime && (
           <>
-            <MenuItem onClick={handleTimerClose}>
+            <MenuItem onClick={handleTimerMenuClose}>
               <ListItemIcon>
                 <SendTimeExtension fontSize="small" />
               </ListItemIcon>
