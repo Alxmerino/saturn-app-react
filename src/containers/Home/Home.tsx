@@ -28,7 +28,7 @@ const Home = () => {
     }
   }, []);
 
-  return (
+  return !isLoggedIn ? (
     <GenericLayout vAlign="center">
       <Text component="h1" variant="h3" align="center">
         Saturn Time Tracker
@@ -42,7 +42,7 @@ const Home = () => {
         </Button>
       </Stack>
     </GenericLayout>
-  );
+  ) : null;
 };
 
 export default Home;
