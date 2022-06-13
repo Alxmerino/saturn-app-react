@@ -6,23 +6,39 @@ import { push } from 'redux-first-history';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { Button, Copyright } from '../../components/common';
 import { GenericLayout } from '../../components/layout';
-import { login, selectLoggedIn } from '../../store/User/UserSlice';
+import {
+  selectLoggedIn,
+  setCredentials,
+  setLogin,
+} from '../../store/User/UserSlice';
 import { Routes } from '../../config/constants';
+import { useLoginMutation } from '../../services/api/auth';
+import { AuthResponse } from '../../types/api';
 
 const Login = (): JSX.Element => {
-  const loggedIn: boolean = useAppSelector(selectLoggedIn);
+  const isloggedIn: boolean = useAppSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
+  const [login, { isLoading }] = useLoginMutation();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    const formDate = new FormData(event.currentTarget);
 
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-    dispatch(login());
-    dispatch(push(Routes.APP));
+    try {
+      const results = await login({
+        email: formDate.get('email') as string,
+        password: formDate.get('password') as string,
+      });
+      if ('data' in results) {
+        dispatch(setCredentials(results.data));
+        dispatch(setLogin());
+      }
+    } catch (err) {
+      // @todo: handle error
+      console.error('error', err);
+    }
   };
 
   const handleSignUp = () => {
@@ -30,7 +46,7 @@ const Login = (): JSX.Element => {
   };
 
   useEffect(() => {
-    if (loggedIn) {
+    if (isloggedIn) {
       dispatch(push(Routes.APP));
     }
   });
@@ -80,7 +96,7 @@ const Login = (): JSX.Element => {
             sx={{ mt: 3, mb: 2 }}
             kind="primary"
           >
-            Sign In
+            {isLoading ? 'Signing in...' : 'Sign In'}
           </Button>
           <Grid container>
             <Grid item xs>
