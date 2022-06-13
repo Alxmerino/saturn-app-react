@@ -3,20 +3,20 @@ import { Box, Link, Paper } from '@mui/material';
 import { push } from 'redux-first-history';
 
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { logout, selectLoggedIn } from '../../store/User/UserSlice';
+import { setLogout, selectLoggedIn } from '../../store/User/UserSlice';
 import { Routes } from '../../config/constants';
 import { Text } from '../../components/common';
 import { TimerHeader, TimerList } from '../../components/Timer';
 import { selectTimersByDate } from '../../store/Timer/TimerSlice';
 
 const TimerApp = () => {
-  const loggedIn: boolean = useAppSelector(selectLoggedIn);
+  const isLoggedIn: boolean = useAppSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
   const timersByDate = useAppSelector(selectTimersByDate);
   const timersByDateArray = Object.keys(timersByDate);
 
   const handleLogOut = () => {
-    dispatch(logout());
+    dispatch(setLogout());
     dispatch(push(Routes.HOME));
   };
 
@@ -24,7 +24,7 @@ const TimerApp = () => {
    * Redirect home the user if not logged in
    */
   useEffect(() => {
-    if (!loggedIn) {
+    if (!isLoggedIn) {
       dispatch(push(Routes.HOME));
     }
   });
