@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '../../store/store';
-import { AuthResponse, LoginRequest } from '../../types/types';
+import { AuthResponse, LoginRequest, MessageResponse } from '../../types/types';
 import { transformResponse } from '../utils/api';
 
 interface FinalLoginRequest extends LoginRequest {
@@ -33,7 +33,18 @@ export const api = createApi({
       }),
       transformResponse,
     }),
+    logout: builders.mutation<
+      MessageResponse,
+      Pick<FinalLoginRequest, 'email'>
+    >({
+      query: (credentials) => ({
+        url: 'auth/tokens/revoke',
+        method: 'DELETE',
+        body: { ...credentials, device_name: 'web-app' },
+      }),
+      transformResponse,
+    }),
   }),
 });
 
-export const { useLoginMutation } = api;
+export const { useLoginMutation, useLogoutMutation } = api;

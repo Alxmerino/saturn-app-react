@@ -4,9 +4,13 @@ export interface ServerResponse<T> {
   data: T;
 }
 
+export interface MessageResponse {
+  message: string;
+}
+
 export interface AuthResponse {
-  token: string;
-  user: User;
+  token: string | null;
+  user: User | null;
 }
 
 export interface LoginRequest {

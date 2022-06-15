@@ -3,21 +3,44 @@ import { Box, Link, Paper } from '@mui/material';
 import { push } from 'redux-first-history';
 
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { setLogout, selectLoggedIn } from '../../store/User/UserSlice';
+import {
+  setLogout,
+  selectLoggedIn,
+  setCredentials,
+  selectCurrentUser,
+} from '../../store/User/UserSlice';
 import { Routes } from '../../config/constants';
 import { Text } from '../../components/common';
 import { TimerHeader, TimerList } from '../../components/Timer';
 import { selectTimersByDate } from '../../store/Timer/TimerSlice';
+import { useLogoutMutation } from '../../services/api/auth';
 
 const TimerApp = () => {
   const isLoggedIn: boolean = useAppSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
   const timersByDate = useAppSelector(selectTimersByDate);
+  const currentUser = useAppSelector(selectCurrentUser);
   const timersByDateArray = Object.keys(timersByDate);
+  const [logout, { isLoading }] = useLogoutMutation();
 
-  const handleLogOut = () => {
-    dispatch(setLogout());
-    dispatch(push(Routes.HOME));
+  const handleLogOut = async () => {
+    try {
+      const results = await logout({
+        email: currentUser.email,
+      });
+
+      // @todo: Fix type error
+      if ('data' in results) {
+        if (results.data.message === 'Success') {
+          console.log('LOGOUT', results);
+          dispatch(setCredentials({ user: null, token: null }));
+          dispatch(setLogout());
+        }
+      }
+    } catch (err) {
+      // @todo: handle error
+      console.log('ERROR', err);
+    }
   };
 
   /**
@@ -60,7 +83,7 @@ const TimerApp = () => {
       </Box>
 
       <Link variant="body2" onClick={handleLogOut}>
-        Log out
+        {isLoading ? 'Logging Out...' : 'Log out'}
       </Link>
     </>
   );

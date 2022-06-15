@@ -13,7 +13,6 @@ import {
 } from '../../store/User/UserSlice';
 import { Routes } from '../../config/constants';
 import { useLoginMutation } from '../../services/api/auth';
-import { AuthResponse } from '../../types/api';
 
 const Login = (): JSX.Element => {
   const isloggedIn: boolean = useAppSelector(selectLoggedIn);
@@ -31,6 +30,8 @@ const Login = (): JSX.Element => {
         email: formDate.get('email') as string,
         password: formDate.get('password') as string,
       });
+
+      // @todo: Fix type error
       if ('data' in results) {
         dispatch(setCredentials(results.data));
         dispatch(setLogin());
