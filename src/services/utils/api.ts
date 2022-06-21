@@ -1,4 +1,5 @@
 import { camelCase, isPlainObject } from 'lodash';
+import { RootState } from '../../store/store';
 
 export function transformResponse<T>(
   response: { data: T },
@@ -6,6 +7,21 @@ export function transformResponse<T>(
   arg: any
 ) {
   return camelizeKeys(response.data);
+}
+
+export function prepareHeaders(
+  headers: Headers,
+  { getState }: { getState: RootState }
+) {
+  const token: string = getState().auth.token;
+  headers.set('Accept', 'application/json');
+  headers.set('Content-Type', 'application/json');
+
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+
+  return headers;
 }
 
 // @todo: move this to a generic object handling utils
