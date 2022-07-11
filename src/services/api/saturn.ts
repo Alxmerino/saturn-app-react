@@ -1,19 +1,42 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { prepareHeaders, transformResponse } from '../utils/api';
+import { prepareHeaders, transformResponse, transformBody } from '../utils/api';
 import { API } from '../../config/constants';
-import { ProjectResponse } from '../../types/api';
+import {
+  AuthResponse,
+  LoginRequest,
+  MessageResponse,
+  ProjectRequest,
+  ProjectResponse,
+  TaskRequest,
+  TaskResponse,
+} from '../../types/api';
 
-export const saturnApi: any = createApi({
+interface FinalLoginRequest extends LoginRequest {
+  device_name?: string;
+}
+
+export const api: any = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: API.BASE_API_URL,
     prepareHeaders,
   }),
   endpoints: (builders) => ({
-    createTask: builders.mutation<any, any>({
-      query: (taskBody) => ({
-        url: '/tasks',
+    login: builders.mutation<AuthResponse, FinalLoginRequest>({
+      query: (credentials) => ({
+        url: 'auth/tokens/create/',
         method: 'POST',
-        body: { ...taskBody },
+        body: { ...credentials, device_name: 'web-app' },
+      }),
+      transformResponse,
+    }),
+    logout: builders.mutation<
+      MessageResponse,
+      Pick<FinalLoginRequest, 'email'>
+    >({
+      query: (credentials) => ({
+        url: 'auth/tokens/revoke',
+        method: 'DELETE',
+        body: { ...credentials, device_name: 'web-app' },
       }),
       transformResponse,
     }),
@@ -21,12 +44,36 @@ export const saturnApi: any = createApi({
       query: (projectBody) => ({
         url: '/projects',
         method: 'POST',
-        // @TODO: Need to transform request
         body: { ...projectBody },
+      }),
+      transformResponse,
+    }),
+    updateProjectByTitle: builders.mutation<ProjectResponse, ProjectRequest>({
+      query: (projectBody) => ({
+        url: `/projects/title/${projectBody.title}`,
+        method: 'PUT',
+        body: { ...projectBody },
+      }),
+      transformResponse,
+    }),
+    /**
+     * Tasks/Timers
+     */
+    createTimer: builders.mutation<TaskRequest, TaskResponse>({
+      query: (taskBody) => ({
+        url: '/tasks',
+        method: 'POST',
+        body: transformBody({ ...taskBody }),
       }),
       transformResponse,
     }),
   }),
 });
 
-export const { useCreateProjectMutation, useCreateTaskMutation } = saturnApi;
+export const {
+  useLoginMutation,
+  useLogoutMutation,
+  useUpdateProjectByTitleMutation,
+  useCreateProjectMutation,
+  useCreateTimerMutation,
+} = api;
