@@ -7,7 +7,13 @@ import { getDurationFromString, hasDuration } from '../../../services/utils';
 import { useAppDispatch } from '../../../app/hooks';
 import { addTimer } from '../../../store/Timer/TimerSlice';
 import { Button, ProjectMenu } from '../../common';
-import { ColorCode, Project } from '../../../types/types';
+import { ColorCode, Project, TimerItemTask } from '../../../types/types';
+import {
+  useCreateTimerMutation,
+  useUpdateProjectByTitleMutation,
+} from '../../../services/api';
+import { colorNameToCodeMap } from '../../../config/constants';
+import { format } from 'date-fns';
 
 const TimerHeader = () => {
   const dispatch = useAppDispatch();
@@ -16,6 +22,11 @@ const TimerHeader = () => {
   const [project, setProject] = useState<Partial<Project> | null>(null);
   const [canAdd, setCanAdd] = useState<boolean>(false);
   const [projectMenuEl, setProjectMenuEl] = useState<null | HTMLElement>(null);
+  const [updateProjectByTitle] = useUpdateProjectByTitleMutation();
+  const [createTimer] = useCreateTimerMutation();
+
+  // @todo: Hide "Planned Time" Field until Notifications are added
+  const hidePlannedTime = true;
 
   const handleOnTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -28,34 +39,64 @@ const TimerHeader = () => {
     setPlannedTime(event.target.value);
   };
 
-  const handleTimerAdd = () => {
-    const plannedTimeDuration = getDurationFromString(plannedTime);
-    const timerProject = {
-      id: nanoid(),
-      userId: 'test-user-id',
+  const handleTimerAdd = async () => {
+    const now: Date = new Date();
+    // const plannedTimeDuration = getDurationFromString(plannedTime);
+    let timerProject = {
+      id: null,
       title: project?.title ?? '',
       colorCode: project?.colorCode as ColorCode,
     };
 
-    dispatch(
-      addTimer({
+    try {
+      // Update/Create Project on API
+      if (timerProject?.title) {
+        const { data: projectResults } = await updateProjectByTitle({
+          ...timerProject,
+          // Send color code as number since that's what the API uses
+          color_code: colorNameToCodeMap[project?.colorCode as string],
+        });
+
+        // Update local project object
+        timerProject = projectResults;
+      }
+
+      // Create local timer object
+      let timerTask = {
         title,
-        // @todo: Throw error if plannedTime is not a valid duration
-        plannedTime: hasDuration(plannedTimeDuration)
-          ? plannedTimeDuration
-          : null,
-        project: timerProject.title !== '' ? timerProject : null,
-      })
-    );
-    setTitle('');
-    setPlannedTime('');
-    setProject(null);
-    setCanAdd(false);
+        running: true,
+        project: timerProject,
+        // @todo: get current user
+        userId: 1,
+        // @todo: Figure out timezone
+        startTime: format(now, "yyyy-MM-dd'T'H:mm:ss"),
+      };
+      const { data: taskResults } = await createTimer({
+        ...timerTask,
+        projectId: timerProject?.id ?? null,
+      });
+
+      timerTask = {
+        ...timerTask,
+        ...taskResults,
+      };
+
+      dispatch(addTimer(timerTask as unknown as TimerItemTask));
+      setTitle('');
+      setPlannedTime('');
+      setProject(null);
+      setCanAdd(false);
+    } catch (err) {
+      // @todo: Handle errors
+      console.error('Create Project Error', err);
+    }
   };
 
-  const handleOnKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleOnKeyPress = async (
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (event.key === 'Enter') {
-      handleTimerAdd();
+      await handleTimerAdd();
     }
   };
 
@@ -70,17 +111,19 @@ const TimerHeader = () => {
         onChange={handleOnTitleChange}
         onKeyPress={handleOnKeyPress}
       />
-      <TextField
-        id="timer-limit"
-        size="small"
-        label="For how long?"
-        value={plannedTime}
-        onChange={handlePlannedTimeChange}
-        onKeyPress={handleOnKeyPress}
-        sx={{
-          width: 300,
-        }}
-      />
+      {!hidePlannedTime && (
+        <TextField
+          id="timer-limit"
+          size="small"
+          label="For how long?"
+          value={plannedTime}
+          onChange={handlePlannedTimeChange}
+          onKeyPress={handleOnKeyPress}
+          sx={{
+            width: 300,
+          }}
+        />
+      )}
       <ProjectMenu
         color="primary"
         project={project}
