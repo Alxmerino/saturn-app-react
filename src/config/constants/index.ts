@@ -31,3 +31,37 @@ export const colorMap: { [x: string]: string } = {
   grey: '#9e9e9e',
   black: '#000000',
 };
+
+export const colorNameToCodeMap: { [x: string]: number } = {
+  blue: 1,
+  turquoise: 2,
+  green: 3,
+  lime: 4,
+  yellow: 5,
+  orange: 6,
+  red: 7,
+  pink: 8,
+  purple: 9,
+  violet: 10,
+  grey: 11,
+  black: 12,
+};
+
+export const colorCodeToNameMap: { [x: number]: string } = {
+  1: 'blue',
+  2: 'turquoise',
+  3: 'green',
+  4: 'lime',
+  5: 'yellow',
+  6: 'orange',
+  7: 'red',
+  8: 'pink',
+  9: 'purple',
+  10: 'violet',
+  11: 'grey',
+  12: 'black',
+};
+
+export enum API {
+  BASE_API_URL = 'https://saturn-api.am.dev/api/v1',
+}
