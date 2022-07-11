@@ -12,7 +12,7 @@ import {
   setLogin,
 } from '../../store/User/UserSlice';
 import { Routes } from '../../config/constants';
-import { useLoginMutation } from '../../services/api/auth';
+import { useLoginMutation } from '../../services/api';
 
 const Login = (): JSX.Element => {
   const isloggedIn: boolean = useAppSelector(selectLoggedIn);
@@ -26,14 +26,13 @@ const Login = (): JSX.Element => {
     const formDate = new FormData(event.currentTarget);
 
     try {
-      const results = await login({
+      const { data: userData } = await login({
         email: formDate.get('email') as string,
         password: formDate.get('password') as string,
       });
 
-      // @todo: Fix type error
-      if ('data' in results) {
-        dispatch(setCredentials(results.data));
+      if (userData) {
+        dispatch(setCredentials(userData));
         dispatch(setLogin());
       }
     } catch (err) {
