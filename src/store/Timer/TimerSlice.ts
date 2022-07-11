@@ -34,26 +34,37 @@ export const TimerSlice = createSlice({
   reducers: {
     addTimer(
       state: TimerItemTask[],
+      // action: PayloadAction<TimerItemTask>
       action: PayloadAction<
-        Pick<TimerItemTask, 'title' | 'plannedTime' | 'project'>
+        Pick<
+          TimerItemTask,
+          | 'id'
+          | 'title'
+          | 'plannedTime'
+          | 'project'
+          | 'userId'
+          | 'running'
+          | 'startTime'
+        >
       >
     ) {
-      const { title, plannedTime, project } = action.payload;
-      const now: Date = new Date();
-      const nowTS: number = now.getTime();
+      const { id, title, project, userId, running, startTime } = action.payload;
 
+      // const newTimer: TimerItemTask = { ...action.payload };
       const newTimer: TimerItemTask = {
-        id: nanoid(),
+        id: id ?? nanoid(),
         title: title,
-        running: true,
+        running: running,
         project: project ?? null,
-        // @todo: Get proper user id
-        userId: nowTS.toString(),
-        duration: [],
-        startTime: now,
+        userId: userId ?? new Date().getTime(),
+        startTime:
+          typeof startTime === 'string' ? new Date(startTime) : startTime,
+        createdAt:
+          typeof startTime === 'string' ? new Date(startTime) : startTime,
         endTime: null,
-        createdAt: now,
-        plannedTime: plannedTime,
+        duration: [],
+        totalDuration: 0,
+        plannedTime: null,
       };
 
       state.push(newTimer);
