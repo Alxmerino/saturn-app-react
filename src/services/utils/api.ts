@@ -1,4 +1,4 @@
-import { camelCase, isPlainObject } from 'lodash';
+import { camelCase, snakeCase, isPlainObject } from 'lodash';
 import { RootState } from '../../store/store';
 
 export function transformResponse<T>(
@@ -7,6 +7,10 @@ export function transformResponse<T>(
   arg: any
 ) {
   return camelizeKeys(response.data);
+}
+
+export function transformBody(body: any) {
+  return snakeCaseKeys(body);
 }
 
 export function prepareHeaders(
@@ -33,6 +37,22 @@ export function camelizeKeys(obj: any): any {
       (result, key) => ({
         ...result,
         [camelCase(key)]: camelizeKeys(obj[key]),
+      }),
+      {}
+    );
+  }
+
+  return obj;
+}
+
+export function snakeCaseKeys(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map((v) => snakeCaseKeys(v));
+  } else if (isPlainObject(obj)) {
+    return Object.keys(obj).reduce(
+      (result, key) => ({
+        ...result,
+        [snakeCase(key)]: snakeCaseKeys(obj[key]),
       }),
       {}
     );
