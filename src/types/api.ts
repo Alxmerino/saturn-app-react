@@ -1,5 +1,4 @@
-import { DateType, User } from './timer';
-import { Task } from '../services/api/saturnApi';
+import { DateType, User, TimerItemTask } from './timer';
 
 export interface ServerResponse<T> {
   data: T;
@@ -45,4 +44,4 @@ export interface TaskRequest {
   end_time?: DateType;
 }
 
-export type TaskResponse = Task;
+export type TaskResponse = TimerItemTask;

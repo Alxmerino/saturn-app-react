@@ -13,7 +13,7 @@ import { Routes } from '../../config/constants';
 import { Text } from '../../components/common';
 import { TimerHeader, TimerList } from '../../components/Timer';
 import { selectTimersByDate } from '../../store/Timer/TimerSlice';
-import { useLogoutMutation } from '../../services/api/auth';
+import { useLogoutMutation } from '../../services/api';
 
 const TimerApp = () => {
   const isLoggedIn: boolean = useAppSelector(selectLoggedIn);
