@@ -1,6 +1,8 @@
+export type DateType = Date | string | null;
+
 interface Timestamps {
-  createdAt?: Date | null;
-  updatedAt?: Date | null;
+  createdAt?: DateType;
+  updatedAt?: DateType;
 }
 
 export type ColorCode =
@@ -34,19 +36,22 @@ export interface Project extends Timestamps {
 }
 
 interface StartEndTime {
-  startTime: Date | string | null;
-  endTime: Date | string | null;
+  startTime: DateType;
+  endTime: DateType;
   manualUpdate?: boolean;
 }
 
-interface Task extends StartEndTime, Timestamps {
+interface Task extends Timestamps {
   id: string;
   title: string;
   running: boolean;
   project: Project | null;
   userId: string;
   duration: StartEndTime[];
+  totalDuration: number;
   plannedTime: Duration | null;
+  startTime: DateType;
+  endTime: DateType;
 }
 
 export interface TimerItemTask extends Task {}
