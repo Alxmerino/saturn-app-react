@@ -67,6 +67,12 @@ export const api: any = createApi({
       }),
       transformResponse,
     }),
+    deleteTimer: builders.mutation<string | number, any>({
+      query: (id: string | number) => ({
+        url: `/tasks/${id}`,
+        method: 'DELETE',
+      }),
+    }),
   }),
 });
 
@@ -76,4 +82,5 @@ export const {
   useUpdateProjectByTitleMutation,
   useCreateProjectMutation,
   useCreateTimerMutation,
+  useDeleteTimerMutation,
 } = api;

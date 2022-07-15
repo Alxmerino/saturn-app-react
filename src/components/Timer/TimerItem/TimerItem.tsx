@@ -41,6 +41,7 @@ import {
   stopTimer,
 } from '../../../store/Timer/TimerSlice';
 import { useAppDispatch } from '../../../app/hooks';
+import { useDeleteTimerMutation } from '../../../services/api';
 
 export interface TimerItemProps {
   timer: TimerItemTask;
@@ -50,6 +51,8 @@ export interface TimerItemProps {
 const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
   const canLogTime = false;
   const dispatch = useAppDispatch();
+  const [deleteTimer] = useDeleteTimerMutation();
+
   const [projectMenuEl, setProjectMenuEl] = useState<null | HTMLElement>(null);
   const [project, setProject] = useState<Partial<Project> | null>(
     timer.project
@@ -85,9 +88,16 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
     handleTimerMenuClose();
   };
 
-  const handleTimerDelete = () => {
+  const handleTimerDelete = async () => {
     // @todo: Better way to confirm delete?
     if (confirm('Are you sure you want to delete this timer?')) {
+      try {
+        await deleteTimer(timer.id);
+      } catch (err) {
+        // @todo: Handle errors
+        console.error('Delete Task Error', err);
+      }
+
       dispatch(removeTimer(timer.id));
       handleTimerMenuClose();
     }
