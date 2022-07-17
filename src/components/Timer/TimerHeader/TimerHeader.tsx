@@ -4,7 +4,7 @@ import { nanoid } from '@reduxjs/toolkit';
 import { Add } from '@mui/icons-material';
 
 import { getDurationFromString, hasDuration } from '../../../services/utils';
-import { useAppDispatch } from '../../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { addTimer } from '../../../store/Timer/TimerSlice';
 import { Button, ProjectMenu } from '../../common';
 import { ColorCode, Project, TimerItemTask } from '../../../types/types';
@@ -14,9 +14,11 @@ import {
 } from '../../../services/api';
 import { colorNameToCodeMap } from '../../../config/constants';
 import { format } from 'date-fns';
+import { selectCurrentUser } from '../../../store/User/UserSlice';
 
 const TimerHeader = () => {
   const dispatch = useAppDispatch();
+  const user = useAppSelector(selectCurrentUser);
   const [title, setTitle] = useState<string>('');
   const [plannedTime, setPlannedTime] = useState<string>('');
   const [project, setProject] = useState<Partial<Project> | null>(null);
@@ -66,8 +68,7 @@ const TimerHeader = () => {
         title,
         running: true,
         project: timerProject,
-        // @todo: get current user
-        userId: 1,
+        userId: user?.id,
         // @todo: Figure out timezone
         startTime: format(now, "yyyy-MM-dd'T'H:mm:ss"),
       };
