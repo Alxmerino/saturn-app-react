@@ -17,6 +17,8 @@ import {
   getTimerDuration,
   formatDurationString,
 } from '../../../services/utils';
+import { selectCurrentUser } from '../../../store/User/UserSlice';
+import { useAppSelector } from '../../../app/hooks';
 
 export interface TimerListProps {
   date: string;
@@ -26,6 +28,7 @@ export interface TimerListProps {
 const TimerList = ({ date, timers }: TimerListProps) => {
   const now: Date = new Date();
   const headerDate: Date = parse(date, 'yyyy-MM-dd', now);
+  const user = useAppSelector(selectCurrentUser);
   const [expanded, setExpanded] = useState<boolean>(true);
   const totalPlannedTime = getTotalDuration(
     timers.map((timer) => timer.plannedTime ?? {})
@@ -97,6 +100,7 @@ const TimerList = ({ date, timers }: TimerListProps) => {
           <TimerItem
             timer={timer}
             key={timer.id}
+            user={user}
             onDurationUpdate={handleTimerDurationUpdate}
           />
         ))}

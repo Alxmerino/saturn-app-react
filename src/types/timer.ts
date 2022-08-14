@@ -31,7 +31,7 @@ export interface User {
 export interface Project extends Timestamps {
   id: string;
   title: string;
-  userId: string;
+  userId: string | number;
   colorCode: ColorCode | null;
 }
 

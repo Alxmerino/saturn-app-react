@@ -67,6 +67,26 @@ export const api: any = createApi({
       }),
       transformResponse,
     }),
+    // @todo: Fix types
+    assignTimerProject: builders.mutation<any, any>({
+      query: (args) => ({
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        url: `/tasks/${args.id}/add-project`,
+        method: 'POST',
+        body: transformBody({ ...args.data }),
+      }),
+      transformResponse,
+    }),
+    // @todo: Fix types
+    updateTimer: builders.mutation<string | number, any>({
+      query: (args: any) => ({
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        url: `/tasks/${args.id}`,
+        method: 'PUT',
+        body: transformBody({ ...args.timer }),
+      }),
+    }),
+    // @todo: Fix types
     deleteTimer: builders.mutation<string | number, any>({
       query: (id: string | number) => ({
         url: `/tasks/${id}`,
@@ -82,5 +102,7 @@ export const {
   useUpdateProjectByTitleMutation,
   useCreateProjectMutation,
   useCreateTimerMutation,
+  useAssignTimerProjectMutation,
+  useUpdateTimerMutation,
   useDeleteTimerMutation,
 } = api;

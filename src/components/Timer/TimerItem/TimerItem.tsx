@@ -23,7 +23,7 @@ import {
 } from '@mui/icons-material';
 
 import { ProjectMenu, Text } from '../../common';
-import { ColorCode, Project, TimerItemTask } from '../../../types/types';
+import { ColorCode, Project, TimerItemTask, User } from '../../../types/types';
 import {
   formatDurationFromObject,
   formatDurationString,
@@ -41,17 +41,25 @@ import {
   stopTimer,
 } from '../../../store/Timer/TimerSlice';
 import { useAppDispatch } from '../../../app/hooks';
-import { useDeleteTimerMutation } from '../../../services/api';
+import {
+  useDeleteTimerMutation,
+  useUpdateProjectByTitleMutation,
+  useAssignTimerProjectMutation,
+} from '../../../services/api';
+import { colorNameToCodeMap } from '../../../config/constants';
 
 export interface TimerItemProps {
   timer: TimerItemTask;
   onDurationUpdate?: (duration: number) => void;
+  user: User | null;
 }
 
-const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
+const TimerItem = ({ timer, onDurationUpdate, user }: TimerItemProps) => {
   const canLogTime = false;
   const dispatch = useAppDispatch();
   const [deleteTimer] = useDeleteTimerMutation();
+  const [updateProjectByTitle] = useUpdateProjectByTitleMutation();
+  const [assignTimerProject] = useAssignTimerProjectMutation();
 
   const [projectMenuEl, setProjectMenuEl] = useState<null | HTMLElement>(null);
   const [project, setProject] = useState<Partial<Project> | null>(
@@ -227,23 +235,57 @@ const TimerItem = ({ timer, onDurationUpdate }: TimerItemProps) => {
 
   // Update the project if it changes
   useEffect(() => {
-    if (project !== null) {
+    if (
+      !isNil(project) &&
+      (timer?.project?.id !== project.id ||
+        timer?.project?.title !== project.title ||
+        timer?.project?.colorCode !== project.colorCode)
+    ) {
+      // @todo: Move this to utils?
+      const updateOrCreateProject = async () => {
+        const { data: projectResults } = await updateProjectByTitle({
+          ...timerProject,
+          // Send color code as number since that's what the API uses
+          // @todo: Fix color conversion when receiving data from API
+          color_code: colorNameToCodeMap[project?.colorCode as string],
+        });
+
+        const { data: timerResults } = await assignTimerProject({
+          id: timer.id,
+          data: { projectId: projectResults.id },
+        });
+
+        return timerResults;
+      };
+
       const timerProject = {
+        ...project,
         id: project?.id ?? nanoid(),
-        userId: 'test-user-id',
+        userId: user?.id ?? nanoid(),
         title: project?.title ?? '',
         colorCode: project?.colorCode as ColorCode,
       };
 
-      if (!isEqual(timer.project, timerProject)) {
-        dispatch(
-          updateTimer({
-            ...timer,
-            project: timerProject,
-          })
-        );
-      }
-      console.groupEnd();
+      updateOrCreateProject()
+        .then((data) => {
+          dispatch(
+            updateTimer({
+              ...timer,
+              project: data.project,
+            })
+          );
+        })
+        .catch((err) => {
+          // @todo: handle error
+          console.error('Update project error', err);
+
+          dispatch(
+            updateTimer({
+              ...timer,
+              project: timerProject,
+            })
+          );
+        });
     }
   }, [project]);
 
