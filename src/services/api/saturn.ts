@@ -18,6 +18,7 @@ interface FinalLoginRequest extends LoginRequest {
 export const api: any = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: API.BASE_API_URL,
+    credentials: 'include',
     prepareHeaders,
   }),
   endpoints: (builders) => ({
@@ -93,6 +94,17 @@ export const api: any = createApi({
         method: 'DELETE',
       }),
     }),
+
+    /**
+     * JIRA Endpoints
+     */
+    jiraLogin: builders.mutation<any, any>({
+      query: (args) => ({
+        url: '/integration/jira/auth/session/login',
+        method: 'POST',
+        body: transformBody(args),
+      }),
+    }),
   }),
 });
 
@@ -105,4 +117,7 @@ export const {
   useAssignTimerProjectMutation,
   useUpdateTimerMutation,
   useDeleteTimerMutation,
+
+  // JIRA Hooks
+  useJiraLoginMutation,
 } = api;

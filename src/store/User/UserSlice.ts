@@ -8,16 +8,22 @@ import { RootState, AppThunk } from '../store';
 import { AuthResponse, User } from '../../types/types';
 import LocalStore from '../../services/utils/local-store';
 
+export type IntegrationType = 'JIRA';
+
 export interface UserState {
   isLoggedIn: boolean;
   user: User | null;
   token: string | null;
+  integration?: IntegrationType | null;
+  session?: Record<string, unknown> | null;
 }
 
 const initialState: UserState = {
   isLoggedIn: false,
   user: null,
   token: null,
+  integration: null,
+  session: null,
 };
 
 const reducerName = 'auth';
@@ -53,13 +59,24 @@ export const UserSlice = createSlice({
       // Save to local storage
       LocalStore.set(reducerName, state, true);
     },
+    setIntegration: (state, { payload }: PayloadAction<any>) => {
+      state.integration = payload.name;
+      state.session = payload.session;
+
+      // Save to local storage
+      LocalStore.set(reducerName, state, true);
+    },
   },
   extraReducers: {},
 });
 
-export const { setCredentials, setLogin, setLogout } = UserSlice.actions;
+export const { setCredentials, setLogin, setLogout, setIntegration } =
+  UserSlice.actions;
 
 export const selectCurrentUser = (state: RootState) => state.auth.user;
+export const selectUserIntegration = (state: RootState) =>
+  state.auth.integration;
+export const selectUserSession = (state: RootState) => state.auth.session;
 export const selectLoggedIn = (state: RootState) => state.auth.isLoggedIn;
 
 export default UserSlice.reducer;

@@ -1,6 +1,7 @@
 export enum Routes {
   HOME = '/',
   APP = '/app',
+  ACCOUNT = '/account',
   LOGIN = '/login',
   SIGNUP = '/signup',
 }
@@ -17,6 +18,7 @@ export const durationMapShort: { [x: string]: string } = {
   seconds: 's',
 };
 
+// @todo: Use Material color variables
 export const colorMap: { [x: string]: string } = {
   blue: '#1565c0',
   turquoise: '#009688',

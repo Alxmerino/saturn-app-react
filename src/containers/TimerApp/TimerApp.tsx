@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Link, Paper } from '@mui/material';
+import { Avatar, Box, Link, Paper } from '@mui/material';
 import { push } from 'redux-first-history';
 
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
@@ -15,7 +15,7 @@ import { TimerHeader, TimerList } from '../../components/Timer';
 import { selectTimersByDate } from '../../store/Timer/TimerSlice';
 import { useLogoutMutation } from '../../services/api';
 
-const TimerApp = () => {
+const TimerApp = (): JSX.Element => {
   const isLoggedIn: boolean = useAppSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
   const timersByDate = useAppSelector(selectTimersByDate);
@@ -43,6 +43,17 @@ const TimerApp = () => {
     }
   };
 
+  const handleOnAvatarClick = () => {
+    dispatch(push(Routes.ACCOUNT));
+  };
+
+  const getUserInitials = () => {
+    return currentUser.name
+      .split(' ')
+      .map((n: string) => n[0])
+      .join('');
+  };
+
   /**
    * Redirect home the user if not logged in
    */
@@ -56,16 +67,34 @@ const TimerApp = () => {
     <>
       <Box
         sx={{
-          backgroundColor: 'grey.100',
           pt: 1,
-          px: 2,
           pb: 2,
+          display: 'flex',
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
         }}
       >
-        <Text component="h1" variant="h6" align="center">
+        <Text component="h1" variant="h6">
           Saturn Time Tracker
         </Text>
-        <TimerHeader />
+        <Link sx={{ cursor: 'pointer' }} onClick={handleOnAvatarClick}>
+          <Avatar
+            src={currentUser.profilePhotoUrl}
+            sx={{
+              bgcolor: 'blue.500',
+              height: 24,
+              width: 24,
+              fontSize: '0.75rem',
+            }}
+          >
+            {getUserInitials()}
+          </Avatar>
+        </Link>
+        <Box width="100%">
+          <TimerHeader />
+        </Box>
       </Box>
 
       <Box pt={2}>
