@@ -105,6 +105,13 @@ export const api: any = createApi({
         body: transformBody(args),
       }),
     }),
+    jiraLogout: builders.mutation<any, any>({
+      query: (args) => ({
+        url: '/integration/jira/auth/session/logout',
+        method: 'DELETE',
+        body: transformBody(args),
+      }),
+    }),
   }),
 });
 
@@ -120,4 +127,5 @@ export const {
 
   // JIRA Hooks
   useJiraLoginMutation,
+  useJiraLogoutMutation,
 } = api;

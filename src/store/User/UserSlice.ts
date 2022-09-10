@@ -14,7 +14,10 @@ export interface UserState {
   isLoggedIn: boolean;
   user: User | null;
   token: string | null;
-  integration?: IntegrationType | null;
+  integration: {
+    name: IntegrationType | null;
+    metadata: Record<string, unknown> | null;
+  };
   session?: Record<string, unknown> | null;
 }
 
@@ -22,7 +25,10 @@ const initialState: UserState = {
   isLoggedIn: false,
   user: null,
   token: null,
-  integration: null,
+  integration: {
+    name: null,
+    metadata: null,
+  },
   session: null,
 };
 
@@ -60,7 +66,7 @@ export const UserSlice = createSlice({
       LocalStore.set(reducerName, state, true);
     },
     setIntegration: (state, { payload }: PayloadAction<any>) => {
-      state.integration = payload.name;
+      state.integration = payload.integration;
       state.session = payload.session;
 
       // Save to local storage

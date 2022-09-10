@@ -12,7 +12,10 @@ import {
 } from '../../store/User/UserSlice';
 import { Routes } from '../../config/constants';
 
-import { useJiraLoginMutation } from '../../services/api';
+import {
+  useJiraLoginMutation,
+  useJiraLogoutMutation,
+} from '../../services/api';
 import { Button } from '../../components/common';
 import { GenericLayout } from '../../components/layout';
 
@@ -22,6 +25,7 @@ const Account = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectCurrentUser);
   const [jiraLogin, { isLoading }] = useJiraLoginMutation();
+  const [jiraLogout] = useJiraLogoutMutation();
 
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -49,8 +53,38 @@ const Account = (): JSX.Element => {
         setErrors(errors);
       } else {
         setErrors([]);
-        dispatch(setIntegration({ name: 'JIRA', session: jiraUser?.data }));
+        dispatch(
+          setIntegration({
+            integration: { name: 'JIRA', metadata: formDataObj },
+            session: jiraUser?.data,
+          })
+        );
         dispatch(push(Routes.APP));
+      }
+    } catch (err) {
+      // @todo: handle error
+      console.error('error', err);
+    }
+  };
+
+  const handleLogOut = async () => {
+    try {
+      const { data } = await jiraLogout({
+        baseJiraUrl: integration.metadata.baseJiraUrl,
+        deviceName: integration.metadata.deviceName,
+      });
+
+      if (data?.data.message === 'Success') {
+        setErrors([]);
+        dispatch(
+          setIntegration({
+            integration: { name: null, metadata: {} },
+            session: null,
+          })
+        );
+        // Todo: Delete JIRA session cookie
+      } else {
+        setErrors(['An error occurred']);
       }
     } catch (err) {
       // @todo: handle error
@@ -69,7 +103,6 @@ const Account = (): JSX.Element => {
    * Redirect home the user if not logged in
    */
   useEffect(() => {
-    console.log({ isLoggedIn, user });
     if (!isLoggedIn && !user) {
       dispatch(push(Routes.HOME));
     }
@@ -99,10 +132,17 @@ const Account = (): JSX.Element => {
           {getUserInitials()}
         </Avatar>
 
-        {integration ? (
+        {integration?.name ? (
           <Box mt={4} textAlign="center">
-            <Typography>Connected with {integration}</Typography>
-            <button disabled>Log Out</button>
+            <Typography>Connected with {integration?.name}</Typography>
+            <Button
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              kind="primary"
+              onClick={handleLogOut}
+            >
+              Log Out
+            </Button>
           </Box>
         ) : (
           <Box
@@ -151,17 +191,14 @@ const Account = (): JSX.Element => {
             >
               {isLoading ? 'Loading' : 'Connect JIRA'}
             </Button>
-            {errors.length > 0 &&
-              errors.map((error) => (
-                <Typography
-                  key={error}
-                  sx={{ color: '#d32f2f', fontSize: '14px' }}
-                >
-                  {error}
-                </Typography>
-              ))}
           </Box>
         )}
+        {errors.length > 0 &&
+          errors.map((error) => (
+            <Typography key={error} sx={{ color: '#d32f2f', fontSize: '14px' }}>
+              {error}
+            </Typography>
+          ))}
       </Box>
     </GenericLayout>
   );
