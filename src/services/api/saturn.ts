@@ -112,6 +112,14 @@ export const api: any = createApi({
         body: transformBody(args),
       }),
     }),
+    jiraLogTime: builders.mutation<any, any>({
+      query: (timer) => ({
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        url: `/integration/jira/issue/${timer.project.title}/worklog`,
+        method: 'POST',
+        body: transformBody(timer),
+      }),
+    }),
   }),
 });
 
@@ -128,4 +136,5 @@ export const {
   // JIRA Hooks
   useJiraLoginMutation,
   useJiraLogoutMutation,
+  useJiraLogTimeMutation,
 } = api;

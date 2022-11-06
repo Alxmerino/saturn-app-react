@@ -40,13 +40,15 @@ import {
   startTimer,
   stopTimer,
 } from '../../../store/Timer/TimerSlice';
-import { useAppDispatch } from '../../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import {
   useDeleteTimerMutation,
   useUpdateProjectByTitleMutation,
   useAssignTimerProjectMutation,
+  useJiraLogTimeMutation,
 } from '../../../services/api';
 import { colorNameToCodeMap } from '../../../config/constants';
+import { selectUserIntegration } from '../../../store/User/UserSlice';
 
 export interface TimerItemProps {
   timer: TimerItemTask;
@@ -55,11 +57,12 @@ export interface TimerItemProps {
 }
 
 const TimerItem = ({ timer, onDurationUpdate, user }: TimerItemProps) => {
-  const canLogTime = false;
+  const integration = useAppSelector(selectUserIntegration);
   const dispatch = useAppDispatch();
   const [deleteTimer] = useDeleteTimerMutation();
   const [updateProjectByTitle] = useUpdateProjectByTitleMutation();
   const [assignTimerProject] = useAssignTimerProjectMutation();
+  const [jiraLogTime] = useJiraLogTimeMutation();
 
   const [projectMenuEl, setProjectMenuEl] = useState<null | HTMLElement>(null);
   const [project, setProject] = useState<Partial<Project> | null>(
@@ -78,6 +81,7 @@ const TimerItem = ({ timer, onDurationUpdate, user }: TimerItemProps) => {
   const [timerRunningOnEdit, setTimerRunningOnEdit] = useState<boolean>(false);
   const [timerAnchorEl, setTimerAnchorEl] = useState<null | HTMLElement>(null);
   const timerOpen = Boolean(timerAnchorEl);
+  const canLogTime = !isNil(integration) && !isNil(project?.title);
 
   const handleTimerClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setTimerAnchorEl(event.currentTarget);
@@ -108,6 +112,17 @@ const TimerItem = ({ timer, onDurationUpdate, user }: TimerItemProps) => {
 
       dispatch(removeTimer(timer.id));
       handleTimerMenuClose();
+    }
+  };
+
+  const handleTimerLog = async () => {
+    try {
+      // @todo: Check for integration
+      console.log('SEND TIMER', JSON.stringify(timer), durationInSeconds);
+      await jiraLogTime(timer);
+    } catch (err) {
+      // @todo: Handle errors
+      console.error('Delete Task Error', err);
     }
   };
 
@@ -380,15 +395,15 @@ const TimerItem = ({ timer, onDurationUpdate, user }: TimerItemProps) => {
         }}
       >
         {canLogTime && (
-          <>
-            <MenuItem onClick={handleTimerMenuClose}>
+          <div>
+            <MenuItem onClick={handleTimerLog}>
               <ListItemIcon>
                 <SendTimeExtension fontSize="small" />
               </ListItemIcon>
               <ListItemText>Log Time</ListItemText>
             </MenuItem>
             <Divider />
-          </>
+          </div>
         )}
         <MenuItem onClick={handleTimerReset}>
           <ListItemIcon>

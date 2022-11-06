@@ -48,7 +48,7 @@ const TimerApp = (): JSX.Element => {
   };
 
   const getUserInitials = () => {
-    return currentUser.name
+    return currentUser?.name
       .split(' ')
       .map((n: string) => n[0])
       .join('');
@@ -61,7 +61,7 @@ const TimerApp = (): JSX.Element => {
     if (!isLoggedIn) {
       dispatch(push(Routes.HOME));
     }
-  });
+  }, []);
 
   return (
     <>
@@ -81,7 +81,7 @@ const TimerApp = (): JSX.Element => {
         </Text>
         <Link sx={{ cursor: 'pointer' }} onClick={handleOnAvatarClick}>
           <Avatar
-            src={currentUser.profilePhotoUrl}
+            src={currentUser?.profilePhotoUrl}
             sx={{
               bgcolor: 'blue.500',
               height: 24,

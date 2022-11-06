@@ -55,7 +55,14 @@ const Account = (): JSX.Element => {
         setErrors([]);
         dispatch(
           setIntegration({
-            integration: { name: 'JIRA', metadata: formDataObj },
+            integration: {
+              name: 'JIRA',
+              // @todo: Make this more generic
+              metadata: {
+                baseJiraUrl: formDataObj.baseJiraUrl,
+                deviceName: formDataObj.deviceName,
+              },
+            },
             session: jiraUser?.data,
           })
         );
