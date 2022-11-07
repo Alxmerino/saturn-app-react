@@ -20,6 +20,15 @@ const initialState: TimerState = {
 
 const reducerName = 'task';
 
+const updateTimestamps = (item: Project | Task | TaskTimerItem) => {
+  if ('createdAt' in item) {
+    item.createdAt = item.createdAt ? new Date(item.createdAt) : null;
+  }
+  if ('updatedAt' in item) {
+    item.updatedAt = item.updatedAt ? new Date(item.updatedAt) : null;
+  }
+};
+
 export const TimerSlice = createSlice({
   name: reducerName,
   initialState() {
@@ -32,15 +41,12 @@ export const TimerSlice = createSlice({
 
         if (stateItem.length) {
           stateItem.forEach((item: Project | Task) => {
-            if ('createdAt' in item) {
-              item.createdAt = item.createdAt ? new Date(item.createdAt) : null;
-            }
-            if ('updatedAt' in item) {
-              item.updatedAt = item.updatedAt ? new Date(item.updatedAt) : null;
-            }
+            updateTimestamps(item);
 
             if ('timers' in item && item.timers.length) {
               item.timers.forEach((timer) => {
+                updateTimestamps(item);
+
                 timer.startTime = timer.startTime
                   ? new Date(timer.startTime)
                   : null;
@@ -98,34 +104,26 @@ export const TimerSlice = createSlice({
         task.projectId = projectId;
       }
     },
-    addTimer(state: TimerState, action: PayloadAction<TaskTimerItem>) {
-      const {
-        id,
-        title,
-        userId,
-        taskId,
-        projectId,
-        billable = false,
-        running = true,
-      } = action.payload;
-
-      const newTimer: TaskTimerItem = {
-        id: id ?? nanoid(),
-        title,
-        userId,
-        taskId,
-        projectId: projectId ?? null,
-        billable,
-        running,
-        duration: '',
-        durationInSeconds: 0,
-        startTime: new Date(),
-        endTime: new Date(),
-      };
-
+    addTimer(state: TimerState, action: PayloadAction<string>) {
+      const taskId = action.payload;
       const task = state.tasks.find((item) => item.id === taskId);
 
       if (task) {
+        const newTimer: TaskTimerItem = {
+          id: nanoid(),
+          title: task.title,
+          userId: task.userId,
+          taskId: task.id,
+          projectId: task?.projectId ?? null,
+          // @todo: Update billable
+          billable: false,
+          running: true,
+          duration: '',
+          durationInSeconds: 0,
+          startTime: new Date(),
+          endTime: new Date(),
+        };
+
         task.timers.push(newTimer);
       }
 

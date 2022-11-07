@@ -5,7 +5,7 @@ import { Add } from '@mui/icons-material';
 
 import { getDurationFromString, hasDuration } from '../../../services/utils';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { addTask } from '../../../store/Timer/TimerSlice';
+import { addTask, addTimer } from '../../../store/Timer/TimerSlice';
 import { Button, ProjectMenu } from '../../common';
 import {
   ColorCodeName,
@@ -79,21 +79,18 @@ const TimerHeader = () => {
         // @todo: Figure out timezone
         // startTime: format(now, "yyyy-MM-dd'T'H:mm:ss"),
       };
-      console.log('OG TASK', task);
       const { data: taskResults } = await createTimer({
         ...task,
       });
-
-      console.log('SERVER TASK', taskResults);
 
       task = {
         ...task,
         ...taskResults,
       };
 
-      console.log('FINAL TASK', task);
-
       dispatch(addTask(task));
+      // @todo: Update API to support time entries
+      dispatch(addTimer(task.id));
       setTitle('');
       setPlannedTime('');
       setProject(null);

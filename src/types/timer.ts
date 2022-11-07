@@ -66,7 +66,7 @@ export interface DurationEntry {
   endTime: DateType;
 }
 
-export interface TaskTimerItem extends DurationEntry {
+export interface TaskTimerItem extends DurationEntry, Timestamps {
   id: string;
   title: string;
   userId: string;
