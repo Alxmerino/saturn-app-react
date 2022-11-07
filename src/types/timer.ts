@@ -19,39 +19,59 @@ export type ColorCode =
   | 'violet'
   | 'lime';
 
-export interface User {
+export interface User extends Timestamps {
   id: number;
   name: string;
   email: string;
   profilePhotoPath?: string | null;
-  createdAt: Date | string;
-  updatedAt: Date | string;
 }
 
 export interface Project extends Timestamps {
   id: string;
   title: string;
   userId: string | number;
-  colorCode: ColorCode | null;
+  colorCode: number | null;
 }
 
+// @todo: deprecate
 interface StartEndTime {
   startTime: DateType;
   endTime: DateType;
   manualUpdate?: boolean;
 }
 
-interface Task extends Timestamps {
+export interface Task extends Timestamps {
   id: string;
   title: string;
-  running: boolean;
-  project: Project | null;
   userId: string;
-  duration: StartEndTime[];
-  totalDuration: number;
-  plannedTime: Duration | null;
+  plannedTime?: Duration | null;
+  projectId?: string | null;
+  timers: TaskTimerItem[];
+  // @todo: deprecate `project`
+  project?: Project | null;
+  // @todo: deprecate `running`
+  running?: boolean;
+  // @todo: deprecate `duration`
+  duration?: StartEndTime[];
+  // @todo: deprecate `totalDuration`
+  totalDuration?: number;
+  // startTime: DateType;
+  // endTime: DateType;
+}
+
+export interface DurationEntry {
+  duration: string;
+  durationInSeconds: number;
   startTime: DateType;
   endTime: DateType;
 }
 
-export interface TimerItemTask extends Task {}
+export interface TaskTimerItem extends DurationEntry {
+  id: string;
+  title: string;
+  userId: string;
+  taskId: string;
+  projectId: string | null;
+  billable: boolean;
+  running: boolean;
+}
