@@ -10,7 +10,7 @@ import { ExpandMore } from '@mui/icons-material';
 
 import { Text } from '../../common';
 import { TimerItem } from '../index';
-import { TimerItemTask } from '../../../types/types';
+import { TaskTimerItem } from '../../../types/types';
 import { isToday, isYesterday, parse } from 'date-fns';
 import {
   getTotalDuration,
@@ -22,7 +22,7 @@ import { useAppSelector } from '../../../app/hooks';
 
 export interface TimerListProps {
   date: string;
-  timers: TimerItemTask[];
+  timers: TaskTimerItem[];
 }
 
 const TimerList = ({ date, timers }: TimerListProps) => {

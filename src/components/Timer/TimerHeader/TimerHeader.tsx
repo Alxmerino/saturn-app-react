@@ -7,7 +7,7 @@ import { getDurationFromString, hasDuration } from '../../../services/utils';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { addTimer } from '../../../store/Timer/TimerSlice';
 import { Button, ProjectMenu } from '../../common';
-import { ColorCode, Project, TimerItemTask } from '../../../types/types';
+import { ColorCode, Project, TaskTimerItem } from '../../../types/types';
 import {
   useCreateTimerMutation,
   useUpdateProjectByTitleMutation,
@@ -82,7 +82,7 @@ const TimerHeader = () => {
         ...taskResults,
       };
 
-      dispatch(addTimer(timerTask as unknown as TimerItemTask));
+      dispatch(addTimer(timerTask as unknown as TaskTimerItem));
       setTitle('');
       setPlannedTime('');
       setProject(null);

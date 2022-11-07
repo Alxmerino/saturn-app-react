@@ -23,7 +23,7 @@ import {
 } from '@mui/icons-material';
 
 import { ProjectMenu, Text } from '../../common';
-import { ColorCode, Project, TimerItemTask, User } from '../../../types/types';
+import { ColorCode, Project, TaskTimerItem, User } from '../../../types/types';
 import {
   formatDurationFromObject,
   formatDurationString,
@@ -51,7 +51,7 @@ import { colorNameToCodeMap } from '../../../config/constants';
 import { selectUserIntegration } from '../../../store/User/UserSlice';
 
 export interface TimerItemProps {
-  timer: TimerItemTask;
+  timer: TaskTimerItem;
   onDurationUpdate?: (duration: number) => void;
   user: User | null;
 }
