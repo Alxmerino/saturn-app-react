@@ -5,9 +5,14 @@ import { Add } from '@mui/icons-material';
 
 import { getDurationFromString, hasDuration } from '../../../services/utils';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { addTimer } from '../../../store/Timer/TimerSlice';
+import { addTask } from '../../../store/Timer/TimerSlice';
 import { Button, ProjectMenu } from '../../common';
-import { ColorCode, Project, TaskTimerItem } from '../../../types/types';
+import {
+  ColorCodeName,
+  Project,
+  Task,
+  TaskTimerItem,
+} from '../../../types/types';
 import {
   useCreateTimerMutation,
   useUpdateProjectByTitleMutation,
@@ -44,45 +49,51 @@ const TimerHeader = () => {
   const handleTimerAdd = async () => {
     const now: Date = new Date();
     // const plannedTimeDuration = getDurationFromString(plannedTime);
-    let timerProject = {
-      id: null,
-      title: project?.title ?? '',
-      colorCode: project?.colorCode as ColorCode,
-    };
+
+    const taskProject = {};
+    // let taskProject = {
+    //   title: project?.title ?? '',
+    //   colorCode: project?.colorCode ?? 0,
+    // };
 
     try {
       // Update/Create Project on API
-      if (timerProject?.title) {
-        const { data: projectResults } = await updateProjectByTitle({
-          ...timerProject,
-          // Send color code as number since that's what the API uses
-          color_code: colorNameToCodeMap[project?.colorCode as string],
-        });
-
-        // Update local project object
-        timerProject = projectResults;
-      }
+      // if (taskProject?.title) {
+      //   const { data: projectResults } = await updateProjectByTitle({
+      //     ...taskProject,
+      //   });
+      //
+      //   console.log('SERVER PROJECT', projectResults);
+      //
+      //   // Update local project object
+      //   taskProject = projectResults;
+      // }
 
       // Create local timer object
-      let timerTask = {
+      let task: Task = {
+        id: nanoid(),
         title,
-        running: true,
-        project: timerProject,
+        projectId: null,
         userId: user?.id,
+        timers: [],
         // @todo: Figure out timezone
-        startTime: format(now, "yyyy-MM-dd'T'H:mm:ss"),
+        // startTime: format(now, "yyyy-MM-dd'T'H:mm:ss"),
       };
+      console.log('OG TASK', task);
       const { data: taskResults } = await createTimer({
-        ...timerTask,
-        projectId: timerProject?.id ?? null,
+        ...task,
       });
 
-      timerTask = {
-        ...timerTask,
+      console.log('SERVER TASK', taskResults);
+
+      task = {
+        ...task,
         ...taskResults,
       };
 
-      dispatch(addTimer(timerTask as unknown as TaskTimerItem));
+      console.log('FINAL TASK', task);
+
+      dispatch(addTask(task));
       setTitle('');
       setPlannedTime('');
       setProject(null);
@@ -125,14 +136,14 @@ const TimerHeader = () => {
           }}
         />
       )}
-      <ProjectMenu
-        color="primary"
-        project={project}
-        setProject={setProject}
-        projectMenuEl={projectMenuEl}
-        onOpen={(el: HTMLElement) => setProjectMenuEl(el)}
-        onClose={() => setProjectMenuEl(null)}
-      />
+      {/* <ProjectMenu */}
+      {/* color="primary" */}
+      {/* project={project} */}
+      {/* setProject={setProject} */}
+      {/* projectMenuEl={projectMenuEl} */}
+      {/* onOpen={(el: HTMLElement) => setProjectMenuEl(el)} */}
+      {/* onClose={() => setProjectMenuEl(null)} */}
+      {/* /> */}
       <Button kind="primary" onClick={handleTimerAdd} disabled={!canAdd}>
         <Add />
       </Button>

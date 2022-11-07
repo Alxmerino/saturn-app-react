@@ -12,13 +12,13 @@ import {
 import { Routes } from '../../config/constants';
 import { Text } from '../../components/common';
 import { TimerHeader, TimerList } from '../../components/Timer';
-import { selectTimersByDate } from '../../store/Timer/TimerSlice';
+import { selectTasksByDate } from '../../store/Timer/TimerSlice';
 import { useLogoutMutation } from '../../services/api';
 
 const TimerApp = (): JSX.Element => {
   const isLoggedIn: boolean = useAppSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
-  const timersByDate = useAppSelector(selectTimersByDate);
+  const timersByDate = useAppSelector(selectTasksByDate);
   const currentUser = useAppSelector(selectCurrentUser);
   const timersByDateArray = Object.keys(timersByDate);
   const [logout, { isLoading }] = useLogoutMutation();

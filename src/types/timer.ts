@@ -5,7 +5,7 @@ interface Timestamps {
   updatedAt?: DateType;
 }
 
-export type ColorCode =
+export type ColorCodeName =
   | 'blue'
   | 'black'
   | 'grey'

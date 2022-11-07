@@ -1,4 +1,4 @@
-import { DateType, User, TimerItemTask } from './timer';
+import { DateType, User, TaskTimerItem } from './timer';
 
 export interface ServerResponse<T> {
   data: T;
@@ -44,4 +44,4 @@ export interface TaskRequest {
   end_time?: DateType;
 }
 
-export type TaskResponse = TimerItemTask;
+export type TaskResponse = TaskTimerItem;

@@ -10,6 +10,7 @@ import LocalStore from '../../services/utils/local-store';
 interface TimerState {
   tasks: Task[];
   projects: Project[];
+  [x: string]: Project[] | Task[];
 }
 
 const initialState: TimerState = {
@@ -25,34 +26,49 @@ export const TimerSlice = createSlice({
     const localState: TimerState = LocalStore.get(reducerName);
 
     // Parse dates from string to Date
-    // @todo: Fix local state
     if (localState) {
-      // localState.forEach((timer) => {
-      //   timer.createdAt = timer.createdAt ? new Date(timer.createdAt) : null;
-      //   timer.updatedAt = timer.updatedAt ? new Date(timer.updatedAt) : null;
-      //   timer.startTime = timer.startTime ? new Date(timer.startTime) : null;
-      //   timer.endTime = timer.endTime ? new Date(timer.endTime) : null;
-      // });
+      Object.keys(localState).forEach((state: string) => {
+        const stateItem = localState[state];
+
+        if (stateItem.length) {
+          stateItem.forEach((item: Project | Task) => {
+            if ('createdAt' in item) {
+              item.createdAt = item.createdAt ? new Date(item.createdAt) : null;
+            }
+            if ('updatedAt' in item) {
+              item.updatedAt = item.updatedAt ? new Date(item.updatedAt) : null;
+            }
+
+            if ('timers' in item && item.timers.length) {
+              item.timers.forEach((timer) => {
+                timer.startTime = timer.startTime
+                  ? new Date(timer.startTime)
+                  : null;
+                timer.endTime = timer.endTime ? new Date(timer.endTime) : null;
+              });
+            }
+          });
+        }
+      });
     }
 
     return localState || initialState;
   },
   reducers: {
-    addTask(
-      state: TimerState,
-      action: PayloadAction<
-        Pick<Task, 'id' | 'title' | 'project' | 'plannedTime' | 'userId'>
-      >
-    ) {
-      const { id, title, project, plannedTime, userId } = action.payload;
+    addTask(state: TimerState, action: PayloadAction<Task>) {
+      const taskAction = action.payload;
 
       const task: Task = {
-        id,
-        title,
-        userId,
-        project: project ?? null,
-        plannedTime: plannedTime ?? null,
-        timers: [],
+        ...taskAction,
+        createdAt:
+          typeof taskAction.createdAt === 'string'
+            ? new Date(taskAction.createdAt)
+            : taskAction.createdAt,
+        updatedAt:
+          typeof taskAction.updatedAt === 'string'
+            ? new Date(taskAction.updatedAt)
+            : taskAction.updatedAt,
+        projectId: taskAction.projectId ?? null,
       };
 
       state.tasks.push(task);
@@ -217,6 +233,9 @@ export const TimerSlice = createSlice({
 });
 
 export const {
+  addTask,
+  removeTask,
+  updateTask,
   addTimer,
   updateTimer,
   removeTimer,
@@ -225,10 +244,10 @@ export const {
   resetTimer,
 } = TimerSlice.actions;
 export const selectTimers = (state: RootState) => state.timer;
-export const selectTimersByDate = (state: RootState) => {
-  const sortedTimers = orderBy(state.timer, 'createdAt', 'desc');
-  return groupBy(sortedTimers, (timer) => {
-    return format(timer.createdAt, 'yyyy-MM-dd');
+export const selectTasksByDate = (state: RootState) => {
+  const sortedTasks = orderBy(state.timer.tasks, 'createdAt', 'desc');
+  return groupBy(sortedTasks, (task) => {
+    return format(task.createdAt, 'yyyy-MM-dd');
   });
 };
 export default TimerSlice.reducer;
