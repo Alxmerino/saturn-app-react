@@ -41,19 +41,19 @@ export const api: any = createApi({
       }),
       transformResponse,
     }),
-    createProject: builders.mutation<ProjectResponse, ProjectResponse>({
+    createProject: builders.mutation<ProjectRequest, ProjectResponse>({
       query: (projectBody) => ({
         url: '/projects',
         method: 'POST',
-        body: { ...projectBody },
+        body: transformBody({ ...projectBody }),
       }),
       transformResponse,
     }),
-    updateProjectByTitle: builders.mutation<ProjectResponse, ProjectRequest>({
+    updateProjectByTitle: builders.mutation<ProjectRequest, ProjectRequest>({
       query: (projectBody) => ({
         url: `/projects/title/${projectBody.title}`,
         method: 'PUT',
-        body: { ...projectBody },
+        body: transformBody({ ...projectBody }),
       }),
       transformResponse,
     }),

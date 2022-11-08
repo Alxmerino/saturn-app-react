@@ -20,6 +20,7 @@ import {
   TaskTimerItem,
 } from '../../../types/types';
 import {
+  useCreateProjectMutation,
   useCreateTimerMutation,
   useUpdateProjectByTitleMutation,
 } from '../../../services/api';
@@ -37,6 +38,7 @@ const TimerHeader = () => {
   const [canAdd, setCanAdd] = useState<boolean>(false);
   const [projectMenuEl, setProjectMenuEl] = useState<null | HTMLElement>(null);
   const [updateProjectByTitle] = useUpdateProjectByTitleMutation();
+  const [createProject] = useCreateProjectMutation();
   const [createTimer] = useCreateTimerMutation();
 
   // @todo: Hide "Planned Time" Field until Notifications are added
@@ -101,7 +103,7 @@ const TimerHeader = () => {
   const handleProjectMenuOpen = (el: HTMLElement) => {
     setProjectMenuEl(el);
   };
-  const handleProjectMenuClose = (menuProject: {
+  const handleProjectMenuClose = async (menuProject: {
     title: string;
     colorCode: number;
   }) => {
@@ -116,16 +118,26 @@ const TimerHeader = () => {
     );
 
     if (existingProject) {
-      project = {
+      // @todo: Only update if existing and menuProject are different
+      const { data: projectResult } = await updateProjectByTitle({
         ...existingProject,
         ...menuProject,
+      });
+
+      project = {
+        ...existingProject,
+        ...projectResult,
       };
+
       dispatch(updateProject(project));
     } else {
+      const { data: projectResult } = await createProject(project);
+
       project = {
         ...project,
-        ...menuProject,
+        ...projectResult,
       };
+
       dispatch(addProject(project));
     }
 
