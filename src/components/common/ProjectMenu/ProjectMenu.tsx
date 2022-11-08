@@ -1,19 +1,17 @@
-import React, { SetStateAction, useEffect, useState } from 'react';
-
+import React, { useEffect, useState } from 'react';
 import { IconButton, Input, Link, Menu, MenuItem } from '@mui/material';
 import { Circle, DeveloperBoard, FormatColorFill } from '@mui/icons-material';
 
 import './ProjectMenu.scss';
 import { Button, Text } from '../../common';
-import { colorMap } from '../../../config/constants';
-import { ColorCode, Project } from '../../../types/types';
+import { colorCodeToNameMap, colorMap } from '../../../config/constants';
+import { Project } from '../../../types/types';
 import { isNil } from 'lodash';
 
 export interface ProjectMenuProps {
   color?: Partial<'action' | 'primary' | 'secondary'>;
   project?: Partial<Project> | null;
   projectMenuEl: null | HTMLElement;
-  setProject?: React.Dispatch<SetStateAction<Partial<Project> | null>>;
   onOpen?: (x: any) => void;
   onClose?: (x: any) => void;
 }
@@ -21,7 +19,6 @@ export interface ProjectMenuProps {
 const ProjectMenu = ({
   color,
   project,
-  setProject,
   projectMenuEl,
   onOpen,
   onClose,
@@ -34,9 +31,9 @@ const ProjectMenu = ({
   const [projectTitle, setProjectTitle] = useState<string>(
     project?.title ?? ''
   );
-  const [colorCode, setColorCode] = useState<string>(project?.colorCode ?? '');
-  const projectOpen = Boolean(projectMenuEl);
-  const projectColorOpen = Boolean(projectMenuColorEl);
+  const [colorCode, setColorCode] = useState<number>(project?.colorCode ?? 0);
+  const projectMenuOpen = Boolean(projectMenuEl);
+  const projectColorMenuOpen = Boolean(projectMenuColorEl);
 
   const handleProjectMenuClick = (
     event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>
@@ -46,17 +43,19 @@ const ProjectMenu = ({
     }
   };
 
+  const handleProjectMenuClose = () => {
+    if (onClose) {
+      onClose({
+        title: tempProjectTitle,
+        colorCode: colorCode,
+      });
+    }
+  };
+
   const handleProjectColorMenuClick = (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
     setProjectMenuColorEl(event.currentTarget);
-  };
-
-  const handleProjectMenuClose = () => {
-    setProjectTitle(tempProjectTitle);
-    if (onClose) {
-      onClose(null);
-    }
   };
 
   const handleProjectColorMenuClose = () => {
@@ -66,9 +65,9 @@ const ProjectMenu = ({
   const handleProjectColorClick = (
     event: React.MouseEvent<HTMLAnchorElement | HTMLLIElement>
   ) => {
-    setColorCode(event.currentTarget.dataset.colorCode ?? '');
+    const { colorCode } = event.currentTarget.dataset;
+    setColorCode(+(colorCode ?? 0));
     handleProjectColorMenuClose();
-    handleProjectMenuClose();
   };
 
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,30 +89,20 @@ const ProjectMenu = ({
     <MenuItem
       key={color}
       onClick={handleProjectColorClick}
-      data-color-code={color}
+      data-color-code={+color}
     >
       <Circle
         sx={{
-          color: colorMap[color],
+          color: colorMap[colorCodeToNameMap[+color]],
         }}
       />
     </MenuItem>
   );
 
   useEffect(() => {
-    if (setProject && projectTitle !== '') {
-      setProject((state) => ({
-        ...state,
-        title: projectTitle,
-        colorCode: colorCode as ColorCode,
-      }));
-    }
-  }, [projectTitle, colorCode]);
-
-  useEffect(() => {
     if (isNil(project)) {
       setProjectTitle('');
-      setColorCode('');
+      setColorCode(0);
     }
   }, [project]);
 
@@ -123,15 +112,15 @@ const ProjectMenu = ({
       <Button
         kind="outlined"
         id="project-select-button"
-        aria-controls={projectOpen ? 'project-menu' : undefined}
+        aria-controls={projectMenuOpen ? 'project-menu' : undefined}
         aria-haspopup="true"
-        aria-expanded={projectOpen ? 'true' : undefined}
+        aria-expanded={projectMenuOpen ? 'true' : undefined}
         onClick={handleProjectMenuClick}
       >
         <DeveloperBoard
           color={color}
           sx={{
-            color: colorMap[colorCode] ?? 'primary',
+            color: colorMap[colorCodeToNameMap[colorCode]] ?? 'primary',
           }}
         />
       </Button>
@@ -142,7 +131,7 @@ const ProjectMenu = ({
         <Text
           component="strong"
           fontWeight="bold"
-          color={colorMap[colorCode ?? 'black']}
+          color={colorMap[colorCodeToNameMap[colorCode]]}
         >
           {projectTitle}
         </Text>
@@ -162,7 +151,7 @@ const ProjectMenu = ({
       <Menu
         id="project-menu"
         anchorEl={projectMenuEl}
-        open={projectOpen}
+        open={projectMenuOpen}
         onClose={handleProjectMenuClose}
         MenuListProps={{
           'aria-labelledby': 'project-menu-button',
@@ -183,12 +172,16 @@ const ProjectMenu = ({
             onClick={handleProjectColorMenuClick}
             disabled={!tempProjectTitle}
           >
-            <FormatColorFill sx={{ color: colorMap[colorCode] ?? '' }} />
+            <FormatColorFill
+              sx={{
+                color: colorMap[colorCodeToNameMap[colorCode]] ?? '',
+              }}
+            />
           </IconButton>
           <Menu
             id="color-code"
             anchorEl={projectMenuColorEl}
-            open={projectColorOpen}
+            open={projectColorMenuOpen}
             onClose={handleProjectColorMenuClose}
             MenuListProps={{
               'aria-labelledby': 'color-code-button',
@@ -199,7 +192,7 @@ const ProjectMenu = ({
               flexWrap: 'wrap',
             }}
           >
-            {Object.keys(colorMap).map(RenderColorCode)}
+            {Object.keys(colorCodeToNameMap).map(RenderColorCode)}
           </Menu>
         </MenuItem>
       </Menu>

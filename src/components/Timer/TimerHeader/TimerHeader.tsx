@@ -5,7 +5,7 @@ import { Add } from '@mui/icons-material';
 
 import { getDurationFromString, hasDuration } from '../../../services/utils';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { addTask, addTimer } from '../../../store/Timer/TimerSlice';
+import { addProject, addTask, addTimer } from '../../../store/Timer/TimerSlice';
 import { Button, ProjectMenu } from '../../common';
 import {
   ColorCodeName,
@@ -26,7 +26,7 @@ const TimerHeader = () => {
   const user = useAppSelector(selectCurrentUser);
   const [title, setTitle] = useState<string>('');
   const [plannedTime, setPlannedTime] = useState<string>('');
-  const [project, setProject] = useState<Partial<Project> | null>(null);
+  const [project, setProject] = useState<Partial<Project> | null>({});
   const [canAdd, setCanAdd] = useState<boolean>(false);
   const [projectMenuEl, setProjectMenuEl] = useState<null | HTMLElement>(null);
   const [updateProjectByTitle] = useUpdateProjectByTitleMutation();
@@ -63,8 +63,6 @@ const TimerHeader = () => {
       //     ...taskProject,
       //   });
       //
-      //   console.log('SERVER PROJECT', projectResults);
-      //
       //   // Update local project object
       //   taskProject = projectResults;
       // }
@@ -79,6 +77,7 @@ const TimerHeader = () => {
         // @todo: Figure out timezone
         // startTime: format(now, "yyyy-MM-dd'T'H:mm:ss"),
       };
+
       const { data: taskResults } = await createTimer({
         ...task,
       });
@@ -91,6 +90,8 @@ const TimerHeader = () => {
       dispatch(addTask(task));
       // @todo: Update API to support time entries
       dispatch(addTimer(task.id));
+
+      // Reset states
       setTitle('');
       setPlannedTime('');
       setProject(null);
@@ -107,6 +108,24 @@ const TimerHeader = () => {
     if (event.key === 'Enter') {
       await handleTimerAdd();
     }
+  };
+
+  const handleProjectMenuOpen = (el: HTMLElement) => {
+    setProjectMenuEl(el);
+  };
+  const handleProjectMenuClose = (menuProject: {
+    title: string;
+    colorCode: number;
+  }) => {
+    const project: Project = {
+      ...menuProject,
+      id: nanoid(),
+      userId: user?.id,
+    };
+
+    setProjectMenuEl(null);
+    setProject((state) => ({ ...project }));
+    dispatch(addProject(project));
   };
 
   return (
@@ -133,14 +152,13 @@ const TimerHeader = () => {
           }}
         />
       )}
-      {/* <ProjectMenu */}
-      {/* color="primary" */}
-      {/* project={project} */}
-      {/* setProject={setProject} */}
-      {/* projectMenuEl={projectMenuEl} */}
-      {/* onOpen={(el: HTMLElement) => setProjectMenuEl(el)} */}
-      {/* onClose={() => setProjectMenuEl(null)} */}
-      {/* /> */}
+      <ProjectMenu
+        color="primary"
+        project={project}
+        projectMenuEl={projectMenuEl}
+        onOpen={handleProjectMenuOpen}
+        onClose={handleProjectMenuClose}
+      />
       <Button kind="primary" onClick={handleTimerAdd} disabled={!canAdd}>
         <Add />
       </Button>

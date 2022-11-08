@@ -104,6 +104,39 @@ export const TimerSlice = createSlice({
         task.projectId = projectId;
       }
     },
+    addProject(state: TimerState, action: PayloadAction<Project>) {
+      const projectAction = action.payload;
+
+      const project: Project = {
+        ...projectAction,
+        createdAt:
+          typeof projectAction.createdAt === 'string'
+            ? new Date(projectAction.createdAt)
+            : projectAction.createdAt,
+        updatedAt:
+          typeof projectAction.updatedAt === 'string'
+            ? new Date(projectAction.updatedAt)
+            : projectAction.updatedAt,
+      };
+
+      state.projects.push(project);
+
+      LocalStore.set(reducerName, state);
+    },
+    removeProject(state: TimerState, action: PayloadAction<string>) {
+      const id = action.payload;
+      const projectIndex = state.projects.findIndex((item) => item.id === id);
+
+      if (projectIndex > -1) {
+        state.tasks.splice(projectIndex, 1);
+      }
+
+      // Save to local storage
+      LocalStore.set(reducerName, state);
+    },
+    updateProject(state: TimerState, action: PayloadAction<string>) {
+      // @todo
+    },
     addTimer(state: TimerState, action: PayloadAction<string>) {
       const taskId = action.payload;
       const task = state.tasks.find((item) => item.id === taskId);
@@ -234,6 +267,9 @@ export const {
   addTask,
   removeTask,
   updateTask,
+  addProject,
+  removeProject,
+  updateProject,
   addTimer,
   updateTimer,
   removeTimer,
