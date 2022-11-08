@@ -55,34 +55,15 @@ const TimerHeader = () => {
 
   const handleTimerAdd = async () => {
     const now: Date = new Date();
-    // const plannedTimeDuration = getDurationFromString(plannedTime);
-
-    const taskProject = {};
-    // let taskProject = {
-    //   title: project?.title ?? '',
-    //   colorCode: project?.colorCode ?? 0,
-    // };
 
     try {
-      // Update/Create Project on API
-      // if (taskProject?.title) {
-      //   const { data: projectResults } = await updateProjectByTitle({
-      //     ...taskProject,
-      //   });
-      //
-      //   // Update local project object
-      //   taskProject = projectResults;
-      // }
-
       // Create local timer object
       let task: Task = {
         id: nanoid(),
         title,
-        projectId: null,
+        projectId: project?.id ?? null,
         userId: user?.id,
         timers: [],
-        // @todo: Figure out timezone
-        // startTime: format(now, "yyyy-MM-dd'T'H:mm:ss"),
       };
 
       const { data: taskResults } = await createTimer({
@@ -133,8 +114,6 @@ const TimerHeader = () => {
     const existingProject = projects.find(
       (p: Project) => p.title.toLowerCase() === project.title.toLowerCase()
     );
-
-    console.log('PROS', { projects, existingProject });
 
     if (existingProject) {
       project = {
