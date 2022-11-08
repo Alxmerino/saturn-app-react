@@ -87,10 +87,10 @@ export const TimerSlice = createSlice({
 
       if (taskIndex > -1) {
         state.tasks.splice(taskIndex, 1);
-      }
 
-      // Save to local storage
-      LocalStore.set(reducerName, state);
+        // Save to local storage
+        LocalStore.set(reducerName, state);
+      }
     },
     updateTask(
       state: TimerState,
@@ -102,6 +102,9 @@ export const TimerSlice = createSlice({
       if (task) {
         task.title = title;
         task.projectId = projectId;
+
+        // Save to local storage
+        LocalStore.set(reducerName, state);
       }
     },
     addProject(state: TimerState, action: PayloadAction<Project>) {
@@ -129,13 +132,25 @@ export const TimerSlice = createSlice({
 
       if (projectIndex > -1) {
         state.tasks.splice(projectIndex, 1);
-      }
 
-      // Save to local storage
-      LocalStore.set(reducerName, state);
+        // Save to local storage
+        LocalStore.set(reducerName, state);
+      }
     },
-    updateProject(state: TimerState, action: PayloadAction<string>) {
-      // @todo
+    updateProject(
+      state: TimerState,
+      action: PayloadAction<Pick<Project, 'id' | 'title' | 'colorCode'>>
+    ) {
+      const { id, title, colorCode } = action.payload;
+      const project = state.projects.find((item) => item.id === id);
+
+      if (project) {
+        project.title = title;
+        project.colorCode = colorCode;
+
+        // Save to local storage
+        LocalStore.set(reducerName, state);
+      }
     },
     addTimer(state: TimerState, action: PayloadAction<string>) {
       const taskId = action.payload;
@@ -158,10 +173,10 @@ export const TimerSlice = createSlice({
         };
 
         task.timers.push(newTimer);
-      }
 
-      // Save to local storage
-      LocalStore.set(reducerName, state);
+        // Save to local storage
+        LocalStore.set(reducerName, state);
+      }
     },
     removeTimer(
       state: TimerState,
@@ -175,11 +190,11 @@ export const TimerSlice = createSlice({
 
         if (timerIndex) {
           task.timers.splice(timerIndex, 1);
+
+          // Save to local storage
+          LocalStore.set(reducerName, state);
         }
       }
-
-      // Save to local storage
-      LocalStore.set(reducerName, state);
     },
     startTimer(
       state: TimerState,
@@ -194,11 +209,11 @@ export const TimerSlice = createSlice({
         if (timer) {
           timer.running = true;
           timer.startTime = new Date();
+
+          // Save to local storage
+          LocalStore.set(reducerName, state);
         }
       }
-
-      // Save to local storage
-      LocalStore.set(reducerName, state);
     },
     stopTimer(
       state: TimerState,
@@ -214,11 +229,11 @@ export const TimerSlice = createSlice({
           timer.running = false;
           timer.endTime = new Date();
           // @todo: Calculate duration
+
+          // Save to local storage
+          LocalStore.set(reducerName, state);
         }
       }
-
-      // Save to local storage
-      LocalStore.set(reducerName, state);
     },
     resetTimer(state: TimerState, action: PayloadAction<string>) {
       const taskId = action.payload;
@@ -226,10 +241,10 @@ export const TimerSlice = createSlice({
 
       if (task) {
         task.timers = [];
-      }
 
-      // Save to local storage
-      LocalStore.set(reducerName, state);
+        // Save to local storage
+        LocalStore.set(reducerName, state);
+      }
     },
     updateTimer(
       state: TimerState,
@@ -253,11 +268,11 @@ export const TimerSlice = createSlice({
           // timer.title = title;
           timer.projectId = projectId;
           timer.billable = billable;
+
+          // Save to local storage
+          LocalStore.set(reducerName, state);
         }
       }
-
-      // Save to local storage
-      LocalStore.set(reducerName, state);
     },
   },
   extraReducers: {},
@@ -277,6 +292,8 @@ export const {
   stopTimer,
   resetTimer,
 } = TimerSlice.actions;
+
+export const selectProjects = (state: RootState) => state.timer.projects;
 export const selectTimers = (state: RootState) => state.timer;
 export const selectTasksByDate = (state: RootState) => {
   const sortedTasks = orderBy(state.timer.tasks, 'createdAt', 'desc');

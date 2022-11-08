@@ -5,7 +5,13 @@ import { Add } from '@mui/icons-material';
 
 import { getDurationFromString, hasDuration } from '../../../services/utils';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { addProject, addTask, addTimer } from '../../../store/Timer/TimerSlice';
+import {
+  addProject,
+  addTask,
+  addTimer,
+  selectProjects,
+  updateProject,
+} from '../../../store/Timer/TimerSlice';
 import { Button, ProjectMenu } from '../../common';
 import {
   ColorCodeName,
@@ -23,6 +29,7 @@ import { selectCurrentUser } from '../../../store/User/UserSlice';
 
 const TimerHeader = () => {
   const dispatch = useAppDispatch();
+  const projects = useAppSelector(selectProjects);
   const user = useAppSelector(selectCurrentUser);
   const [title, setTitle] = useState<string>('');
   const [plannedTime, setPlannedTime] = useState<string>('');
@@ -117,15 +124,34 @@ const TimerHeader = () => {
     title: string;
     colorCode: number;
   }) => {
-    const project: Project = {
-      ...menuProject,
+    let project: Project = {
       id: nanoid(),
       userId: user?.id,
+      ...menuProject,
     };
+
+    const existingProject = projects.find(
+      (p: Project) => p.title.toLowerCase() === project.title.toLowerCase()
+    );
+
+    console.log('PROS', { projects, existingProject });
+
+    if (existingProject) {
+      project = {
+        ...existingProject,
+        ...menuProject,
+      };
+      dispatch(updateProject(project));
+    } else {
+      project = {
+        ...project,
+        ...menuProject,
+      };
+      dispatch(addProject(project));
+    }
 
     setProjectMenuEl(null);
     setProject((state) => ({ ...project }));
-    dispatch(addProject(project));
   };
 
   return (

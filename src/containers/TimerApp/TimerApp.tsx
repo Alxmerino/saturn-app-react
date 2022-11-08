@@ -16,8 +16,8 @@ import { selectTasksByDate } from '../../store/Timer/TimerSlice';
 import { useLogoutMutation } from '../../services/api';
 
 const TimerApp = (): JSX.Element => {
-  const isLoggedIn: boolean = useAppSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
+  const isLoggedIn: boolean = useAppSelector(selectLoggedIn);
   const timersByDate = useAppSelector(selectTasksByDate);
   const currentUser = useAppSelector(selectCurrentUser);
   const timersByDateArray = Object.keys(timersByDate);
