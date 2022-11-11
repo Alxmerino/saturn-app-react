@@ -31,7 +31,9 @@ const ProjectMenu = ({
   const [projectTitle, setProjectTitle] = useState<string>(
     project?.title ?? ''
   );
-  const [colorCode, setColorCode] = useState<number>(project?.colorCode ?? 0);
+  const [tempColorCode, setTempColorCode] = useState<number>(
+    project?.colorCode ?? 0
+  );
   const projectMenuOpen = Boolean(projectMenuEl);
   const projectColorMenuOpen = Boolean(projectMenuColorEl);
 
@@ -47,7 +49,7 @@ const ProjectMenu = ({
     if (onClose) {
       onClose({
         title: tempProjectTitle,
-        colorCode: colorCode,
+        colorCode: tempColorCode,
       });
     }
   };
@@ -66,7 +68,7 @@ const ProjectMenu = ({
     event: React.MouseEvent<HTMLAnchorElement | HTMLLIElement>
   ) => {
     const { colorCode } = event.currentTarget.dataset;
-    setColorCode(+(colorCode ?? 0));
+    setTempColorCode(+(colorCode ?? 0));
     handleProjectColorMenuClose();
   };
 
@@ -101,8 +103,9 @@ const ProjectMenu = ({
 
   useEffect(() => {
     if (isNil(project)) {
+      setTempProjectTitle('');
       setProjectTitle('');
-      setColorCode(0);
+      setTempColorCode(0);
     }
   }, [project]);
 
@@ -120,7 +123,7 @@ const ProjectMenu = ({
         <DeveloperBoard
           color={color}
           sx={{
-            color: colorMap[colorCodeToNameMap[colorCode]] ?? 'primary',
+            color: colorMap[colorCodeToNameMap[tempColorCode]] ?? 'primary',
           }}
         />
       </Button>
@@ -131,7 +134,7 @@ const ProjectMenu = ({
         <Text
           component="strong"
           fontWeight="bold"
-          color={colorMap[colorCodeToNameMap[colorCode]]}
+          color={colorMap[colorCodeToNameMap[tempColorCode]]}
         >
           {projectTitle}
         </Text>
@@ -174,7 +177,7 @@ const ProjectMenu = ({
           >
             <FormatColorFill
               sx={{
-                color: colorMap[colorCodeToNameMap[colorCode]] ?? '',
+                color: colorMap[colorCodeToNameMap[tempColorCode]] ?? '',
               }}
             />
           </IconButton>
