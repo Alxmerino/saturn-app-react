@@ -43,9 +43,9 @@ interface StartEndTime {
 export interface Task extends Timestamps {
   id: string;
   title: string;
-  userId: string;
+  userId: string | number;
   plannedTime?: Duration | null;
-  projectId?: string | null;
+  projectId?: string | number | null;
   timers: TaskTimerItem[];
   // @todo: deprecate `project`
   project?: Project | null;
@@ -69,9 +69,9 @@ export interface DurationEntry {
 export interface TaskTimerItem extends DurationEntry, Timestamps {
   id: string;
   title: string;
-  userId: string;
-  taskId: string;
-  projectId: string | null;
+  userId: string | number;
+  taskId: string | number;
+  projectId: string | number | null;
   billable: boolean;
   running: boolean;
 }
