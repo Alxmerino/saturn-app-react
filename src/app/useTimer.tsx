@@ -1,14 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
-import { DurationEntry, Task, TaskTimerItem } from '../types/timer';
+import { useEffect, useMemo, useState } from 'react';
+import { Task, TaskTimerItem } from '../types/timer';
 import { differenceInSeconds } from 'date-fns';
 import { durationInSecondsToString, getTotalDuration } from '../services/utils';
 
 const useTimer = (task: Task) => {
   const { timers } = task;
-  const totalTaskDuration = useCallback(
-    () => getTimersDuration(timers),
-    [timers]
-  );
+  const totalTaskDuration = useMemo(() => getTimersDuration(timers), [timers]);
   const activeTimer = timers.find((t) => t.running);
   const [durationInSeconds, setDurationInSeconds] = useState(
     activeTimer?.durationInSeconds ?? 0
@@ -32,7 +29,7 @@ const useTimer = (task: Task) => {
 
   return {
     durationInSeconds,
-    taskDurationInSeconds: totalTaskDuration(),
+    taskDurationInSeconds: totalTaskDuration,
     duration: durationInSecondsToString(durationInSeconds),
     running: Boolean(activeTimer),
     activeTimer,
