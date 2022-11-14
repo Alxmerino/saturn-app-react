@@ -5,7 +5,7 @@ import { RootState } from '../store';
 import { Project, Task, TaskTimerItem } from '../../types/types';
 import { format } from 'date-fns';
 import LocalStore from '../../services/utils/local-store';
-import { durationInSecondsToISOString } from '../../services/utils';
+import { durationInSecondsToString } from '../../services/utils';
 
 // @todo: Add initial State from server?
 interface TimerState {
@@ -33,15 +33,15 @@ export const TimerSlice = createSlice({
 
         if (stateItem.length) {
           stateItem.forEach((item: Project | Task) => {
-            getTimestamp(item, 'createdAt');
-            getTimestamp(item, 'updatedAt');
+            item.createdAt = getTimestamp(item, 'createdAt');
+            item.updatedAt = getTimestamp(item, 'updatedAt');
 
             if ('timers' in item && item.timers.length) {
               item.timers.forEach((timer) => {
-                getTimestamp(timer, 'createdAt');
-                getTimestamp(timer, 'updatedAt');
-                getTimestamp(timer, 'startTime');
-                getTimestamp(timer, 'endTime');
+                timer.createdAt = getTimestamp(timer, 'createdAt');
+                timer.updatedAt = getTimestamp(timer, 'updatedAt');
+                timer.startTime = getTimestamp(timer, 'startTime');
+                timer.endTime = getTimestamp(timer, 'endTime');
               });
             }
           });
@@ -79,7 +79,7 @@ export const TimerSlice = createSlice({
     },
     updateTask(
       state: TimerState,
-      action: PayloadAction<Pick<TaskTimerItem, 'id' | 'title' | 'projectId'>>
+      action: PayloadAction<Pick<Task, 'id' | 'title' | 'projectId'>>
     ) {
       const { id, title, projectId } = action.payload;
       const task = state.tasks.find((item) => item.id === id);
@@ -149,6 +149,8 @@ export const TimerSlice = createSlice({
           durationInSeconds: 0,
           startTime: new Date(),
           endTime: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
         };
 
         task.timers.push(newTimer);
@@ -196,9 +198,13 @@ export const TimerSlice = createSlice({
     },
     stopTimer(
       state: TimerState,
-      action: PayloadAction<{ taskId: string; timerId: string }>
+      action: PayloadAction<{
+        taskId: string | number;
+        timerId: string | number;
+        durationInSeconds: number;
+      }>
     ) {
-      const { taskId, timerId } = action.payload;
+      const { taskId, timerId, durationInSeconds } = action.payload;
       const task = state.tasks.find((item) => item.id === taskId);
 
       if (task?.timers.length) {
@@ -207,7 +213,8 @@ export const TimerSlice = createSlice({
         if (timer) {
           timer.running = false;
           timer.endTime = new Date();
-          // @todo: Calculate duration
+          timer.durationInSeconds = durationInSeconds;
+          timer.duration = durationInSecondsToString(durationInSeconds);
 
           // Save to local storage
           LocalStore.set(reducerName, state);
@@ -291,9 +298,9 @@ export default TimerSlice.reducer;
  */
 const getTimestamp = (obj: any, prop: string) => {
   let timeStamp = null;
-  if (!isNil(obj[prop]) && obj[prop] === 'string') {
+  if (prop in obj && typeof obj[prop] === 'string') {
     timeStamp = new Date(obj[prop]);
-  } else if (!isNil(obj[prop])) {
+  } else if (prop in obj) {
     timeStamp = obj[prop];
   } else {
     timeStamp = new Date();

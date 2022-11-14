@@ -6,7 +6,7 @@ import {
 } from 'date-fns';
 import { each, isNaN, isNil } from 'lodash';
 import { durationMap, durationMapShort } from '../../config/constants';
-import { TimerItemTask } from '../../types/types';
+import { TaskTimerItem } from '../../types/types';
 
 /**
  * Parse the time string and convert it into an ISO 8601 string.
@@ -27,6 +27,21 @@ export const createISOString = (timeStr: string[]): string => {
       outputStr += str.charAt(0);
     }
   });
+
+  return outputStr;
+};
+
+export const durationInSecondsToString = (duration: number): string => {
+  let outputStr = 'PT';
+  const isoDate = new Date();
+  isoDate.setHours(0, 0, 0, 0);
+  isoDate.setSeconds(duration);
+  const [hours, minutes, seconds] = isoDate
+    .toTimeString()
+    .substr(0, 8)
+    .split(':');
+
+  outputStr += `${hours}H${minutes}M${seconds}S`;
 
   return outputStr;
 };
