@@ -1,10 +1,11 @@
 import { createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit';
-import { groupBy, orderBy } from 'lodash';
+import { groupBy, isNil, orderBy } from 'lodash';
 
 import { RootState } from '../store';
 import { Project, Task, TaskTimerItem } from '../../types/types';
 import { format } from 'date-fns';
 import LocalStore from '../../services/utils/local-store';
+import { durationInSecondsToISOString } from '../../services/utils';
 
 // @todo: Add initial State from server?
 interface TimerState {
@@ -20,15 +21,6 @@ const initialState: TimerState = {
 
 const reducerName = 'task';
 
-const updateTimestamps = (item: Project | Task | TaskTimerItem) => {
-  if ('createdAt' in item) {
-    item.createdAt = item.createdAt ? new Date(item.createdAt) : null;
-  }
-  if ('updatedAt' in item) {
-    item.updatedAt = item.updatedAt ? new Date(item.updatedAt) : null;
-  }
-};
-
 export const TimerSlice = createSlice({
   name: reducerName,
   initialState() {
@@ -41,16 +33,15 @@ export const TimerSlice = createSlice({
 
         if (stateItem.length) {
           stateItem.forEach((item: Project | Task) => {
-            updateTimestamps(item);
+            getTimestamp(item, 'createdAt');
+            getTimestamp(item, 'updatedAt');
 
             if ('timers' in item && item.timers.length) {
               item.timers.forEach((timer) => {
-                updateTimestamps(item);
-
-                timer.startTime = timer.startTime
-                  ? new Date(timer.startTime)
-                  : null;
-                timer.endTime = timer.endTime ? new Date(timer.endTime) : null;
+                getTimestamp(timer, 'createdAt');
+                getTimestamp(timer, 'updatedAt');
+                getTimestamp(timer, 'startTime');
+                getTimestamp(timer, 'endTime');
               });
             }
           });
@@ -66,15 +57,9 @@ export const TimerSlice = createSlice({
 
       const task: Task = {
         ...taskAction,
-        createdAt:
-          typeof taskAction.createdAt === 'string'
-            ? new Date(taskAction.createdAt)
-            : taskAction.createdAt,
-        updatedAt:
-          typeof taskAction.updatedAt === 'string'
-            ? new Date(taskAction.updatedAt)
-            : taskAction.updatedAt,
         projectId: taskAction.projectId ?? null,
+        createdAt: getTimestamp(taskAction, 'createdAt'),
+        updatedAt: getTimestamp(taskAction, 'updatedAt'),
       };
 
       state.tasks.push(task);
@@ -112,14 +97,8 @@ export const TimerSlice = createSlice({
 
       const project: Project = {
         ...projectAction,
-        createdAt:
-          typeof projectAction.createdAt === 'string'
-            ? new Date(projectAction.createdAt)
-            : projectAction.createdAt,
-        updatedAt:
-          typeof projectAction.updatedAt === 'string'
-            ? new Date(projectAction.updatedAt)
-            : projectAction.updatedAt,
+        createdAt: getTimestamp(projectAction, 'createdAt'),
+        updatedAt: getTimestamp(projectAction, 'updatedAt'),
       };
 
       state.projects.push(project);
@@ -294,6 +273,10 @@ export const {
 } = TimerSlice.actions;
 
 export const selectProjects = (state: RootState) => state.timer.projects;
+export const selectProjectById =
+  (state: RootState) =>
+  (projectId: string | number): Project =>
+    state.timer.projects.find((p: Project) => p.id === projectId);
 export const selectTimers = (state: RootState) => state.timer;
 export const selectTasksByDate = (state: RootState) => {
   const sortedTasks = orderBy(state.timer.tasks, 'createdAt', 'desc');
@@ -302,3 +285,19 @@ export const selectTasksByDate = (state: RootState) => {
   });
 };
 export default TimerSlice.reducer;
+
+/**
+ * @TODO: Move to utils
+ */
+const getTimestamp = (obj: any, prop: string) => {
+  let timeStamp = null;
+  if (!isNil(obj[prop]) && obj[prop] === 'string') {
+    timeStamp = new Date(obj[prop]);
+  } else if (!isNil(obj[prop])) {
+    timeStamp = obj[prop];
+  } else {
+    timeStamp = new Date();
+  }
+
+  return timeStamp;
+};
