@@ -10,7 +10,7 @@ env:
 
 jobs:
   build:
-    name: Build and Package
+    name: Build and Deploy
     runs-on: ubuntu-20.04
     permissions:
       id-token: write
@@ -25,6 +25,12 @@ jobs:
           role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
           role-session-name: GitHub-Action-Role
           aws-region: ${{ env.AWS_REGION }}
+
+      - uses: actions/setup-node@v3
+        name: Build React with Node.js '16.x'
+        with:
+          node-version: '16.x'
+        run: yarn run build
 
       - name: Upload Artifact to s3
         run: aws s3 sync ${{ env.applicationfolder }} s3://${{ env.S3BUCKET }}/
