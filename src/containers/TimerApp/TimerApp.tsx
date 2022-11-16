@@ -12,15 +12,19 @@ import {
 import { Routes } from '../../config/constants';
 import { Text } from '../../components/common';
 import { TimerHeader, TimerList } from '../../components/Timer';
-import { selectTasksByDate } from '../../store/Timer/TimerSlice';
+import {
+  selectProjects,
+  selectTasksByDate,
+} from '../../store/Timer/TimerSlice';
 import { useLogoutMutation } from '../../services/api';
 
 const TimerApp = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const isLoggedIn: boolean = useAppSelector(selectLoggedIn);
-  const timersByDate = useAppSelector(selectTasksByDate);
+  const projects = useAppSelector(selectProjects);
+  const tasksByDate = useAppSelector(selectTasksByDate);
   const currentUser = useAppSelector(selectCurrentUser);
-  const timersByDateArray = Object.keys(timersByDate);
+  const tasksByDateArray = Object.keys(tasksByDate);
   const [logout, { isLoading }] = useLogoutMutation();
 
   const handleLogOut = async () => {
@@ -98,9 +102,14 @@ const TimerApp = (): JSX.Element => {
       </Box>
 
       <Box pt={2}>
-        {timersByDateArray.length > 0 ? (
-          timersByDateArray.map((date: string) => (
-            <TimerList date={date} timers={timersByDate[date]} key={date} />
+        {tasksByDateArray.length > 0 ? (
+          tasksByDateArray.map((date: string) => (
+            <TimerList
+              user={currentUser}
+              date={date}
+              tasks={tasksByDate[date]}
+              key={date}
+            />
           ))
         ) : (
           <Paper elevation={3}>
