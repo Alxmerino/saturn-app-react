@@ -2,6 +2,9 @@ name: Build and Deploy
 
 on:
   workflow_dispatch: {}
+  merge:
+    branches:
+      - main
 
 env:
   applicationfolder: ./build
@@ -37,4 +40,4 @@ jobs:
           yarn run build
 
       - name: Upload Artifact to s3
-        run: aws s3 sync ${{ env.applicationfolder }} s3://${{ env.S3BUCKET }}/
+        run: aws s3 cp ${{ env.applicationfolder }} s3://${{ env.S3BUCKET }}/
