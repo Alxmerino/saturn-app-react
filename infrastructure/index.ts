@@ -2,19 +2,19 @@ import S3 from './aws/s3';
 import IAM from './aws/iam';
 import GitHub from './github';
 
-const appName = 'Saturn-FE';
+const appName = 'SaturnFE';
 const tags = {
   Project: appName,
 };
 
 /** S3 Resources **/
-const S3Bucket = new S3(appName + 'S3', {
+const S3Bucket = new S3(appName + '-S3', {
   projectName: appName,
   tags,
 });
 
 /** IAM Resources **/
-const IAMRoles = new IAM(appName + 'IAM-roles', {
+const IAMRoles = new IAM(appName + 'IAMRoles', {
   projectName: appName,
   S3BucketArn: S3Bucket.arn,
   tags,
