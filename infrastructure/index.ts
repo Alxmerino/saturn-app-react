@@ -8,7 +8,7 @@ const tags = {
 };
 
 /** S3 Resources **/
-const S3Bucket = new S3(appName + 'S3', {
+const S3Bucket = new S3(appName + '-S3', {
   projectName: appName,
   tags,
 });
