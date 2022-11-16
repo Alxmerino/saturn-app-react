@@ -28,7 +28,6 @@ import {
   formatDurationFromObject,
   formatDurationString,
   getDurationFromString,
-  getTimerDuration,
   parseDurationFromTimeString,
   hasDuration,
   getSecondsFromDuration,
@@ -47,7 +46,7 @@ import {
   selectProjectById,
   addTimer,
 } from '../../../store/Timer/TimerSlice';
-import { useAppDispatch, useAppSelector } from '../../../app/hooks';
+import { useAppDispatch, useAppSelector, useTimer } from '../../../app/hooks';
 import {
   useDeleteTimerMutation,
   useUpdateProjectByTitleMutation,
@@ -57,7 +56,6 @@ import {
 } from '../../../services/api';
 import { colorNameToCodeMap } from '../../../config/constants';
 import { selectUserIntegration } from '../../../store/User/UserSlice';
-import { useTimer } from '../../../app/hooks';
 
 export interface TaskItemProps {
   task: Task;
@@ -208,6 +206,12 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
       </Text>
     );
   };
+
+  useEffect(() => {
+    if (running && typeof onDurationUpdate !== 'undefined') {
+      onDurationUpdate(durationInSeconds);
+    }
+  }, [durationInSeconds, running]);
 
   return (
     <Box
