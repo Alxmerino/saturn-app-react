@@ -1,5 +1,5 @@
 import TimerHeader from './TimerHeader/TimerHeader';
 import TimerList from './TimerList/TimerList';
-import TimerItem from './TimerItem/TimerItem';
+import TimerTask from './TimerTask/TimerTask';
 
-export { TimerHeader, TimerList, TimerItem };
+export { TimerHeader, TimerList, TimerTask };

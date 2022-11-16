@@ -6,6 +6,7 @@ import logger from 'redux-logger';
 
 import userReducer from './User/UserSlice';
 import timerReducer from './Timer/TimerSlice';
+import { api } from '../services/api';
 
 const { createReduxHistory, routerMiddleware, routerReducer } =
   createReduxHistoryContext({ history: createBrowserHistory() });
@@ -13,8 +14,9 @@ const { createReduxHistory, routerMiddleware, routerReducer } =
 export const store = configureStore({
   reducer: combineReducers({
     router: routerReducer,
-    user: userReducer,
+    auth: userReducer,
     timer: timerReducer,
+    [api.reducerPath]: api.reducer,
     // more reducers
   }),
   middleware: (getDefaultMiddleware) =>
@@ -22,6 +24,7 @@ export const store = configureStore({
       serializableCheck: false,
     })
       .concat(routerMiddleware)
+      .concat(api.middleware)
       .concat(logger),
 });
 

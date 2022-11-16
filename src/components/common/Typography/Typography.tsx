@@ -1,5 +1,5 @@
 import React, { ElementType } from 'react';
-import { Typography, TypographyTypeMap } from '@mui/material';
+import { Typography } from '@mui/material';
 
 interface TextProps extends Record<any, any> {
   component?: ElementType<any>;

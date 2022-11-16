@@ -9,49 +9,40 @@ import {
 import { ExpandMore } from '@mui/icons-material';
 
 import { Text } from '../../common';
-import { TimerItem } from '../index';
-import { TimerItemTask } from '../../../types/types';
+import { TimerTask } from '../index';
+import { Task, TaskTimerItem, User } from '../../../types/types';
 import { isToday, isYesterday, parse } from 'date-fns';
 import {
-  getTotalDuration,
-  getTimerDuration,
   formatDurationString,
+  getTaskTotalDuration,
 } from '../../../services/utils';
 
 export interface TimerListProps {
   date: string;
-  timers: TimerItemTask[];
+  tasks: Task[];
+  user: User;
 }
 
-const TimerList = ({ date, timers }: TimerListProps) => {
+const TimerList = ({ date, tasks, user }: TimerListProps) => {
   const now: Date = new Date();
   const headerDate: Date = parse(date, 'yyyy-MM-dd', now);
   const [expanded, setExpanded] = useState<boolean>(true);
-  const totalPlannedTime = getTotalDuration(
-    timers.map((timer) => timer.plannedTime ?? {})
-  );
-
-  const getTotalTimersDuration = useMemo(() => {
-    return timers
-      .map((timer) => {
-        return getTimerDuration(timer);
-      })
-      .reduce((acc: number, curr: number) => acc + curr, 0);
-  }, [timers]);
-
-  const [totalDuration, setTotalDuration] = useState<number>(0);
+  const tasksDuration = useMemo(() => getTaskTotalDuration(tasks), [tasks]);
+  const [totalDuration, setTotalDuration] = useState<number>(tasksDuration);
+  const [runningDuration, setRunningDuration] = useState<number>(0);
+  const totalPlannedTime = false;
 
   const handleTimerDurationUpdate = (duration: number) => {
-    setTotalDuration(totalDuration + duration);
+    setRunningDuration(duration);
   };
 
   const handleChange = () => {
     setExpanded(!expanded);
   };
 
-  useEffect((): void => {
-    setTotalDuration(getTotalTimersDuration);
-  }, [timers]);
+  useEffect(() => {
+    setTotalDuration(tasksDuration + runningDuration);
+  }, [runningDuration]);
 
   return (
     <Accordion
@@ -93,10 +84,11 @@ const TimerList = ({ date, timers }: TimerListProps) => {
         </Box>
       </AccordionSummary>
       <AccordionDetails sx={{ padding: 0 }}>
-        {timers.map((timer) => (
-          <TimerItem
-            timer={timer}
-            key={timer.id}
+        {tasks.map((task) => (
+          <TimerTask
+            task={task}
+            key={task.id}
+            user={user}
             onDurationUpdate={handleTimerDurationUpdate}
           />
         ))}
