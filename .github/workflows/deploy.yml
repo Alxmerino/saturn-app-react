@@ -27,10 +27,12 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - uses: actions/setup-node@v3
-        name: Build React with Node.js '16.x'
+        name: Setup Node.js '16.x'
         with:
           node-version: '16.x'
-      - run: yarn run build
+
+      - name: Build React App'
+        run: yarn run build
 
       - name: Upload Artifact to s3
         run: aws s3 sync ${{ env.applicationfolder }} s3://${{ env.S3BUCKET }}/
