@@ -1,0 +1,30 @@
+name: Build and Deploy
+
+on:
+  workflow_dispatch: {}
+
+env:
+  applicationfolder: ./build
+  AWS_REGION: us-east-1
+  S3BUCKET: ${{ secrets.ACTION_AWS_S3_BUCKET }}
+
+jobs:
+  build:
+    name: Build and Package
+    runs-on: ubuntu-20.04
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout Repository
+
+      - uses: aws-actions/configure-aws-credentials@v1
+        name: Configure AWS GitHub Action Role
+        with:
+          role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
+          role-session-name: GitHub-Action-Role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload Artifact to s3
+        run: aws s3 sync ${{ env.applicationfolder }} s3://${{ env.S3BUCKET }}/
