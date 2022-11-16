@@ -60,7 +60,7 @@ export const api: any = createApi({
     /**
      * Tasks/Timers
      */
-    createTimer: builders.mutation<TaskRequest, TaskResponse>({
+    createTask: builders.mutation<TaskRequest, TaskResponse>({
       query: (taskBody) => ({
         url: '/tasks',
         method: 'POST',
@@ -69,7 +69,7 @@ export const api: any = createApi({
       transformResponse,
     }),
     // @todo: Fix types
-    assignTimerProject: builders.mutation<any, any>({
+    assignProject: builders.mutation<any, any>({
       query: (args) => ({
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         url: `/tasks/${args.id}/add-project`,
@@ -79,7 +79,7 @@ export const api: any = createApi({
       transformResponse,
     }),
     // @todo: Fix types
-    updateTimer: builders.mutation<string | number, any>({
+    updateTask: builders.mutation<string | number, any>({
       query: (args: any) => ({
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         url: `/tasks/${args.id}`,
@@ -88,7 +88,7 @@ export const api: any = createApi({
       }),
     }),
     // @todo: Fix types
-    deleteTimer: builders.mutation<string | number, any>({
+    deleteTask: builders.mutation<string | number, any>({
       query: (id: string | number) => ({
         url: `/tasks/${id}`,
         method: 'DELETE',
@@ -128,10 +128,10 @@ export const {
   useLogoutMutation,
   useUpdateProjectByTitleMutation,
   useCreateProjectMutation,
-  useCreateTimerMutation,
-  useAssignTimerProjectMutation,
-  useUpdateTimerMutation,
-  useDeleteTimerMutation,
+  useCreateTaskMutation,
+  useAssignProjectMutation,
+  useUpdateTaskMutation,
+  useDeleteTaskMutation,
 
   // JIRA Hooks
   useJiraLoginMutation,

@@ -15,7 +15,7 @@ import { Button, ProjectMenu } from '../../common';
 import { Project, Task } from '../../../types/types';
 import {
   useCreateProjectMutation,
-  useCreateTimerMutation,
+  useCreateTaskMutation,
   useUpdateProjectByTitleMutation,
 } from '../../../services/api';
 import { selectCurrentUser } from '../../../store/User/UserSlice';
@@ -32,7 +32,7 @@ const TimerHeader = () => {
   const [newProject, setNewProject] = useState<boolean>(true);
   const [updateProjectByTitle] = useUpdateProjectByTitleMutation();
   const [createProject] = useCreateProjectMutation();
-  const [createTimer] = useCreateTimerMutation();
+  const [createTimer] = useCreateTaskMutation();
 
   // @todo: Hide "Planned Time" Field until Notifications are added
   const hidePlannedTime = true;

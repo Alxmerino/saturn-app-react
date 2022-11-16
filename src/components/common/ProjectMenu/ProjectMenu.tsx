@@ -106,7 +106,6 @@ const ProjectMenu = ({
       setTempProjectTitle('');
       setProjectTitle('');
       setTempColorCode(0);
-      // } else if (project?.title !== '') {
     } else if (project?.colorCode && project.colorCode !== tempColorCode) {
       setTempColorCode(project.colorCode);
     }

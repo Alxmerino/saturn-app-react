@@ -1,7 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { nanoid } from '@reduxjs/toolkit';
-import { add, differenceInSeconds } from 'date-fns';
-import { isEqual, isNil } from 'lodash';
 
 import {
   Box,
@@ -23,39 +20,26 @@ import {
 } from '@mui/icons-material';
 
 import { ProjectMenu, Text } from '../../common';
-import { Project, Task, TaskTimerItem, User } from '../../../types/types';
+import { Task, User } from '../../../types/types';
+import { formatDurationString } from '../../../services/utils';
 import {
-  formatDurationFromObject,
-  formatDurationString,
-  getDurationFromString,
-  parseDurationFromTimeString,
-  hasDuration,
-  getSecondsFromDuration,
-  durationInSecondsToString,
-} from '../../../services/utils';
-import {
-  updateTimer,
-  removeTimer,
   resetTimer,
-  startTimer,
   stopTimer,
   removeTask,
   updateTask,
-  updateProject,
-  addProject,
   selectProjectById,
   addTimer,
 } from '../../../store/Timer/TimerSlice';
 import { useAppDispatch, useAppSelector, useTimer } from '../../../app/hooks';
 import {
-  useDeleteTimerMutation,
+  useDeleteTaskMutation,
   useUpdateProjectByTitleMutation,
-  useAssignTimerProjectMutation,
+  useAssignProjectMutation,
   useJiraLogTimeMutation,
   useCreateProjectMutation,
 } from '../../../services/api';
-import { colorNameToCodeMap } from '../../../config/constants';
 import { selectUserIntegration } from '../../../store/User/UserSlice';
+import { isNil } from 'lodash';
 
 export interface TaskItemProps {
   task: Task;
@@ -67,13 +51,12 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
   const integration = useAppSelector(selectUserIntegration);
   const getProject = useAppSelector(selectProjectById);
   const taskProject = task.projectId ? getProject(task?.projectId) : null;
-  const [updateProjectByTitle] = useUpdateProjectByTitleMutation();
   const [createProject] = useCreateProjectMutation();
   const dispatch = useAppDispatch();
-  //   const [deleteTimer] = useDeleteTimerMutation();
-  //   const [updateProjectByTitle] = useUpdateProjectByTitleMutation();
-  //   const [assignTimerProject] = useAssignTimerProjectMutation();
-  //   const [jiraLogTime] = useJiraLogTimeMutation();
+  const [deleteTimer] = useDeleteTaskMutation();
+  const [updateProjectByTitle] = useUpdateProjectByTitleMutation();
+  const [assignTimerProject] = useAssignProjectMutation();
+  const [jiraLogTime] = useJiraLogTimeMutation();
 
   const [projectMenuEl, setProjectMenuEl] = useState<null | HTMLElement>(null);
   const [fieldsEditable, setFieldsEditable] = useState<Record<string, boolean>>(
@@ -85,8 +68,7 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
   );
   const [timerAnchorEl, setTimerAnchorEl] = useState<null | HTMLElement>(null);
   const timerOpen = Boolean(timerAnchorEl);
-  // const canLogTime = !isNil(integration) && !isNil(project?.title);
-  const canLogTime = false;
+  const canLogTime = !isNil(integration) && !isNil(taskProject?.title);
   const { durationInSeconds, activeTimer, running, taskDurationInSeconds } =
     useTimer(task);
 
@@ -109,12 +91,12 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
   const handleTaskDelete = async () => {
     // @todo: Better way to confirm delete?
     if (confirm('Are you sure you want to delete this task?')) {
-      // try {
-      //   await deleteTimer(timer.id);
-      // } catch (err) {
-      //   // @todo: Handle errors
-      //   console.error('Delete Task Error', err);
-      // }
+      try {
+        await deleteTimer(task.id);
+      } catch (err) {
+        // @todo: Handle errors
+        console.error('Delete Task Error', err);
+      }
 
       dispatch(removeTask(task.id));
       handleMoreMenuClose();
@@ -122,13 +104,13 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
   };
 
   const handleTimerLog = async () => {
-    // try {
-    //   // @todo: Check for integration
-    //   await jiraLogTime(timer);
-    // } catch (err) {
-    //   // @todo: Handle errors
-    //   console.error('Delete Task Error', err);
-    // }
+    try {
+      // @todo: Check for integration
+      await jiraLogTime(task);
+    } catch (err) {
+      // @todo: Handle errors
+      console.error('Delete Task Error', err);
+    }
   };
 
   const handleTimerStart = () => {

@@ -10,15 +10,12 @@ import { ExpandMore } from '@mui/icons-material';
 
 import { Text } from '../../common';
 import { TimerTask } from '../index';
-import { Project, Task, TaskTimerItem, User } from '../../../types/types';
-import { differenceInSeconds, isToday, isYesterday, parse } from 'date-fns';
+import { Task, TaskTimerItem, User } from '../../../types/types';
+import { isToday, isYesterday, parse } from 'date-fns';
 import {
   formatDurationString,
   getTaskTotalDuration,
 } from '../../../services/utils';
-import { selectCurrentUser } from '../../../store/User/UserSlice';
-import { useAppSelector } from '../../../app/hooks';
-import { isNil } from 'lodash';
 
 export interface TimerListProps {
   date: string;
@@ -30,13 +27,6 @@ const TimerList = ({ date, tasks, user }: TimerListProps) => {
   const now: Date = new Date();
   const headerDate: Date = parse(date, 'yyyy-MM-dd', now);
   const [expanded, setExpanded] = useState<boolean>(true);
-  const runningTimers = tasks
-    .filter((task) => {
-      return task.timers.some((t) => t.running);
-    })
-    .reduce<TaskTimerItem[]>((prev, curr) => {
-      return [...prev, ...curr.timers];
-    }, []);
   const tasksDuration = useMemo(() => getTaskTotalDuration(tasks), [tasks]);
   const [totalDuration, setTotalDuration] = useState<number>(tasksDuration);
   const [runningDuration, setRunningDuration] = useState<number>(0);
@@ -94,16 +84,14 @@ const TimerList = ({ date, tasks, user }: TimerListProps) => {
         </Box>
       </AccordionSummary>
       <AccordionDetails sx={{ padding: 0 }}>
-        {tasks.map((task) => {
-          return (
-            <TimerTask
-              task={task}
-              key={task.id}
-              user={user}
-              onDurationUpdate={handleTimerDurationUpdate}
-            />
-          );
-        })}
+        {tasks.map((task) => (
+          <TimerTask
+            task={task}
+            key={task.id}
+            user={user}
+            onDurationUpdate={handleTimerDurationUpdate}
+          />
+        ))}
       </AccordionDetails>
     </Accordion>
   );
