@@ -6,7 +6,7 @@ import {
 } from 'date-fns';
 import { each, isNaN, isNil } from 'lodash';
 import { durationMap, durationMapShort } from '../../config/constants';
-import { TaskTimerItem } from '../../types/types';
+import { Task, TaskTimerItem } from '../../types/types';
 
 /**
  * Parse the time string and convert it into an ISO 8601 string.
@@ -145,19 +145,19 @@ export const formatDurationFromObject = (duration: Duration): string => {
   return durationStr;
 };
 
-export const formatDurationString = (
-  duration: number,
-  durationType = 'seconds'
-): string => {
-  const formatTypes: { [x: string]: number } = {
-    seconds: 1000,
-    minutes: 1000 * 60,
-    hours: 1000 * 60 * 60,
-  };
+export const formatDurationString = (duration: number): string => {
+  const hours = Math.floor(duration / 60 / 60);
+  const minutes = Math.floor((duration / 60 / 60 - hours) * 60);
+  const seconds = Math.round(
+    ((duration / 60 / 60 - hours) * 60 - minutes) * 60
+  );
 
-  return new Date(duration * formatTypes[durationType])
-    .toISOString()
-    .substr(11, 8);
+  return [hours, minutes, seconds]
+    .map((time) => {
+      const _timeStr = time.toString();
+      return _timeStr.length > 1 ? _timeStr : '0' + _timeStr;
+    })
+    .join(':');
 };
 
 export const hasDuration = (duration: Duration): boolean => {
@@ -202,16 +202,28 @@ export const getTotalDuration = (durations: Duration[]): string => {
   return durationStr;
 };
 
-export const getTimerDuration = (timer: TimerItemTask): number => {
-  return (
-    timer.duration.length &&
-    timer.duration
-      .map(({ startTime, endTime }) => {
-        return differenceInSeconds(
-          new Date(endTime ?? 0),
-          new Date(startTime ?? 0)
-        );
-      })
-      .reduce((a: number, b: number) => a + b, 0)
-  );
+export const getTimersDuration = (timers: TaskTimerItem[]) => {
+  if (!timers.length) return 0;
+
+  return timers
+    .map(getTimerEntryDuration)
+    .reduce((prev, curr) => prev + curr, 0);
+};
+
+export const getTimerEntryDuration = ({
+  startTime,
+  endTime,
+}: TaskTimerItem) => {
+  return differenceInSeconds(new Date(endTime ?? 0), new Date(startTime ?? 0));
+};
+
+export const getTaskTotalDuration = (tasks: Task[]): number => {
+  if (!tasks.length) return 0;
+
+  let duration = 0;
+  tasks.forEach((task) => {
+    duration += getTimersDuration(task.timers);
+  });
+
+  return duration;
 };

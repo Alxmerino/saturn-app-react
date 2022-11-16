@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Task, TaskTimerItem } from '../types/timer';
 import { differenceInSeconds } from 'date-fns';
-import { durationInSecondsToString, getTotalDuration } from '../services/utils';
+import {
+  durationInSecondsToString,
+  getTimersDuration,
+} from '../services/utils';
 
 const useTimer = (task: Task) => {
   const { timers } = task;
@@ -34,18 +37,6 @@ const useTimer = (task: Task) => {
     running: Boolean(activeTimer),
     activeTimer,
   };
-};
-
-const getTimersDuration = (timers: TaskTimerItem[]) => {
-  if (!timers.length) return 0;
-
-  return timers
-    .map(getTimerEntryDuration)
-    .reduce((prev, curr) => prev + curr, 0);
-};
-
-const getTimerEntryDuration = ({ startTime, endTime }: TaskTimerItem) => {
-  return differenceInSeconds(new Date(endTime ?? 0), new Date(startTime ?? 0));
 };
 
 export { useTimer };
