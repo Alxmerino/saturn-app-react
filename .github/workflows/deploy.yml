@@ -30,7 +30,7 @@ jobs:
         name: Build React with Node.js '16.x'
         with:
           node-version: '16.x'
-        run: yarn run build
+      - run: yarn run build
 
       - name: Upload Artifact to s3
         run: aws s3 sync ${{ env.applicationfolder }} s3://${{ env.S3BUCKET }}/
