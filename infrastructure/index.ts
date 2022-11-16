@@ -30,4 +30,5 @@ const GitHubResource = new GitHub(appName + 'GitHub', {
 /** Exports **/
 export const S3BucketArn = S3Bucket.arn;
 export const S3BucketName = S3Bucket.name;
+export const S3WebsiteUrl = S3Bucket.websiteUrl;
 export const GHActionRoleArn = IAMRoles.GHActionRoleArn;
