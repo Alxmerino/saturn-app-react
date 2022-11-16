@@ -2,7 +2,7 @@ name: Build and Deploy
 
 on:
   workflow_dispatch: {}
-  merge:
+  pull_request:
     branches:
       - main
 
