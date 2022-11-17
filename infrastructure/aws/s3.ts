@@ -13,15 +13,15 @@ export default class S3 extends pulumi.ComponentResource {
   ) {
     super('custom:resource:S3', name, args, opts);
 
-    const S3Bucket = new aws.s3.Bucket(name, {
+    const { targetDomain, tags } = args;
+
+    const S3Bucket = new aws.s3.Bucket(targetDomain, {
       website: {
         indexDocument: 'index.html',
+        errorDocument: 'index.html',
       },
       acl: 'public-read',
-      tags: {
-        Project: args?.projectName,
-        Name: args?.projectName,
-      },
+      tags,
     });
 
     // Set the access policy for the bucket so all objects are readable

@@ -7,10 +7,10 @@ export default class IAM extends pulumi.ComponentResource {
   constructor(name: string, args: any, opts?: pulumi.ComponentResourceOptions) {
     super('custom:resource:IAM', name, args, opts);
 
-    const { projectName, tags, S3BucketArn } = args;
+    const { appName, tags, S3BucketArn } = args;
 
     const GHOpenIdConnectProvider = new aws.iam.OpenIdConnectProvider(
-      projectName + 'GHOpenIDConnect',
+      appName + 'GHOpenIDConnect',
       {
         clientIdLists: ['sts.amazonaws.com'],
         thumbprintLists: ['6938fd4d98bab03faadb97b34396831e3780aea1'],
@@ -19,7 +19,7 @@ export default class IAM extends pulumi.ComponentResource {
     );
 
     const GHActionRole = GHOpenIdConnectProvider.arn.apply((arn) => {
-      return new aws.iam.Role(projectName + 'GHActionRole', {
+      return new aws.iam.Role(appName + 'GHActionRole', {
         assumeRolePolicy: JSON.stringify({
           Version: '2012-10-17',
           Statement: [
@@ -43,7 +43,7 @@ export default class IAM extends pulumi.ComponentResource {
     });
 
     const GHActionRolePolicy = pulumi.all([S3BucketArn]).apply(([arn]) => {
-      return new aws.iam.RolePolicy(args?.projectName + 'GHActionRolePolicy', {
+      return new aws.iam.RolePolicy(appName + 'GHActionRolePolicy', {
         role: GHActionRole.id,
         policy: JSON.stringify({
           Version: '2012-10-17',

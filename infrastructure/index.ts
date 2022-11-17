@@ -1,28 +1,38 @@
+import * as pulumi from '@pulumi/pulumi';
+
 import S3 from './aws/s3';
 import IAM from './aws/iam';
 import GitHub from './github';
 
+/** Config **/
 const appName = 'SaturnFE';
-const tags = {
-  Project: appName,
+const stackConfig = new pulumi.Config('dev');
+const config = {
+  appName,
+  // pathToWebsiteContents is a relativepath to the website's contents.
+  pathToWebsiteContents: stackConfig.require('pathToWebsiteContents'),
+  targetDomain: stackConfig.require('targetDomain'),
+  certificateArn: stackConfig.get('certificateArn'),
+  repository: stackConfig.get('repository'),
+  includeWWW: stackConfig.getBoolean('includeWWW') ?? false,
+  tags: {
+    Project: appName,
+    Name: appName,
+  },
 };
 
 /** S3 Resources **/
-const S3Bucket = new S3(appName + '-S3', {
-  projectName: appName,
-  tags,
-});
+const S3Bucket = new S3(appName + '-S3', config);
 
 /** IAM Resources **/
 const IAMRoles = new IAM(appName + 'IAMRoles', {
-  projectName: appName,
+  ...config,
   S3BucketArn: S3Bucket.arn,
-  tags,
 });
 
 /** GitHub Resources **/
 const GitHubResource = new GitHub(appName + 'GitHub', {
-  projectName: appName,
+  ...config,
   GHActionRoleArn: IAMRoles.GHActionRoleArn,
   S3BucketName: S3Bucket.name,
 });
