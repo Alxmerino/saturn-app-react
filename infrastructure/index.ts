@@ -27,9 +27,10 @@ const config = {
 /** S3 Resources **/
 const S3Bucket = new S3(appName + '-S3', config);
 export const S3BucketArn = S3Bucket.arn;
-export const S3LogsDomainName = S3Bucket.logsDomainName;
 export const S3BucketName = S3Bucket.name;
 export const S3WebsiteUrl = S3Bucket.websiteUrl;
+export const S3DomainName = S3Bucket.domainName;
+export const S3LogsDomainName = S3Bucket.logsDomainName;
 
 /** IAM Resources **/
 const IAMRoles = new IAM(appName + 'IAMRoles', {
@@ -48,9 +49,9 @@ const GitHubResource = new GitHub(appName + 'GitHub', {
 /** CloudFront Resource **/
 const CloudFrontResource = new CloudFront(appName + 'CloudFront', {
   ...config,
-  contentBucketArn: S3BucketArn.apply((arn) => arn),
-  websiteEndpoint: S3WebsiteUrl.apply((url) => url),
-  logsDomainName: S3LogsDomainName.apply((domainName) => domainName),
+  contentBucketArn: S3BucketArn,
+  websiteEndpoint: S3DomainName,
+  logsDomainName: S3LogsDomainName,
 });
 export const CDNEndpoint = CloudFrontResource.CDNEndpoint;
 

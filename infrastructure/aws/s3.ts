@@ -4,6 +4,7 @@ import * as pulumi from '@pulumi/pulumi';
 export default class S3 extends pulumi.ComponentResource {
   public readonly id: pulumi.Output<string>;
   public readonly arn: pulumi.Output<string>;
+  public readonly domainName: pulumi.Output<string>;
   public readonly logsArn: pulumi.Output<string>;
   public readonly logsDomainName: pulumi.Output<string>;
   public readonly name: pulumi.Output<string>;
@@ -36,6 +37,7 @@ export default class S3 extends pulumi.ComponentResource {
 
     this.id = S3Bucket.id;
     this.arn = S3Bucket.arn;
+    this.domainName = S3Bucket.bucketDomainName;
     this.logsArn = logsBucket.arn;
     this.logsDomainName = logsBucket.bucketDomainName;
     this.name = S3Bucket.bucket;
