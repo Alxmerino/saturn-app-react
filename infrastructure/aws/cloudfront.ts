@@ -2,7 +2,6 @@ import * as aws from '@pulumi/aws';
 import * as pulumi from '@pulumi/pulumi';
 
 export default class Cloudfront extends pulumi.ComponentResource {
-  public readonly originAccessIdentityIamArn: pulumi.Output<string>;
   public readonly CDNEndpoint: pulumi.Output<string>;
 
   constructor(
@@ -22,14 +21,6 @@ export default class Cloudfront extends pulumi.ComponentResource {
       websiteEndpoint,
     } = args;
 
-    // Generate Origin Access Identity to access the private s3 bucket.
-    const originAccessIdentity = new aws.cloudfront.OriginAccessIdentity(
-      appName + 'originAccessIdentity',
-      {
-        comment: 'this is needed to setup s3 polices and make s3 not public.',
-      }
-    );
-
     // if config.includeWWW include an alias for the www subdomain
     const distributionAliases = includeWWW
       ? [targetDomain, `www.${targetDomain}`]
@@ -48,7 +39,6 @@ export default class Cloudfront extends pulumi.ComponentResource {
         {
           originId: contentBucketArn,
           domainName: websiteEndpoint,
-          originPath: originAccessIdentity.cloudfrontAccessIdentityPath,
           customOriginConfig: {
             httpPort: 80,
             httpsPort: 443,
@@ -110,7 +100,6 @@ export default class Cloudfront extends pulumi.ComponentResource {
       distributionArgs
     );
 
-    this.originAccessIdentityIamArn = originAccessIdentity.iamArn;
     this.CDNEndpoint = cdn.domainName;
   }
 }
