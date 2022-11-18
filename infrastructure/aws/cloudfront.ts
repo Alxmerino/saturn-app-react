@@ -61,7 +61,7 @@ export default class Cloudfront extends pulumi.ComponentResource {
         },
       ],
 
-      defaultRootObject: 'index.html',
+      defaultRootObject: 'www/index.html',
 
       // A CloudFront distribution can configure different cache behaviors based on the request path.
       // Here we just specify a single, default cache behavior which is just read-only requests to S3.
