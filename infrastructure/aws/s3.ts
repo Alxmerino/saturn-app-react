@@ -21,8 +21,8 @@ export default class S3 extends pulumi.ComponentResource {
 
     const S3Bucket = new aws.s3.Bucket(targetDomain, {
       website: {
-        indexDocument: 'www/index.html',
-        errorDocument: 'www/index.html',
+        indexDocument: 'index.html',
+        errorDocument: 'index.html',
       },
       acl: 'public-read',
       tags,
