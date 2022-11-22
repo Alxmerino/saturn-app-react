@@ -41,7 +41,7 @@ export const api: any = createApi({
       }),
       transformResponse,
     }),
-    createProject: builders.mutation<ProjectRequest, ProjectResponse>({
+    createProject: builders.mutation<ProjectResponse, ProjectRequest>({
       query: (projectBody) => ({
         url: '/projects',
         method: 'POST',
@@ -49,7 +49,7 @@ export const api: any = createApi({
       }),
       transformResponse,
     }),
-    updateProjectByTitle: builders.mutation<ProjectRequest, ProjectRequest>({
+    updateProjectByTitle: builders.mutation<ProjectResponse, ProjectRequest>({
       query: (projectBody) => ({
         url: `/projects/title/${projectBody.title}`,
         method: 'PUT',
@@ -57,10 +57,11 @@ export const api: any = createApi({
       }),
       transformResponse,
     }),
+
     /**
-     * Tasks/Timers
+     * Tasks
      */
-    createTask: builders.mutation<TaskRequest, TaskResponse>({
+    createTask: builders.mutation<TaskResponse, TaskRequest>({
       query: (taskBody) => ({
         url: '/tasks',
         method: 'POST',
@@ -68,27 +69,30 @@ export const api: any = createApi({
       }),
       transformResponse,
     }),
-    // @todo: Fix types
-    assignProject: builders.mutation<any, any>({
-      query: (args) => ({
+    assignProject: builders.mutation<
+      ProjectResponse,
+      Partial<ProjectRequest> & Pick<ProjectRequest, 'id'>
+    >({
+      query: ({ id, ...args }) => ({
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        url: `/tasks/${args.id}/add-project`,
+        url: `/tasks/${id}/add-project`,
         method: 'POST',
-        body: transformBody({ ...args.data }),
+        body: transformBody({ ...args }),
       }),
       transformResponse,
     }),
-    // @todo: Fix types
-    updateTask: builders.mutation<string | number, any>({
-      query: (args: any) => ({
+    updateTask: builders.mutation<
+      TaskResponse,
+      Partial<TaskRequest> & Pick<TaskRequest, 'id'>
+    >({
+      query: ({ id, ...args }) => ({
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        url: `/tasks/${args.id}`,
+        url: `/tasks/${id}`,
         method: 'PUT',
-        body: transformBody({ ...args.timer }),
+        body: transformBody({ ...args }),
       }),
     }),
-    // @todo: Fix types
-    deleteTask: builders.mutation<string | number, any>({
+    deleteTask: builders.mutation<MessageResponse, string | number>({
       query: (id: string | number) => ({
         url: `/tasks/${id}`,
         method: 'DELETE',
