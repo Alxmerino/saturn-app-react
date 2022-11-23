@@ -32,7 +32,7 @@ const TimerHeader = () => {
   const [newProject, setNewProject] = useState<boolean>(true);
   const [updateProjectByTitle] = useUpdateProjectByTitleMutation();
   const [createProject] = useCreateProjectMutation();
-  const [createTimer] = useCreateTaskMutation();
+  const [createTask] = useCreateTaskMutation();
 
   // @todo: Hide "Planned Time" Field until Notifications are added
   const hidePlannedTime = true;
@@ -87,7 +87,7 @@ const TimerHeader = () => {
         timers: [],
       };
 
-      const { data: taskResults } = await createTimer({
+      const { data: taskResults } = await createTask({
         ...task,
       });
 
@@ -97,8 +97,11 @@ const TimerHeader = () => {
       };
 
       dispatch(addTask(task));
-      // @todo: Update API to support time entries
-      dispatch(addTimer(task.id));
+
+      // API called probably fail so lets add a local timer
+      if (!task.timers.length) {
+        dispatch(addTimer({ taskId: task.id }));
+      }
 
       // Reset states
       setTitle('');
