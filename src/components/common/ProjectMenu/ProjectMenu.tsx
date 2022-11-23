@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { IconButton, Input, Link, Menu, MenuItem } from '@mui/material';
+import {
+  IconButton,
+  Input,
+  Link,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  MenuList,
+} from '@mui/material';
 import { Circle, DeveloperBoard, FormatColorFill } from '@mui/icons-material';
 
 import './ProjectMenu.scss';
@@ -7,6 +16,8 @@ import { Button, Text } from '../../common';
 import { colorCodeToNameMap, colorMap } from '../../../config/constants';
 import { Project } from '../../../types/types';
 import { isNil } from 'lodash';
+import { useAppSelector } from '../../../app/hooks';
+import { selectProjects } from '../../../store/Timer/TimerSlice';
 
 export interface ProjectMenuProps {
   color?: Partial<'action' | 'primary' | 'secondary'>;
@@ -23,6 +34,7 @@ const ProjectMenu = ({
   onOpen,
   onClose,
 }: ProjectMenuProps) => {
+  const projects: Project[] = useAppSelector(selectProjects);
   const [projectMenuColorEl, setProjectMenuColorEl] =
     useState<null | HTMLElement>(null);
   const [tempProjectTitle, setTempProjectTitle] = useState<string>(
@@ -200,6 +212,30 @@ const ProjectMenu = ({
             {Object.keys(colorCodeToNameMap).map(RenderColorCode)}
           </Menu>
         </MenuItem>
+        {projects?.length && (
+          <MenuList dense>
+            {projects.map((p) => (
+              <MenuItem key={p.id} selected={p.id === project?.id}>
+                {p.colorCode && (
+                  <ListItemIcon
+                    sx={{
+                      minWidth: '22px !important',
+                    }}
+                  >
+                    <Circle
+                      sx={{
+                        width: 10,
+                        height: 10,
+                        color: colorMap[colorCodeToNameMap[+p.colorCode]],
+                      }}
+                    />
+                  </ListItemIcon>
+                )}
+                <ListItemText>{p.title}</ListItemText>
+              </MenuItem>
+            ))}
+          </MenuList>
+        )}
       </Menu>
     </>
   );
