@@ -78,6 +78,7 @@ const TimerHeader = () => {
     }
 
     try {
+      const now = new Date();
       // Create local timer object
       let task: Task = {
         id: nanoid(),
@@ -89,6 +90,9 @@ const TimerHeader = () => {
 
       const { data: taskResults } = await createTask({
         ...task,
+        // API Needs this to create a new time entry
+        startTime: now.toJSON(),
+        endTime: now.toJSON(),
       });
 
       task = {
