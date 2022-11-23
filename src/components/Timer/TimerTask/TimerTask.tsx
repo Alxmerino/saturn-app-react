@@ -114,7 +114,7 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
   };
 
   const handleTimerStart = () => {
-    dispatch(addTimer(task.id));
+    dispatch(addTimer({ taskId: task.id }));
   };
 
   const handleTimerStop = () => {

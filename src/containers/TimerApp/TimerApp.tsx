@@ -44,13 +44,18 @@ const TimerApp = (): JSX.Element => {
   } = useGetTasksQuery();
 
   useEffect(() => {
-    if (!isLoadingProjects && !isFetchingProjects && apiProjects.length) {
+    if (
+      !isLoadingProjects &&
+      !isFetchingProjects &&
+      apiProjects &&
+      apiProjects.length
+    ) {
       dispatch(addProjects(apiProjects));
     }
   }, [apiProjects, isLoadingProjects, isFetchingProjects]);
 
   useEffect(() => {
-    if (!isLoadingTasks && !isFetchingTasks && apiTasks.length) {
+    if (!isLoadingTasks && !isFetchingTasks && apiTasks && apiTasks.length) {
       dispatch(addTasks(apiTasks));
     }
   }, [apiTasks, isLoadingTasks, isFetchingTasks]);
@@ -64,9 +69,9 @@ const TimerApp = (): JSX.Element => {
       // @todo: Fix type error
       if ('data' in results) {
         if (results.data.message === 'Success') {
-          console.log('LOGOUT', results);
           dispatch(setCredentials({ user: null, token: null }));
           dispatch(setLogout());
+          dispatch(push(Routes.HOME));
         }
       }
     } catch (err) {
