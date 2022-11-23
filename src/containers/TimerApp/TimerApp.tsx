@@ -13,10 +13,16 @@ import { Routes } from '../../config/constants';
 import { Text } from '../../components/common';
 import { TimerHeader, TimerList } from '../../components/Timer';
 import {
+  addProjects,
+  addTasks,
   selectProjects,
   selectTasksByDate,
 } from '../../store/Timer/TimerSlice';
-import { useLogoutMutation } from '../../services/api';
+import {
+  useGetProjectsQuery,
+  useGetTasksQuery,
+  useLogoutMutation,
+} from '../../services/api';
 
 const TimerApp = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -25,7 +31,29 @@ const TimerApp = (): JSX.Element => {
   const tasksByDate = useAppSelector(selectTasksByDate);
   const currentUser = useAppSelector(selectCurrentUser);
   const tasksByDateArray = Object.keys(tasksByDate);
-  const [logout, { isLoading }] = useLogoutMutation();
+  const [logout, isLoading] = useLogoutMutation();
+  const {
+    data: apiProjects,
+    isFetching: isFetchingProjects,
+    isLoading: isLoadingProjects,
+  } = useGetProjectsQuery();
+  const {
+    data: apiTasks,
+    isFetching: isFetchingTasks,
+    isLoading: isLoadingTasks,
+  } = useGetTasksQuery();
+
+  useEffect(() => {
+    if (!isLoadingProjects && !isFetchingProjects && apiProjects.length) {
+      dispatch(addProjects(apiProjects));
+    }
+  }, [apiProjects, isLoadingProjects, isFetchingProjects]);
+
+  useEffect(() => {
+    if (!isLoadingTasks && !isFetchingTasks && apiTasks.length) {
+      dispatch(addTasks(apiTasks));
+    }
+  }, [apiTasks, isLoadingTasks, isFetchingTasks]);
 
   const handleLogOut = async () => {
     try {

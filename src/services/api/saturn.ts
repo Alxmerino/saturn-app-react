@@ -41,6 +41,14 @@ export const api: any = createApi({
       }),
       transformResponse,
     }),
+
+    /**
+     * Projects
+     */
+    getProjects: builders.query<ProjectResponse[], any>({
+      query: () => ({ url: '/projects' }),
+      transformResponse,
+    }),
     createProject: builders.mutation<ProjectResponse, ProjectRequest>({
       query: (projectBody) => ({
         url: '/projects',
@@ -61,6 +69,10 @@ export const api: any = createApi({
     /**
      * Tasks
      */
+    getTasks: builders.query<TaskResponse[], any>({
+      query: () => ({ url: '/tasks' }),
+      transformResponse,
+    }),
     createTask: builders.mutation<TaskResponse, TaskRequest>({
       query: (taskBody) => ({
         url: '/tasks',
@@ -131,7 +143,9 @@ export const {
   useLoginMutation,
   useLogoutMutation,
   useUpdateProjectByTitleMutation,
+  useGetProjectsQuery,
   useCreateProjectMutation,
+  useGetTasksQuery,
   useCreateTaskMutation,
   useAssignProjectMutation,
   useUpdateTaskMutation,

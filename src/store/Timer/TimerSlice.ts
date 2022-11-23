@@ -52,6 +52,24 @@ export const TimerSlice = createSlice({
     return localState || initialState;
   },
   reducers: {
+    addTasks(state: TimerState, action: PayloadAction<Task[]>) {
+      const tasks = action.payload;
+      const existingTasks = state.tasks.map((p) => p.id);
+
+      if (tasks.length) {
+        tasks.forEach((task) => {
+          if (!existingTasks.includes(task.id)) {
+            state.tasks.push({
+              ...task,
+              createdAt: getTimestamp(task, 'createdAt'),
+              updatedAt: getTimestamp(task, 'updatedAt'),
+            });
+          }
+        });
+
+        LocalStore.set(reducerName, state);
+      }
+    },
     addTask(state: TimerState, action: PayloadAction<Task>) {
       const taskAction = action.payload;
 
@@ -89,6 +107,24 @@ export const TimerSlice = createSlice({
         task.projectId = projectId;
 
         // Save to local storage
+        LocalStore.set(reducerName, state);
+      }
+    },
+    addProjects(state: TimerState, action: PayloadAction<Project[]>) {
+      const projects = action.payload;
+      const existingProjects = state.projects.map((p) => p.id);
+
+      if (projects.length) {
+        projects.forEach((project) => {
+          if (!existingProjects.includes(project.id)) {
+            state.projects.push({
+              ...project,
+              createdAt: getTimestamp(project, 'createdAt'),
+              updatedAt: getTimestamp(project, 'updatedAt'),
+            });
+          }
+        });
+
         LocalStore.set(reducerName, state);
       }
     },
@@ -131,8 +167,11 @@ export const TimerSlice = createSlice({
         LocalStore.set(reducerName, state);
       }
     },
-    addTimer(state: TimerState, action: PayloadAction<string>) {
-      const taskId = action.payload;
+    addTimer(
+      state: TimerState,
+      action: PayloadAction<{ taskId: string | number; timer?: TaskTimerItem }>
+    ) {
+      const { taskId, timer } = action.payload;
       const task = state.tasks.find((item) => item.id === taskId);
 
       if (task) {
@@ -151,6 +190,7 @@ export const TimerSlice = createSlice({
           endTime: new Date(),
           createdAt: new Date(),
           updatedAt: new Date(),
+          ...timer,
         };
 
         task.timers.push(newTimer);
@@ -265,10 +305,12 @@ export const TimerSlice = createSlice({
 });
 
 export const {
+  addTasks,
   addTask,
   removeTask,
   updateTask,
   addProject,
+  addProjects,
   removeProject,
   updateProject,
   addTimer,
