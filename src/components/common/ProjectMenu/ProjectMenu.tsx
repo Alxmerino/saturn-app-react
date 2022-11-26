@@ -232,7 +232,7 @@ const ProjectMenu = ({
             {Object.keys(colorCodeToNameMap).map(RenderColorCode)}
           </Menu>
         </MenuItem>
-        {projects?.length && (
+        {projects?.length ? (
           <MenuList dense>
             {projects.map((p) => (
               <MenuItem
@@ -259,7 +259,7 @@ const ProjectMenu = ({
               </MenuItem>
             ))}
           </MenuList>
-        )}
+        ) : null}
       </Menu>
     </>
   );
