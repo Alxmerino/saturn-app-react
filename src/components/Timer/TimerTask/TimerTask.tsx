@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import {
   Box,
@@ -172,7 +172,7 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
     setProjectMenuEl(null);
   };
 
-  const RenderDuration = () => {
+  const RenderDuration = useCallback(() => {
     const duration = running
       ? taskDurationInSeconds + durationInSeconds
       : taskDurationInSeconds;
@@ -187,7 +187,7 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
         {formatDurationString(duration)}
       </Text>
     );
-  };
+  }, [running, taskDurationInSeconds, durationInSeconds]);
 
   useEffect(() => {
     if (running && typeof onDurationUpdate !== 'undefined') {
