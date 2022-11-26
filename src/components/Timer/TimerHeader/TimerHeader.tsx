@@ -19,6 +19,8 @@ import {
   useUpdateProjectByTitleMutation,
 } from '../../../services/api';
 import { selectCurrentUser } from '../../../store/User/UserSlice';
+import { format } from 'date-fns';
+import { isNil } from 'lodash';
 
 const TimerHeader = () => {
   const dispatch = useAppDispatch();
@@ -26,7 +28,7 @@ const TimerHeader = () => {
   const user = useAppSelector(selectCurrentUser);
   const [title, setTitle] = useState<string>('');
   const [plannedTime, setPlannedTime] = useState<string>('');
-  const [project, setProject] = useState<Partial<Project> | null>({});
+  const [project, setProject] = useState<Project | null>(null);
   const [canAdd, setCanAdd] = useState<boolean>(false);
   const [projectMenuEl, setProjectMenuEl] = useState<null | HTMLElement>(null);
   const [newProject, setNewProject] = useState<boolean>(true);
@@ -50,25 +52,18 @@ const TimerHeader = () => {
 
   const handleProjectAdd = async () => {
     let _project = project;
-    // @todo: Only update if existing and menuProject are different
-    if (newProject) {
+    if (newProject && !isNil(project)) {
       const { data: projectResult } = await createProject(project);
-      _project = { ...project, ...projectResult };
+      _project = projectResult;
 
-      dispatch(addProject({ ...project, ...projectResult }));
-    } else {
-      const { data: projectResult } = await updateProjectByTitle({
-        ...project,
-      });
-      _project = { ...project, ...projectResult };
-
-      dispatch(updateProject({ ...project, ...projectResult }));
+      dispatch(addProject({ ...projectResult }));
     }
 
     return _project;
   };
 
   const handleTimerAdd = async () => {
+    // Handle project add
     let apiProject = null;
     try {
       apiProject = await handleProjectAdd();
@@ -77,8 +72,12 @@ const TimerHeader = () => {
       console.error('Create Project Error', err);
     }
 
+    console.log('PRIJ', apiProject);
+
+    // Handle task add
     try {
-      const now = new Date();
+      const now = format(new Date(), 'yyyy-MM-dd hh:mm:ss');
+
       // Create local timer object
       let task: Task = {
         id: nanoid(),
@@ -91,8 +90,8 @@ const TimerHeader = () => {
       const { data: taskResults } = await createTask({
         ...task,
         // API Needs this to create a new time entry
-        startTime: now.toJSON(),
-        endTime: now.toJSON(),
+        startTime: now,
+        endTime: now,
       });
 
       task = {
@@ -130,36 +129,28 @@ const TimerHeader = () => {
   const handleProjectMenuOpen = (el: HTMLElement) => {
     setProjectMenuEl(el);
   };
-  const handleProjectMenuClose = async (menuProject: {
+  const handleProjectMenuClose = async ({
+    title,
+    colorCode,
+    projectId,
+  }: {
     title: string;
     colorCode: number;
+    projectId: string;
   }) => {
-    // Bail early if color has not changed
-    if (project?.colorCode === menuProject.colorCode) {
-      setProjectMenuEl(null);
-      return;
-    }
+    // Bail early
+    const existingProject = projects.find((p: Project) => p.id === projectId);
 
-    const existingProject = projects.find(
-      (p: Project) => p.title.toLowerCase() === menuProject.title.toLowerCase()
-    );
-
-    if (
-      (existingProject && project?.title !== existingProject?.title) ||
-      project?.colorCode !== existingProject?.colorCode
-    ) {
+    if (existingProject) {
       setNewProject(false);
-      setProject((state) => ({
-        ...project,
-        ...existingProject,
-        ...menuProject,
-      }));
-    } else {
-      setProject((state) => ({
+      setProject(existingProject);
+    } else if (title !== '') {
+      setProject({
         id: nanoid(),
         userId: user?.id,
-        ...menuProject,
-      }));
+        title,
+        colorCode,
+      });
     }
 
     setProjectMenuEl(null);

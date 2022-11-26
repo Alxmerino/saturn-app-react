@@ -21,7 +21,7 @@ import { selectProjects } from '../../../store/Timer/TimerSlice';
 
 export interface ProjectMenuProps {
   color?: Partial<'action' | 'primary' | 'secondary'>;
-  project?: Partial<Project> | null;
+  project?: Project | null;
   projectMenuEl: null | HTMLElement;
   onOpen?: (x: any) => void;
   onClose?: (x: any) => void;
@@ -37,15 +37,11 @@ const ProjectMenu = ({
   const projects: Project[] = useAppSelector(selectProjects);
   const [projectMenuColorEl, setProjectMenuColorEl] =
     useState<null | HTMLElement>(null);
-  const [tempProjectTitle, setTempProjectTitle] = useState<string>(
-    project?.title ?? ''
+  const [selectedProject, setSelectedProject] = useState<string | number>(
+    project?.id ?? ''
   );
-  const [projectTitle, setProjectTitle] = useState<string>(
-    project?.title ?? ''
-  );
-  const [tempColorCode, setTempColorCode] = useState<number>(
-    project?.colorCode ?? 0
-  );
+  const [tempProjectTitle, setTempProjectTitle] = useState<string>('');
+  const [tempColorCode, setTempColorCode] = useState<number>(0);
   const projectMenuOpen = Boolean(projectMenuEl);
   const projectColorMenuOpen = Boolean(projectMenuColorEl);
 
@@ -86,16 +82,32 @@ const ProjectMenu = ({
 
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.value.toLowerCase() === 'vmg-1') {
-      setProjectTitle('');
+      setSelectedProject('');
       alert('STOP! This project name will make the sky fall on your head!');
       return;
     }
     setTempProjectTitle(event.target.value);
+    if (selectedProject !== '') {
+      setSelectedProject('');
+    }
   };
 
   const handleOnKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       handleProjectMenuClose();
+    }
+  };
+
+  const handleProjectClick = (projectId: string | number) => {
+    if (onClose) {
+      const project = projects.find((p) => p.id === projectId);
+      setTempProjectTitle('');
+      setTempColorCode(project?.colorCode ?? 0);
+      onClose({
+        title: '',
+        colorCode: 0,
+        projectId,
+      });
     }
   };
 
@@ -116,7 +128,7 @@ const ProjectMenu = ({
   useEffect(() => {
     if (isNil(project)) {
       setTempProjectTitle('');
-      setProjectTitle('');
+      setSelectedProject('');
       setTempColorCode(0);
     } else if (project?.colorCode && project.colorCode !== tempColorCode) {
       setTempColorCode(project.colorCode);
@@ -142,18 +154,22 @@ const ProjectMenu = ({
         />
       </Button>
     );
-  } else if (projectTitle !== '') {
-    buttonEl = (
-      <Link href="#" underline="none" onClick={handleProjectMenuClick}>
-        <Text
-          component="strong"
-          fontWeight="bold"
-          color={colorMap[colorCodeToNameMap[tempColorCode]]}
-        >
-          {projectTitle}
-        </Text>
-      </Link>
-    );
+  } else if (selectedProject !== '') {
+    const project = projects.find((p: Project) => p.id === selectedProject);
+
+    if (!isNil(project)) {
+      buttonEl = (
+        <Link href="#" underline="none" onClick={handleProjectMenuClick}>
+          <Text
+            component="strong"
+            fontWeight="bold"
+            color={colorMap[colorCodeToNameMap[project.colorCode ?? 0]]}
+          >
+            {project.title}
+          </Text>
+        </Link>
+      );
+    }
   } else {
     buttonEl = (
       <IconButton edge="start" onClick={handleProjectMenuClick}>
@@ -174,7 +190,11 @@ const ProjectMenu = ({
           'aria-labelledby': 'project-menu-button',
         }}
       >
-        <MenuItem>
+        <MenuItem
+          onKeyDown={(event) => {
+            event.stopPropagation();
+          }}
+        >
           <Input
             autoFocus={true}
             disableUnderline={true}
@@ -215,7 +235,11 @@ const ProjectMenu = ({
         {projects?.length && (
           <MenuList dense>
             {projects.map((p) => (
-              <MenuItem key={p.id} selected={p.id === project?.id}>
+              <MenuItem
+                key={p.id}
+                selected={p.id === project?.id}
+                onClick={() => handleProjectClick(p.id)}
+              >
                 {p.colorCode && (
                   <ListItemIcon
                     sx={{

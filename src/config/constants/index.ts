@@ -46,7 +46,7 @@ export const colorNameToCodeMap: { [x: string]: number } = {
   purple: 9,
   violet: 10,
   grey: 11,
-  black: 12,
+  black: 0,
 };
 
 export const colorCodeToNameMap: { [x: number]: string } = {
