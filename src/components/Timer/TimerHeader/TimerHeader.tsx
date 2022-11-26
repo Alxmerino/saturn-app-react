@@ -72,8 +72,6 @@ const TimerHeader = () => {
       console.error('Create Project Error', err);
     }
 
-    console.log('PRIJ', apiProject);
-
     // Handle task add
     try {
       const now = format(new Date(), 'yyyy-MM-dd hh:mm:ss');
