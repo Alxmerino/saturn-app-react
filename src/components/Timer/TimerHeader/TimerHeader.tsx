@@ -74,7 +74,7 @@ const TimerHeader = () => {
 
     // Handle task add
     try {
-      const now = format(new Date(), 'yyyy-MM-dd hh:mm:ss');
+      const now = new Date().toJSON();
 
       // Create local timer object
       let task: Task = {
@@ -134,9 +134,8 @@ const TimerHeader = () => {
   }: {
     title: string;
     colorCode: number;
-    projectId: string;
+    projectId: number | string;
   }) => {
-    // Bail early
     const existingProject = projects.find((p: Project) => p.id === projectId);
 
     if (existingProject) {
