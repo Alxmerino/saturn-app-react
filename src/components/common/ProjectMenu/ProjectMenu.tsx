@@ -130,8 +130,9 @@ const ProjectMenu = ({
       setTempProjectTitle('');
       setSelectedProject('');
       setTempColorCode(0);
-    } else if (project?.colorCode && project.colorCode !== tempColorCode) {
-      setTempColorCode(project.colorCode);
+    } else if (project) {
+      setTempColorCode(project.colorCode ?? 0);
+      setSelectedProject(project.id);
     }
   }, [project]);
 
@@ -240,21 +241,19 @@ const ProjectMenu = ({
                 selected={p.id === project?.id}
                 onClick={() => handleProjectClick(p.id)}
               >
-                {p.colorCode && (
-                  <ListItemIcon
+                <ListItemIcon
+                  sx={{
+                    minWidth: '22px !important',
+                  }}
+                >
+                  <Circle
                     sx={{
-                      minWidth: '22px !important',
+                      width: 10,
+                      height: 10,
+                      color: colorMap[colorCodeToNameMap[+(p?.colorCode ?? 0)]],
                     }}
-                  >
-                    <Circle
-                      sx={{
-                        width: 10,
-                        height: 10,
-                        color: colorMap[colorCodeToNameMap[+p.colorCode]],
-                      }}
-                    />
-                  </ListItemIcon>
-                )}
+                  />
+                </ListItemIcon>
                 <ListItemText>{p.title}</ListItemText>
               </MenuItem>
             ))}

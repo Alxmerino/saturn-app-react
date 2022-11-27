@@ -82,8 +82,8 @@ export const api: any = createApi({
       transformResponse,
     }),
     assignProject: builders.mutation<
-      ProjectResponse,
-      Partial<ProjectRequest> & Pick<ProjectRequest, 'id'>
+      TaskResponse,
+      Partial<TaskRequest> & Pick<TaskRequest, 'id'>
     >({
       query: ({ id, ...args }) => ({
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

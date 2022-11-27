@@ -20,7 +20,7 @@ import {
 } from '@mui/icons-material';
 
 import { ProjectMenu, Text } from '../../common';
-import { Task, User } from '../../../types/types';
+import { Project, Task, User } from '../../../types/types';
 import { formatDurationString } from '../../../services/utils';
 import {
   resetTimer,
@@ -29,6 +29,7 @@ import {
   updateTask,
   selectProjectById,
   addTimer,
+  addProject,
 } from '../../../store/Timer/TimerSlice';
 import { useAppDispatch, useAppSelector, useTimer } from '../../../app/hooks';
 import {
@@ -42,15 +43,21 @@ import { selectUserIntegration } from '../../../store/User/UserSlice';
 import { isNil } from 'lodash';
 
 export interface TaskItemProps {
+  projects: Project[];
   task: Task;
   onDurationUpdate?: (duration: number) => void;
   user: User;
 }
 
-const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
+const TimerTask = ({
+  task,
+  onDurationUpdate,
+  user,
+  projects,
+}: TaskItemProps) => {
   const integration = useAppSelector(selectUserIntegration);
-  const getProject = useAppSelector(selectProjectById);
-  const taskProject = task.projectId ? getProject(task?.projectId) : null;
+  const taskProject = projects.find((p) => p.id === task.projectId) ?? null;
+  const [project, setProject] = useState<Project | null>(taskProject);
   const [createProject] = useCreateProjectMutation();
   const dispatch = useAppDispatch();
   const [deleteTimer] = useDeleteTaskMutation();
@@ -68,7 +75,7 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
   );
   const [timerAnchorEl, setTimerAnchorEl] = useState<null | HTMLElement>(null);
   const timerOpen = Boolean(timerAnchorEl);
-  const canLogTime = !isNil(integration) && !isNil(taskProject?.title);
+  const canLogTime = !isNil(integration) && !isNil(project?.title);
   const { durationInSeconds, activeTimer, running, taskDurationInSeconds } =
     useTimer(task);
 
@@ -164,11 +171,43 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
     }
   };
 
-  const handleProjectMenuClose = async (menuProject: {
+  const handleProjectMenuClose = async ({
+    title,
+    colorCode,
+    projectId,
+  }: {
     title: string;
     colorCode: number;
+    projectId: number | string;
   }) => {
-    // @todo: Update API project here
+    try {
+      let project = projects.find((p: Project) => p.id === projectId);
+
+      if (title !== '') {
+        const { data: projectResult }: { data: Project } = await createProject({
+          title,
+          colorCode,
+          userId: user.id,
+        });
+
+        project = projectResult;
+        dispatch(addProject({ ...projectResult }));
+      }
+
+      if (project) {
+        const { data: taskResult }: { data: Project } =
+          await assignTimerProject({
+            id: task.id,
+            project_id: project.id,
+          });
+
+        dispatch(updateTask({ ...taskResult }));
+        setProject(project);
+      }
+    } catch (err) {
+      console.error('Could not assign project', err);
+    }
+
     setProjectMenuEl(null);
   };
 
@@ -278,7 +317,7 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
         )}
         <ProjectMenu
           color="action"
-          project={taskProject}
+          project={project}
           projectMenuEl={projectMenuEl}
           onOpen={(el: HTMLElement) => setProjectMenuEl(el)}
           onClose={handleProjectMenuClose}

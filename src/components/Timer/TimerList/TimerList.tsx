@@ -16,6 +16,8 @@ import {
   formatDurationString,
   getTaskTotalDuration,
 } from '../../../services/utils';
+import { useAppSelector } from '../../../app/hooks';
+import { selectProjects } from '../../../store/Timer/TimerSlice';
 
 export interface TimerListProps {
   date: string;
@@ -25,6 +27,7 @@ export interface TimerListProps {
 
 const TimerList = ({ date, tasks, user }: TimerListProps) => {
   const now: Date = new Date();
+  const projects = useAppSelector(selectProjects);
   const headerDate: Date = parse(date, 'yyyy-MM-dd', now);
   const [expanded, setExpanded] = useState<boolean>(true);
   const tasksDuration = useMemo(() => getTaskTotalDuration(tasks), [tasks]);
@@ -86,6 +89,7 @@ const TimerList = ({ date, tasks, user }: TimerListProps) => {
       <AccordionDetails sx={{ padding: 0 }}>
         {tasks.map((task) => (
           <TimerTask
+            projects={projects}
             task={task}
             key={task.id}
             user={user}

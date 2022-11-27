@@ -97,14 +97,19 @@ export const TimerSlice = createSlice({
     },
     updateTask(
       state: TimerState,
-      action: PayloadAction<Pick<Task, 'id' | 'title' | 'projectId'>>
+      action: PayloadAction<Partial<Pick<Task, 'id' | 'title' | 'projectId'>>>
     ) {
       const { id, title, projectId } = action.payload;
       const task = state.tasks.find((item) => item.id === id);
 
       if (task) {
-        task.title = title;
-        task.projectId = projectId;
+        if (title) {
+          task.title = title;
+        }
+
+        if (projectId) {
+          task.projectId = projectId;
+        }
 
         // Save to local storage
         LocalStore.set(reducerName, state);
