@@ -2,7 +2,7 @@ import { createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit';
 import { groupBy, isNil, orderBy } from 'lodash';
 
 import { RootState } from '../store';
-import { Project, Task, TaskTimerItem } from '../../types/types';
+import { DateType, Project, Task, TaskTimerItem } from '../../types/types';
 import { format } from 'date-fns';
 import LocalStore from '../../services/utils/local-store';
 import { durationInSecondsToString } from '../../services/utils';
@@ -247,9 +247,12 @@ export const TimerSlice = createSlice({
         taskId: string | number;
         timerId: string | number;
         durationInSeconds: number;
+        duration: string;
+        endTime: DateType;
       }>
     ) {
-      const { taskId, timerId, durationInSeconds } = action.payload;
+      const { taskId, timerId, durationInSeconds, duration, endTime } =
+        action.payload;
       const task = state.tasks.find((item) => item.id === taskId);
 
       if (task?.timers.length) {
@@ -257,9 +260,9 @@ export const TimerSlice = createSlice({
 
         if (timer) {
           timer.running = false;
-          timer.endTime = new Date();
+          timer.endTime = endTime;
           timer.durationInSeconds = durationInSeconds;
-          timer.duration = durationInSecondsToString(durationInSeconds);
+          timer.duration = duration;
 
           // Save to local storage
           LocalStore.set(reducerName, state);

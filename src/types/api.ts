@@ -24,6 +24,22 @@ export interface TaskRequest {
   project_id?: number;
 }
 
+export interface TimerRequest {
+  id: string | number;
+  title: string;
+  user_id: number;
+  task_id: number;
+  project_id: number;
+  billable: boolean;
+  running: boolean;
+  duration: string;
+  duration_in_seconds: number;
+  start_time: DateType;
+  end_time: DateType;
+  created_at: DateType;
+  updated_at: DateType;
+}
+
 /* eslint-disable-next-line */
 export interface TimeEntryRequest {
   // @todo
@@ -57,4 +73,20 @@ export interface TaskResponse {
   created_at: string;
   updated_at: string;
   project: ProjectResponse;
+}
+
+export interface TimerResponse {
+  id: number;
+  title: string;
+  user_id: number;
+  task_id: number;
+  project_id: number;
+  billable: number;
+  running: number;
+  duration: string;
+  duration_in_seconds: number;
+  start_time: string;
+  end_time: string;
+  created_at: string;
+  updated_at: string;
 }

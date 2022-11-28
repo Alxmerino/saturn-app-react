@@ -9,6 +9,8 @@ import {
   ProjectResponse,
   TaskRequest,
   TaskResponse,
+  TimerRequest,
+  TimerResponse,
 } from '../../types/api';
 
 interface FinalLoginRequest extends LoginRequest {
@@ -112,6 +114,35 @@ export const api: any = createApi({
     }),
 
     /**
+     * Timers
+     * */
+    createTimer: builders.mutation<TimerResponse, Partial<TimerRequest>>({
+      query: (timerBody) => ({
+        url: '/timers',
+        method: 'POST',
+        body: transformBody({ ...timerBody }),
+      }),
+      transformResponse,
+    }),
+    updateTimer: builders.mutation<
+      TimerResponse,
+      Partial<TimerRequest> & Pick<TimerRequest, 'id'>
+    >({
+      query: ({ id, ...args }) => ({
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        url: `/timers/${id}`,
+        method: 'PUT',
+        body: transformBody({ ...args }),
+      }),
+    }),
+    deleteTimer: builders.mutation<MessageResponse, string | number>({
+      query: (id: string | number) => ({
+        url: `/timers/${id}`,
+        method: 'DELETE',
+      }),
+    }),
+
+    /**
      * JIRA Endpoints
      */
     jiraLogin: builders.mutation<any, any>({
@@ -150,6 +181,9 @@ export const {
   useAssignProjectMutation,
   useUpdateTaskMutation,
   useDeleteTaskMutation,
+  useCreateTimerMutation,
+  useUpdateTimerMutation,
+  useDeleteTimerMutation,
 
   // JIRA Hooks
   useJiraLoginMutation,
