@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import {
   Box,
@@ -20,15 +20,16 @@ import {
 } from '@mui/icons-material';
 
 import { ProjectMenu, Text } from '../../common';
-import { Task, User } from '../../../types/types';
+import { Project, Task, User } from '../../../types/types';
 import { formatDurationString } from '../../../services/utils';
 import {
   resetTimer,
   stopTimer,
   removeTask,
   updateTask,
-  selectProjectById,
   addTimer,
+  addProject,
+  updateTimer,
 } from '../../../store/Timer/TimerSlice';
 import { useAppDispatch, useAppSelector, useTimer } from '../../../app/hooks';
 import {
@@ -37,24 +38,33 @@ import {
   useAssignProjectMutation,
   useJiraLogTimeMutation,
   useCreateProjectMutation,
+  useUpdateTimerMutation,
+  useCreateTimerMutation,
 } from '../../../services/api';
 import { selectUserIntegration } from '../../../store/User/UserSlice';
 import { isNil } from 'lodash';
 
 export interface TaskItemProps {
+  projects: Project[];
   task: Task;
   onDurationUpdate?: (duration: number) => void;
   user: User;
 }
 
-const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
+const TimerTask = ({
+  task,
+  onDurationUpdate,
+  user,
+  projects,
+}: TaskItemProps) => {
   const integration = useAppSelector(selectUserIntegration);
-  const getProject = useAppSelector(selectProjectById);
-  const taskProject = task.projectId ? getProject(task?.projectId) : null;
+  const taskProject = projects.find((p) => p.id === task.projectId) ?? null;
+  const [project, setProject] = useState<Project | null>(taskProject);
   const [createProject] = useCreateProjectMutation();
   const dispatch = useAppDispatch();
-  const [deleteTimer] = useDeleteTaskMutation();
-  const [updateProjectByTitle] = useUpdateProjectByTitleMutation();
+  const [deleteTask] = useDeleteTaskMutation();
+  const [createTimer] = useCreateTimerMutation();
+  const [updateTimer] = useUpdateTimerMutation();
   const [assignTimerProject] = useAssignProjectMutation();
   const [jiraLogTime] = useJiraLogTimeMutation();
 
@@ -68,9 +78,14 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
   );
   const [timerAnchorEl, setTimerAnchorEl] = useState<null | HTMLElement>(null);
   const timerOpen = Boolean(timerAnchorEl);
-  const canLogTime = !isNil(integration) && !isNil(taskProject?.title);
-  const { durationInSeconds, activeTimer, running, taskDurationInSeconds } =
-    useTimer(task);
+  const canLogTime = !isNil(integration) && !isNil(project?.title);
+  const {
+    durationInSeconds,
+    duration,
+    activeTimer,
+    running,
+    taskDurationInSeconds,
+  } = useTimer(task);
 
   const handleMoreMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setTimerAnchorEl(event.currentTarget);
@@ -92,7 +107,7 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
     // @todo: Better way to confirm delete?
     if (confirm('Are you sure you want to delete this task?')) {
       try {
-        await deleteTimer(task.id);
+        await deleteTask(task.id);
       } catch (err) {
         // @todo: Handle errors
         console.error('Delete Task Error', err);
@@ -113,19 +128,53 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
     }
   };
 
-  const handleTimerStart = () => {
-    dispatch(addTimer(task.id));
+  const handleTimerStart = async () => {
+    try {
+      const now = new Date();
+      const { data: timerResult } = await createTimer({
+        title: task.title,
+        userId: user.id,
+        taskId: task.id,
+        projectId: task.projectId,
+        running: true,
+        billable: false,
+        duration: '',
+        durationInSeconds: 0,
+        startTime: now.toJSON(),
+        endTime: now.toJSON(),
+      });
+
+      dispatch(addTimer({ taskId: task.id, timer: { ...timerResult } }));
+    } catch (err) {
+      console.error('Error starting timer', err);
+    }
   };
 
-  const handleTimerStop = () => {
-    if (activeTimer?.id) {
-      dispatch(
-        stopTimer({
-          taskId: task.id,
-          timerId: activeTimer?.id,
+  const handleTimerStop = async () => {
+    try {
+      if (activeTimer?.id) {
+        const now = new Date();
+        await updateTimer({
+          id: activeTimer.id,
           durationInSeconds,
-        })
-      );
+          duration,
+          running: false,
+          endTime: now.toJSON(),
+        });
+
+        dispatch(
+          stopTimer({
+            taskId: task.id,
+            timerId: activeTimer?.id,
+            durationInSeconds,
+            duration,
+            endTime: now,
+          })
+        );
+      }
+    } catch (err) {
+      // @todo: Handle error
+      console.log('Error stopping timer', err);
     }
   };
 
@@ -164,15 +213,47 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
     }
   };
 
-  const handleProjectMenuClose = async (menuProject: {
+  const handleProjectMenuClose = async ({
+    title,
+    colorCode,
+    projectId,
+  }: {
     title: string;
     colorCode: number;
+    projectId: number | string;
   }) => {
-    // @todo: Update API project here
+    try {
+      const project = projects.find(
+        (p: Project) =>
+          p.id === projectId || p.title.toLowerCase() === title.toLowerCase()
+      );
+
+      if (project) {
+        const { data: taskResult }: { data: Project } =
+          await assignTimerProject({
+            id: task.id,
+            projectId: project.id,
+          });
+
+        dispatch(updateTask({ ...taskResult }));
+        setProject(project);
+      } else if (title !== '') {
+        const { data: projectResult }: { data: Project } = await createProject({
+          title,
+          colorCode,
+          userId: user.id,
+        });
+
+        dispatch(addProject({ ...projectResult }));
+      }
+    } catch (err) {
+      console.error('Could not assign project', err);
+    }
+
     setProjectMenuEl(null);
   };
 
-  const RenderDuration = () => {
+  const RenderDuration = useCallback(() => {
     const duration = running
       ? taskDurationInSeconds + durationInSeconds
       : taskDurationInSeconds;
@@ -187,7 +268,7 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
         {formatDurationString(duration)}
       </Text>
     );
-  };
+  }, [running, taskDurationInSeconds, durationInSeconds]);
 
   useEffect(() => {
     if (running && typeof onDurationUpdate !== 'undefined') {
@@ -278,7 +359,7 @@ const TimerTask = ({ task, onDurationUpdate, user }: TaskItemProps) => {
         )}
         <ProjectMenu
           color="action"
-          project={taskProject}
+          project={project}
           projectMenuEl={projectMenuEl}
           onOpen={(el: HTMLElement) => setProjectMenuEl(el)}
           onClose={handleProjectMenuClose}

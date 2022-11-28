@@ -19,6 +19,8 @@ import {
   useUpdateProjectByTitleMutation,
 } from '../../../services/api';
 import { selectCurrentUser } from '../../../store/User/UserSlice';
+import { format } from 'date-fns';
+import { isNil } from 'lodash';
 
 const TimerHeader = () => {
   const dispatch = useAppDispatch();
@@ -26,13 +28,13 @@ const TimerHeader = () => {
   const user = useAppSelector(selectCurrentUser);
   const [title, setTitle] = useState<string>('');
   const [plannedTime, setPlannedTime] = useState<string>('');
-  const [project, setProject] = useState<Partial<Project> | null>({});
+  const [project, setProject] = useState<Project | null>(null);
   const [canAdd, setCanAdd] = useState<boolean>(false);
   const [projectMenuEl, setProjectMenuEl] = useState<null | HTMLElement>(null);
   const [newProject, setNewProject] = useState<boolean>(true);
   const [updateProjectByTitle] = useUpdateProjectByTitleMutation();
   const [createProject] = useCreateProjectMutation();
-  const [createTimer] = useCreateTaskMutation();
+  const [createTask] = useCreateTaskMutation();
 
   // @todo: Hide "Planned Time" Field until Notifications are added
   const hidePlannedTime = true;
@@ -50,25 +52,18 @@ const TimerHeader = () => {
 
   const handleProjectAdd = async () => {
     let _project = project;
-    // @todo: Only update if existing and menuProject are different
-    if (newProject) {
+    if (newProject && !isNil(project)) {
       const { data: projectResult } = await createProject(project);
-      _project = { ...project, ...projectResult };
+      _project = projectResult;
 
-      dispatch(addProject({ ...project, ...projectResult }));
-    } else {
-      const { data: projectResult } = await updateProjectByTitle({
-        ...project,
-      });
-      _project = { ...project, ...projectResult };
-
-      dispatch(updateProject({ ...project, ...projectResult }));
+      dispatch(addProject({ ...projectResult }));
     }
 
     return _project;
   };
 
   const handleTimerAdd = async () => {
+    // Handle project add
     let apiProject = null;
     try {
       apiProject = await handleProjectAdd();
@@ -77,7 +72,10 @@ const TimerHeader = () => {
       console.error('Create Project Error', err);
     }
 
+    // Handle task add
     try {
+      const now = new Date().toJSON();
+
       // Create local timer object
       let task: Task = {
         id: nanoid(),
@@ -87,8 +85,11 @@ const TimerHeader = () => {
         timers: [],
       };
 
-      const { data: taskResults } = await createTimer({
+      const { data: taskResults } = await createTask({
         ...task,
+        // API Needs this to create a new time entry
+        startTime: now,
+        endTime: now,
       });
 
       task = {
@@ -97,8 +98,11 @@ const TimerHeader = () => {
       };
 
       dispatch(addTask(task));
-      // @todo: Update API to support time entries
-      dispatch(addTimer(task.id));
+
+      // API called probably fail so lets add a local timer
+      if (!task.timers.length) {
+        dispatch(addTimer({ taskId: task.id }));
+      }
 
       // Reset states
       setTitle('');
@@ -123,36 +127,34 @@ const TimerHeader = () => {
   const handleProjectMenuOpen = (el: HTMLElement) => {
     setProjectMenuEl(el);
   };
-  const handleProjectMenuClose = async (menuProject: {
+  const handleProjectMenuClose = async ({
+    title,
+    colorCode,
+    projectId,
+  }: {
     title: string;
     colorCode: number;
+    projectId: number | string;
   }) => {
-    // Bail early if color has not changed
-    if (project?.colorCode === menuProject.colorCode) {
-      setProjectMenuEl(null);
-      return;
-    }
+    try {
+      const existingProject = projects.find(
+        (p: Project) =>
+          p.id === projectId || p.title.toLowerCase() === title.toLowerCase()
+      );
 
-    const existingProject = projects.find(
-      (p: Project) => p.title.toLowerCase() === menuProject.title.toLowerCase()
-    );
-
-    if (
-      (existingProject && project?.title !== existingProject?.title) ||
-      project?.colorCode !== existingProject?.colorCode
-    ) {
-      setNewProject(false);
-      setProject((state) => ({
-        ...project,
-        ...existingProject,
-        ...menuProject,
-      }));
-    } else {
-      setProject((state) => ({
-        id: nanoid(),
-        userId: user?.id,
-        ...menuProject,
-      }));
+      if (existingProject) {
+        setNewProject(false);
+        setProject(existingProject);
+      } else if (title !== '') {
+        setProject({
+          id: nanoid(),
+          userId: user?.id,
+          title,
+          colorCode,
+        });
+      }
+    } catch (err) {
+      console.error('Could not create project', err);
     }
 
     setProjectMenuEl(null);

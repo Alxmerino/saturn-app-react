@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { IconButton, Input, Link, Menu, MenuItem } from '@mui/material';
+import {
+  IconButton,
+  Input,
+  Link,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  MenuList,
+} from '@mui/material';
 import { Circle, DeveloperBoard, FormatColorFill } from '@mui/icons-material';
 
 import './ProjectMenu.scss';
@@ -7,10 +16,12 @@ import { Button, Text } from '../../common';
 import { colorCodeToNameMap, colorMap } from '../../../config/constants';
 import { Project } from '../../../types/types';
 import { isNil } from 'lodash';
+import { useAppSelector } from '../../../app/hooks';
+import { selectProjects } from '../../../store/Timer/TimerSlice';
 
 export interface ProjectMenuProps {
   color?: Partial<'action' | 'primary' | 'secondary'>;
-  project?: Partial<Project> | null;
+  project?: Project | null;
   projectMenuEl: null | HTMLElement;
   onOpen?: (x: any) => void;
   onClose?: (x: any) => void;
@@ -23,17 +34,16 @@ const ProjectMenu = ({
   onOpen,
   onClose,
 }: ProjectMenuProps) => {
+  const projects: Project[] = useAppSelector(selectProjects);
   const [projectMenuColorEl, setProjectMenuColorEl] =
     useState<null | HTMLElement>(null);
-  const [tempProjectTitle, setTempProjectTitle] = useState<string>(
-    project?.title ?? ''
+  const [selectedProject, setSelectedProject] = useState<string | number>(
+    project?.id ?? ''
   );
-  const [projectTitle, setProjectTitle] = useState<string>(
-    project?.title ?? ''
-  );
-  const [tempColorCode, setTempColorCode] = useState<number>(
-    project?.colorCode ?? 0
-  );
+  const [tempProjectTitle, setTempProjectTitle] = useState<string>('');
+  const [tempColorCode, setTempColorCode] = useState<number>(0);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>(projects);
+
   const projectMenuOpen = Boolean(projectMenuEl);
   const projectColorMenuOpen = Boolean(projectMenuColorEl);
 
@@ -51,6 +61,9 @@ const ProjectMenu = ({
         title: tempProjectTitle,
         colorCode: tempColorCode,
       });
+      setTempProjectTitle('');
+      setTempColorCode(0);
+      setFilteredProjects(projects);
     }
   };
 
@@ -73,17 +86,45 @@ const ProjectMenu = ({
   };
 
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Eastern Egg
     if (event.target.value.toLowerCase() === 'vmg-1') {
-      setProjectTitle('');
+      setSelectedProject('');
       alert('STOP! This project name will make the sky fall on your head!');
       return;
     }
+    const value = event.target.value;
+
     setTempProjectTitle(event.target.value);
+
+    setFilteredProjects(
+      projects.filter((p) =>
+        p.title.toLowerCase().includes(value.toLowerCase())
+      ) ?? []
+    );
+
+    // Reset selected project
+    if (!selectedProject) {
+      setSelectedProject('');
+    }
   };
 
   const handleOnKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       handleProjectMenuClose();
+    }
+  };
+
+  const handleProjectClick = (projectId: string | number) => {
+    if (onClose) {
+      const project = projects.find((p) => p.id === projectId);
+      onClose({
+        title: '',
+        colorCode: 0,
+        projectId,
+      });
+      setTempProjectTitle('');
+      setTempColorCode(project?.colorCode ?? 0);
+      setFilteredProjects(projects);
     }
   };
 
@@ -104,10 +145,11 @@ const ProjectMenu = ({
   useEffect(() => {
     if (isNil(project)) {
       setTempProjectTitle('');
-      setProjectTitle('');
+      setSelectedProject('');
       setTempColorCode(0);
-    } else if (project?.colorCode && project.colorCode !== tempColorCode) {
-      setTempColorCode(project.colorCode);
+    } else if (project) {
+      setTempColorCode(project.colorCode ?? 0);
+      setSelectedProject(project.id);
     }
   }, [project]);
 
@@ -130,18 +172,22 @@ const ProjectMenu = ({
         />
       </Button>
     );
-  } else if (projectTitle !== '') {
-    buttonEl = (
-      <Link href="#" underline="none" onClick={handleProjectMenuClick}>
-        <Text
-          component="strong"
-          fontWeight="bold"
-          color={colorMap[colorCodeToNameMap[tempColorCode]]}
-        >
-          {projectTitle}
-        </Text>
-      </Link>
-    );
+  } else if (selectedProject !== '') {
+    const project = projects.find((p: Project) => p.id === selectedProject);
+
+    if (!isNil(project)) {
+      buttonEl = (
+        <Link href="#" underline="none" onClick={handleProjectMenuClick}>
+          <Text
+            component="strong"
+            fontWeight="bold"
+            color={colorMap[colorCodeToNameMap[project.colorCode ?? 0]]}
+          >
+            {project.title}
+          </Text>
+        </Link>
+      );
+    }
   } else {
     buttonEl = (
       <IconButton edge="start" onClick={handleProjectMenuClick}>
@@ -162,7 +208,11 @@ const ProjectMenu = ({
           'aria-labelledby': 'project-menu-button',
         }}
       >
-        <MenuItem>
+        <MenuItem
+          onKeyDown={(event) => {
+            event.stopPropagation();
+          }}
+        >
           <Input
             autoFocus={true}
             disableUnderline={true}
@@ -200,6 +250,38 @@ const ProjectMenu = ({
             {Object.keys(colorCodeToNameMap).map(RenderColorCode)}
           </Menu>
         </MenuItem>
+        {filteredProjects?.length ? (
+          <MenuList
+            dense
+            sx={{
+              maxHeight: 155,
+              overflow: 'auto',
+            }}
+          >
+            {filteredProjects.map((p) => (
+              <MenuItem
+                key={p.id}
+                selected={p.id === project?.id}
+                onClick={() => handleProjectClick(p.id)}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: '22px !important',
+                  }}
+                >
+                  <Circle
+                    sx={{
+                      width: 10,
+                      height: 10,
+                      color: colorMap[colorCodeToNameMap[+(p?.colorCode ?? 0)]],
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText>{p.title}</ListItemText>
+              </MenuItem>
+            ))}
+          </MenuList>
+        ) : null}
       </Menu>
     </>
   );

@@ -35,7 +35,7 @@ export const colorMap: { [x: string]: string } = {
 };
 
 export const colorNameToCodeMap: { [x: string]: number } = {
-  blue: 1,
+  blue: 0,
   turquoise: 2,
   green: 3,
   lime: 4,
@@ -46,11 +46,11 @@ export const colorNameToCodeMap: { [x: string]: number } = {
   purple: 9,
   violet: 10,
   grey: 11,
-  black: 12,
+  black: 1,
 };
 
 export const colorCodeToNameMap: { [x: number]: string } = {
-  1: 'blue',
+  0: 'blue',
   2: 'turquoise',
   3: 'green',
   4: 'lime',
@@ -61,7 +61,7 @@ export const colorCodeToNameMap: { [x: number]: string } = {
   9: 'purple',
   10: 'violet',
   11: 'grey',
-  12: 'black',
+  1: 'black',
 };
 
 export enum API {
