@@ -196,8 +196,6 @@ const ProjectMenu = ({
     );
   }
 
-  console.log('FIL', filteredProjects);
-
   return (
     <>
       {buttonEl}
