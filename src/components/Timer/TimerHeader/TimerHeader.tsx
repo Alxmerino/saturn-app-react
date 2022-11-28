@@ -136,18 +136,25 @@ const TimerHeader = () => {
     colorCode: number;
     projectId: number | string;
   }) => {
-    const existingProject = projects.find((p: Project) => p.id === projectId);
+    try {
+      const existingProject = projects.find(
+        (p: Project) =>
+          p.id === projectId || p.title.toLowerCase() === title.toLowerCase()
+      );
 
-    if (existingProject) {
-      setNewProject(false);
-      setProject(existingProject);
-    } else if (title !== '') {
-      setProject({
-        id: nanoid(),
-        userId: user?.id,
-        title,
-        colorCode,
-      });
+      if (existingProject) {
+        setNewProject(false);
+        setProject(existingProject);
+      } else if (title !== '') {
+        setProject({
+          id: nanoid(),
+          userId: user?.id,
+          title,
+          colorCode,
+        });
+      }
+    } catch (err) {
+      console.error('Could not create project', err);
     }
 
     setProjectMenuEl(null);

@@ -42,6 +42,8 @@ const ProjectMenu = ({
   );
   const [tempProjectTitle, setTempProjectTitle] = useState<string>('');
   const [tempColorCode, setTempColorCode] = useState<number>(0);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>(projects);
+
   const projectMenuOpen = Boolean(projectMenuEl);
   const projectColorMenuOpen = Boolean(projectMenuColorEl);
 
@@ -59,6 +61,9 @@ const ProjectMenu = ({
         title: tempProjectTitle,
         colorCode: tempColorCode,
       });
+      setTempProjectTitle('');
+      setTempColorCode(0);
+      setFilteredProjects(projects);
     }
   };
 
@@ -81,13 +86,24 @@ const ProjectMenu = ({
   };
 
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Eastern Egg
     if (event.target.value.toLowerCase() === 'vmg-1') {
       setSelectedProject('');
       alert('STOP! This project name will make the sky fall on your head!');
       return;
     }
+    const value = event.target.value;
+
     setTempProjectTitle(event.target.value);
-    if (selectedProject !== '') {
+
+    setFilteredProjects(
+      projects.filter((p) =>
+        p.title.toLowerCase().includes(value.toLowerCase())
+      ) ?? []
+    );
+
+    // Reset selected project
+    if (!selectedProject) {
       setSelectedProject('');
     }
   };
@@ -101,13 +117,14 @@ const ProjectMenu = ({
   const handleProjectClick = (projectId: string | number) => {
     if (onClose) {
       const project = projects.find((p) => p.id === projectId);
-      setTempProjectTitle('');
-      setTempColorCode(project?.colorCode ?? 0);
       onClose({
         title: '',
         colorCode: 0,
         projectId,
       });
+      setTempProjectTitle('');
+      setTempColorCode(project?.colorCode ?? 0);
+      setFilteredProjects(projects);
     }
   };
 
@@ -179,6 +196,8 @@ const ProjectMenu = ({
     );
   }
 
+  console.log('FIL', filteredProjects);
+
   return (
     <>
       {buttonEl}
@@ -233,9 +252,15 @@ const ProjectMenu = ({
             {Object.keys(colorCodeToNameMap).map(RenderColorCode)}
           </Menu>
         </MenuItem>
-        {projects?.length ? (
-          <MenuList dense>
-            {projects.map((p) => (
+        {filteredProjects?.length ? (
+          <MenuList
+            dense
+            sx={{
+              maxHeight: 155,
+              overflow: 'auto',
+            }}
+          >
+            {filteredProjects.map((p) => (
               <MenuItem
                 key={p.id}
                 selected={p.id === project?.id}
