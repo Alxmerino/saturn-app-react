@@ -26,3 +26,7 @@ config:
 ```
 
 Once the Pulumi progran runs, create a new DNS record to point to the new CloudFront Distribution URL
+
+## Infrastructure diagram
+
+![Saturn FE App Infrastructure - User Flow](https://user-images.githubusercontent.com/1016021/204614167-d2894a45-7862-4f94-be80-4149937b184b.png)
