@@ -164,12 +164,7 @@ const ProjectMenu = ({
         aria-expanded={projectMenuOpen ? 'true' : undefined}
         onClick={handleProjectMenuClick}
       >
-        <DeveloperBoard
-          color={color}
-          sx={{
-            color: colorMap[colorCodeToNameMap[tempColorCode]] ?? 'primary',
-          }}
-        />
+        Project
       </Button>
     );
   } else if (selectedProject !== '') {
@@ -190,9 +185,17 @@ const ProjectMenu = ({
     }
   } else {
     buttonEl = (
-      <IconButton edge="start" onClick={handleProjectMenuClick}>
-        <DeveloperBoard color={color} />
-      </IconButton>
+      <Text
+        component="strong"
+        fontWeight="bold"
+        onClick={handleProjectMenuClick}
+        sx={{
+          textDecoration: 'underline',
+          color: '#3c4858',
+        }}
+      >
+        Project +
+      </Text>
     );
   }
 

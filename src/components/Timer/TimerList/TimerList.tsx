@@ -71,14 +71,14 @@ const TimerList = ({ date, tasks, user }: TimerListProps) => {
             mr: 1,
           }}
         >
-          <Text component="strong" fontWeight="bold">
+          <Text component="strong" fontWeight="bold" sx={{ color: '#3c4858' }}>
             {isToday(headerDate)
               ? 'Today'
               : isYesterday(headerDate)
               ? 'Yesterday'
               : headerDate.toDateString()}
           </Text>
-          <Text component="strong" fontWeight="bold">
+          <Text component="strong" fontWeight="bold" sx={{ color: '#3c4858' }}>
             <>
               <span>{formatDurationString(totalDuration)}</span>
               {totalPlannedTime && <span>/{totalPlannedTime}</span>}
