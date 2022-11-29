@@ -27,6 +27,11 @@ config:
 
 Once the Pulumi progran runs, create a new DNS record to point to the new CloudFront Distribution URL
 
-## Infrastructure diagram
+## Deployment Diagram
+Deploys are made with GitHub Actions using an IAM Role into an S3 Bucket
+
+![Saturn FE App Infrastructure](https://user-images.githubusercontent.com/1016021/204628500-d87b7de3-bb3c-4277-976e-451a9dd780d4.png)
+
+## User Flow diagram
 
 ![Saturn FE App Infrastructure - User Flow](https://user-images.githubusercontent.com/1016021/204614167-d2894a45-7862-4f94-be80-4149937b184b.png)
