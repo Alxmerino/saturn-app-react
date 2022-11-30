@@ -112,6 +112,12 @@ export const api: any = createApi({
         method: 'DELETE',
       }),
     }),
+    resetTask: builders.mutation<MessageResponse, string | number>({
+      query: (id: string | number) => ({
+        url: `/tasks/${id}/reset-time-entries`,
+        method: 'DELETE',
+      }),
+    }),
 
     /**
      * Timers
@@ -176,11 +182,14 @@ export const {
   useUpdateProjectByTitleMutation,
   useGetProjectsQuery,
   useCreateProjectMutation,
+
   useGetTasksQuery,
   useCreateTaskMutation,
   useAssignProjectMutation,
   useUpdateTaskMutation,
   useDeleteTaskMutation,
+  useResetTaskMutation,
+
   useCreateTimerMutation,
   useUpdateTimerMutation,
   useDeleteTimerMutation,
