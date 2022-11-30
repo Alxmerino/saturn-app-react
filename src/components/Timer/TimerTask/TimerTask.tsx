@@ -40,6 +40,7 @@ import {
   useCreateProjectMutation,
   useUpdateTimerMutation,
   useCreateTimerMutation,
+  useResetTaskMutation,
 } from '../../../services/api';
 import { selectUserIntegration } from '../../../store/User/UserSlice';
 import { isNil } from 'lodash';
@@ -63,6 +64,7 @@ const TimerTask = ({
   const [createProject] = useCreateProjectMutation();
   const dispatch = useAppDispatch();
   const [deleteTask] = useDeleteTaskMutation();
+  const [resetTask] = useResetTaskMutation();
   const [createTimer] = useCreateTimerMutation();
   const [updateTimer] = useUpdateTimerMutation();
   const [assignTimerProject] = useAssignProjectMutation();
@@ -95,12 +97,18 @@ const TimerTask = ({
     setTimerAnchorEl(null);
   };
 
-  const handleTimerReset = () => {
+  const handleTimerReset = async () => {
     if (confirm('Are you sure you want to reset this Task time entries?')) {
-      dispatch(resetTimer(task.id));
-    }
+      try {
+        await resetTask(task.id);
+      } catch (err) {
+        // @todo: Handle errors
+        console.error('Reset Task Error', err);
+      }
 
-    handleMoreMenuClose();
+      dispatch(resetTimer(task.id));
+      handleMoreMenuClose();
+    }
   };
 
   const handleTaskDelete = async () => {
