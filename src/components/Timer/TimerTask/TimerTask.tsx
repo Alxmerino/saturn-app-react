@@ -268,10 +268,10 @@ const TimerTask = ({
 
     return (
       <Text
-        color="grey.700"
+        // color="grey.800"
         component="span"
         onClick={() => handleEditableField('duration')}
-        sx={{ cursor: 'pointer' }}
+        sx={{ cursor: 'pointer', color: '#7a778a' }}
       >
         {formatDurationString(duration)}
       </Text>
@@ -299,9 +299,9 @@ const TimerTask = ({
       }}
     >
       <IconButton
-        color="primary"
+        // color="primary"
         size="small"
-        sx={{ mr: 1 }}
+        sx={{ mr: 1, color: '#3c4858' }}
         onClick={handleMoreMenuOpen}
       >
         <MoreVert />
@@ -360,7 +360,7 @@ const TimerTask = ({
         ) : (
           <Text
             onClick={() => handleEditableField('title')}
-            sx={{ cursor: 'pointer' }}
+            sx={{ cursor: 'pointer', color: '#3c4858' }}
           >
             {task.title}
           </Text>

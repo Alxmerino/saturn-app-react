@@ -9,7 +9,12 @@ import {
   MenuItem,
   MenuList,
 } from '@mui/material';
-import { Circle, DeveloperBoard, FormatColorFill } from '@mui/icons-material';
+import {
+  Add,
+  Circle,
+  DeveloperBoard,
+  FormatColorFill,
+} from '@mui/icons-material';
 
 import './ProjectMenu.scss';
 import { Button, Text } from '../../common';
@@ -163,13 +168,17 @@ const ProjectMenu = ({
         aria-haspopup="true"
         aria-expanded={projectMenuOpen ? 'true' : undefined}
         onClick={handleProjectMenuClick}
+        sx={{ minWidth: 'auto' }}
+        startIcon={
+          <DeveloperBoard
+            color={color}
+            sx={{
+              color: colorMap[colorCodeToNameMap[tempColorCode]] ?? 'primary',
+            }}
+          />
+        }
       >
-        <DeveloperBoard
-          color={color}
-          sx={{
-            color: colorMap[colorCodeToNameMap[tempColorCode]] ?? 'primary',
-          }}
-        />
+        <span style={{ fontSize: '12px' }}>Project</span>
       </Button>
     );
   } else if (selectedProject !== '') {
@@ -190,9 +199,22 @@ const ProjectMenu = ({
     }
   } else {
     buttonEl = (
-      <IconButton edge="start" onClick={handleProjectMenuClick}>
-        <DeveloperBoard color={color} />
-      </IconButton>
+      <Button
+        kind="text"
+        size="small"
+        onClick={handleProjectMenuClick}
+        disableRipple
+        startIcon={
+          <DeveloperBoard
+            color={color}
+            sx={{
+              color: colorMap[colorCodeToNameMap[tempColorCode]] ?? 'primary',
+            }}
+          />
+        }
+      >
+        <span>Project</span>
+      </Button>
     );
   }
 
@@ -233,6 +255,14 @@ const ProjectMenu = ({
               }}
             />
           </IconButton>
+          <Button
+            onClick={handleProjectMenuClose}
+            disabled={!tempProjectTitle}
+            kind="primary"
+            size="small"
+          >
+            <Add />
+          </Button>
           <Menu
             id="color-code"
             anchorEl={projectMenuColorEl}

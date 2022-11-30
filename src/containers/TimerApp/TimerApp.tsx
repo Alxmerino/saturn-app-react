@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Avatar, Box, Link, Paper } from '@mui/material';
 import { push } from 'redux-first-history';
 
@@ -27,11 +27,10 @@ import {
 const TimerApp = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const isLoggedIn: boolean = useAppSelector(selectLoggedIn);
-  const projects = useAppSelector(selectProjects);
   const tasksByDate = useAppSelector(selectTasksByDate);
   const currentUser = useAppSelector(selectCurrentUser);
   const tasksByDateArray = Object.keys(tasksByDate);
-  const [logout, isLoading] = useLogoutMutation();
+  const [logout] = useLogoutMutation();
   const {
     data: apiProjects,
     isFetching: isFetchingProjects,
@@ -113,7 +112,7 @@ const TimerApp = (): JSX.Element => {
           justifyContent: 'space-between',
         }}
       >
-        <Text component="h1" variant="h6">
+        <Text component="h1" variant="h6" sx={{ color: '#3c4858' }}>
           Saturn Time Tracker
         </Text>
         <Link sx={{ cursor: 'pointer' }} onClick={handleOnAvatarClick}>
@@ -152,10 +151,6 @@ const TimerApp = (): JSX.Element => {
           </Paper>
         )}
       </Box>
-
-      <Link variant="body2" onClick={handleLogOut}>
-        {isLoading ? 'Logging Out...' : 'Log out'}
-      </Link>
     </>
   );
 };
