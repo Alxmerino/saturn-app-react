@@ -1,80 +1,71 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import TextField from '@mui/material/TextField';
-import { Box, Typography, Avatar } from '@mui/material';
+import { Box, Typography, Avatar, Divider } from '@mui/material';
 import { push } from 'redux-first-history';
 
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
+  setLogout,
   selectCurrentUser,
   selectLoggedIn,
   selectUserIntegration,
+  selectUserSession,
   setIntegration,
+  setSession,
+  setCredentials,
 } from '../../store/User/UserSlice';
 import { Routes } from '../../config/constants';
 
 import {
-  useJiraLoginMutation,
+  useGetIntegrationsQuery,
+  useLogoutMutation,
   useJiraLogoutMutation,
 } from '../../services/api';
 import { Button } from '../../components/common';
 import { GenericLayout } from '../../components/layout';
+import { JiraServerIcon } from '../../assets/icons';
+import JIRALogin from '../../components/integrations/jira/Login';
 
 const Account = (): JSX.Element => {
+  const dispatch = useAppDispatch();
   const isLoggedIn: boolean = useAppSelector(selectLoggedIn);
   const integration = useAppSelector(selectUserIntegration);
-  const dispatch = useAppDispatch();
+  const session = useAppSelector(selectUserSession);
   const user = useAppSelector(selectCurrentUser);
-  const [jiraLogin, { isLoading }] = useJiraLoginMutation();
-  const [jiraLogout] = useJiraLogoutMutation();
 
+  const [logout] = useLogoutMutation();
+  const [jiraLogout] = useJiraLogoutMutation();
+  const {
+    data: apiIntegrations,
+    isFetching: isFetchingIntegrations,
+    isLoading: isLoadingIntegrations,
+  } = useGetIntegrationsQuery();
+
+  const [jiraOpen, setJiraOpen] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const formDataObj: Record<string, FormDataEntryValue> = {};
-    formData.forEach((value, key) => (formDataObj[key] = value));
-
+  const handleLogOut = async () => {
     try {
-      const { data: jiraUser, error } = await jiraLogin(formDataObj);
+      const results = await logout({
+        email: user.email,
+      });
 
-      if (error) {
-        const errors: string[] = [];
-        if (error?.data?.errors) {
-          errors.push(error?.data?.message);
-          Object.values(error?.data?.errors).forEach((error: any) =>
-            errors.push(error[0])
-          );
-        } else if (error?.data?.data) {
-          errors.push(error?.data?.data?.errorMessages[0]);
+      // @todo: Fix type error
+      if ('data' in results) {
+        if (results.data.message === 'Success') {
+          dispatch(setCredentials({ user: null, token: null }));
+          dispatch(setLogout());
+          dispatch(setSession(null));
+          dispatch(push(Routes.HOME));
         }
-        setErrors(errors);
-      } else {
-        setErrors([]);
-        dispatch(
-          setIntegration({
-            integration: {
-              name: 'JIRA',
-              // @todo: Make this more generic
-              metadata: {
-                baseJiraUrl: formDataObj.baseJiraUrl,
-                deviceName: formDataObj.deviceName,
-              },
-            },
-            session: jiraUser?.data,
-          })
-        );
-        dispatch(push(Routes.APP));
       }
     } catch (err) {
       // @todo: handle error
-      console.error('error', err);
+      console.log('ERROR', err);
     }
   };
 
-  const handleLogOut = async () => {
+  const handleJiraLogOut = async () => {
     try {
       const { data } = await jiraLogout({
         baseJiraUrl: integration.metadata.baseJiraUrl,
@@ -83,16 +74,10 @@ const Account = (): JSX.Element => {
 
       if (data?.data.message === 'Success') {
         setErrors([]);
-        dispatch(
-          setIntegration({
-            integration: { name: null, metadata: {} },
-            session: null,
-          })
-        );
-        // Todo: Delete JIRA session cookie
-      } else {
-        setErrors(['An error occurred']);
       }
+
+      // Clear user session
+      dispatch(setSession(null));
     } catch (err) {
       // @todo: handle error
       console.error('error', err);
@@ -115,14 +100,38 @@ const Account = (): JSX.Element => {
     }
   }, []);
 
+  // Fetch user integrations
+  useEffect(() => {
+    if (
+      !isFetchingIntegrations &&
+      !isLoadingIntegrations &&
+      apiIntegrations &&
+      apiIntegrations.length
+    ) {
+      // @todo: Update type with integration
+      apiIntegrations.forEach((int: any) => {
+        dispatch(
+          setIntegration({
+            integration: {
+              id: int.id,
+              name: int.name,
+              metadata: JSON.parse(int.metadata),
+            },
+          })
+        );
+      });
+    }
+  }, [isFetchingIntegrations, isLoadingIntegrations, apiIntegrations]);
+
   return (
-    <GenericLayout vAlign="center" maxWidth="xs">
+    <GenericLayout maxWidth="xs">
       <Box
         sx={{
-          marginTop: 8,
+          marginTop: 4,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          width: 400,
         }}
       >
         <Typography component="h2" variant="h5" pb={2}>
@@ -139,73 +148,83 @@ const Account = (): JSX.Element => {
           {getUserInitials()}
         </Avatar>
 
-        {integration?.name ? (
-          <Box mt={4} textAlign="center">
-            <Typography>Connected with {integration?.name}</Typography>
+        <Typography component="h3" variant="h6" mt={4}>
+          Time Tracking Integrations
+        </Typography>
+        <Divider sx={{ width: '100%' }} />
+
+        {/* Connect a new integration */}
+        {!integration?.name && (
+          <Box pt={2}>
             <Button
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              kind="primary"
-              onClick={handleLogOut}
+              kind="text"
+              onClick={() => {
+                setJiraOpen(true);
+              }}
             >
-              Log Out
-            </Button>
-          </Box>
-        ) : (
-          <Box
-            pt={2}
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-            sx={{ mt: 1 }}
-          >
-            <input type="hidden" name="deviceName" value="SaturnWebApp" />
-            <TextField
-              error={errors.length > 0}
-              margin="normal"
-              required
-              fullWidth
-              id="baseJiraUrl"
-              label="JIRA Domain"
-              name="baseJiraUrl"
-            />
-            <TextField
-              error={errors.length > 0}
-              margin="normal"
-              required
-              fullWidth
-              name="username"
-              label="JIRA Username"
-              type="username"
-              id="username"
-            />
-            <TextField
-              error={errors.length > 0}
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="JIRA Password"
-              type="password"
-              id="password"
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              kind="primary"
-            >
-              {isLoading ? 'Loading' : 'Connect JIRA'}
+              <>
+                <JiraServerIcon width={24} height={24} />
+                <Typography ml={1}>
+                  Track time on tasks and tickets in JIRA.
+                </Typography>
+              </>
             </Button>
           </Box>
         )}
+
+        {/* Integration connected and with a session */}
+        {integration?.name && session && (
+          <Box mt={4} textAlign="center">
+            {/* @todo: Map out human readable names */}
+            <Typography sx={{ mb: 2 }}>
+              Connected with {integration?.name}
+            </Typography>
+            <Button variant="contained" kind="outline" disabled>
+              Disconnect JIRA
+            </Button>
+            <Button
+              variant="contained"
+              sx={{ ml: 2 }}
+              kind="primary"
+              onClick={handleJiraLogOut}
+            >
+              JIRA Log out
+            </Button>
+          </Box>
+        )}
+
+        {/* Session Expired */}
+        {integration?.name && !session && (
+          <Button
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            kind="primary"
+            onClick={() => setJiraOpen(true)}
+          >
+            JIRA Re-log in
+          </Button>
+        )}
+
+        <JIRALogin open={jiraOpen} onClose={() => setJiraOpen(false)} />
+
         {errors.length > 0 &&
           errors.map((error) => (
             <Typography key={error} sx={{ color: '#d32f2f', fontSize: '14px' }}>
               {error}
             </Typography>
           ))}
+      </Box>
+
+      <Box mt={4} textAlign="center">
+        <Divider />
+        <Button
+          variant="contained"
+          sx={{ mt: 3, mb: 2 }}
+          kind="primary"
+          onClick={handleLogOut}
+        >
+          Log Out
+        </Button>
       </Box>
     </GenericLayout>
   );

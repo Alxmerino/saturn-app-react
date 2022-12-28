@@ -15,7 +15,7 @@ import { Routes } from '../../config/constants';
 import { useLoginMutation } from '../../services/api';
 
 const Login = (): JSX.Element => {
-  const isloggedIn: boolean = useAppSelector(selectLoggedIn);
+  const isLoggedIn: boolean = useAppSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
 
@@ -46,7 +46,7 @@ const Login = (): JSX.Element => {
   };
 
   useEffect(() => {
-    if (isloggedIn) {
+    if (isLoggedIn) {
       dispatch(push(Routes.APP));
     }
   });

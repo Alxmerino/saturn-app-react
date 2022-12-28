@@ -4,7 +4,6 @@ import { push } from 'redux-first-history';
 
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
-  setLogout,
   selectLoggedIn,
   setCredentials,
   selectCurrentUser,
@@ -18,11 +17,7 @@ import {
   selectProjects,
   selectTasksByDate,
 } from '../../store/Timer/TimerSlice';
-import {
-  useGetProjectsQuery,
-  useGetTasksQuery,
-  useLogoutMutation,
-} from '../../services/api';
+import { useGetProjectsQuery, useGetTasksQuery } from '../../services/api';
 
 const TimerApp = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -30,7 +25,6 @@ const TimerApp = (): JSX.Element => {
   const tasksByDate = useAppSelector(selectTasksByDate);
   const currentUser = useAppSelector(selectCurrentUser);
   const tasksByDateArray = Object.keys(tasksByDate);
-  const [logout] = useLogoutMutation();
   const {
     data: apiProjects,
     isFetching: isFetchingProjects,
@@ -58,26 +52,6 @@ const TimerApp = (): JSX.Element => {
       dispatch(addTasks(apiTasks));
     }
   }, [apiTasks, isLoadingTasks, isFetchingTasks]);
-
-  const handleLogOut = async () => {
-    try {
-      const results = await logout({
-        email: currentUser.email,
-      });
-
-      // @todo: Fix type error
-      if ('data' in results) {
-        if (results.data.message === 'Success') {
-          dispatch(setCredentials({ user: null, token: null }));
-          dispatch(setLogout());
-          dispatch(push(Routes.HOME));
-        }
-      }
-    } catch (err) {
-      // @todo: handle error
-      console.log('ERROR', err);
-    }
-  };
 
   const handleOnAvatarClick = () => {
     dispatch(push(Routes.ACCOUNT));

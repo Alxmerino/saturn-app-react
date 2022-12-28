@@ -39,6 +39,7 @@ export const api: any = createApi({
       query: (credentials) => ({
         url: 'auth/tokens/revoke',
         method: 'DELETE',
+        // @todo: Handle device name
         body: { ...credentials, device_name: 'web-app' },
       }),
       transformResponse,
@@ -148,6 +149,26 @@ export const api: any = createApi({
       }),
     }),
 
+    /** Integrations */
+    // @todo: Update types
+    getIntegrations: builders.query<any, any>({
+      query: () => ({ url: '/integrations' }),
+      transformResponse,
+    }),
+    createIntegration: builders.mutation<any, any>({
+      query: (args) => ({
+        url: '/integrations',
+        method: 'POST',
+        body: transformBody({ ...args }),
+      }),
+    }),
+    deleteIntegration: builders.mutation<any, any>({
+      query: (id: string | number) => ({
+        url: `/integrations/${id}`,
+        method: 'DELETE',
+      }),
+    }),
+
     /**
      * JIRA Endpoints
      */
@@ -166,11 +187,11 @@ export const api: any = createApi({
       }),
     }),
     jiraLogTime: builders.mutation<any, any>({
-      query: (timer) => ({
+      query: (args) => ({
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        url: `/integration/jira/issue/${timer.project.title}/worklog`,
+        url: `/integration/jira/issue/${args.project.title}/worklog`,
         method: 'POST',
-        body: transformBody(timer),
+        body: transformBody(args),
       }),
     }),
   }),
@@ -193,6 +214,10 @@ export const {
   useCreateTimerMutation,
   useUpdateTimerMutation,
   useDeleteTimerMutation,
+
+  useGetIntegrationsQuery,
+  useCreateIntegrationMutation,
+  useDeleteIntegrationMutation,
 
   // JIRA Hooks
   useJiraLoginMutation,

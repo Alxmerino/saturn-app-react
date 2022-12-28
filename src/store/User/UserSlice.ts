@@ -67,7 +67,12 @@ export const UserSlice = createSlice({
     },
     setIntegration: (state, { payload }: PayloadAction<any>) => {
       state.integration = payload.integration;
-      state.session = payload.session;
+
+      // Save to local storage
+      LocalStore.set(reducerName, state, true);
+    },
+    setSession: (state, { payload }: PayloadAction<any>) => {
+      state.session = payload;
 
       // Save to local storage
       LocalStore.set(reducerName, state, true);
@@ -76,8 +81,13 @@ export const UserSlice = createSlice({
   extraReducers: {},
 });
 
-export const { setCredentials, setLogin, setLogout, setIntegration } =
-  UserSlice.actions;
+export const {
+  setCredentials,
+  setLogin,
+  setLogout,
+  setIntegration,
+  setSession,
+} = UserSlice.actions;
 
 export const selectCurrentUser = (state: RootState) => state.auth.user;
 export const selectUserIntegration = (state: RootState) =>
