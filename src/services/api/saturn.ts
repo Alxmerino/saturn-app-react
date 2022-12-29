@@ -28,7 +28,7 @@ export const api: any = createApi({
       query: (credentials) => ({
         url: 'auth/tokens/create/',
         method: 'POST',
-        body: { ...credentials, device_name: 'web-app' },
+        body: { ...credentials, device_name: 'SaturnWebApp' },
       }),
       transformResponse,
     }),
@@ -40,7 +40,7 @@ export const api: any = createApi({
         url: 'auth/tokens/revoke',
         method: 'DELETE',
         // @todo: Handle device name
-        body: { ...credentials, device_name: 'web-app' },
+        body: { ...credentials, device_name: 'SaturnWebApp' },
       }),
       transformResponse,
     }),
