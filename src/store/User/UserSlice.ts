@@ -22,7 +22,7 @@ export interface UserState {
 }
 
 const initialState: UserState = {
-  isLoggedIn: false,
+  isLoggedIn: true,
   user: null,
   token: null,
   integration: {
