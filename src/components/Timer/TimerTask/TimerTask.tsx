@@ -237,22 +237,34 @@ const TimerTask = ({
       );
 
       if (project) {
+        // @TODO: catch error from API call and update task accordingly
         const { data: taskResult }: { data: Project } =
           await assignTimerProject({
             id: task.id,
             projectId: project.id,
           });
-
-        dispatch(updateTask({ ...taskResult }));
+        dispatch(updateTask({ ...task, ...taskResult }));
         setProject(project);
       } else if (title !== '') {
-        const { data: projectResult }: { data: Project } = await createProject({
+        const project = {
+          id: Date.now(),
           title,
           colorCode,
           userId: user.id,
-        });
+        };
+        // @TODO: catch error from API call and update task accordingly
+        const { data: projectResult }: { data: Project } = await createProject(
+          project
+        );
 
-        dispatch(addProject({ ...projectResult }));
+        dispatch(addProject({ ...project, ...projectResult }));
+        dispatch(
+          updateTask({
+            id: task.id,
+            projectId: projectResult?.id ?? project.id,
+          })
+        );
+        setProject({ ...project, ...projectResult });
       }
     } catch (err) {
       console.error('Could not assign project', err);
