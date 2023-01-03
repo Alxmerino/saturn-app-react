@@ -1,7 +1,7 @@
 # Saturn Time Tracker
 [![Netlify Status](https://api.netlify.com/api/v1/badges/0c4a6a12-8707-493d-b8f1-cc0e6035f5b5/deploy-status)](https://app.netlify.com/sites/saturn-timer/deploys)
 
-[![GitHub Actions Status](https://github.com/Alxmerino/saturn-app-react/actions/workflows/deploy.yml/badge.svg)](https://app.netlify.com/sites/saturn-timer/deploys)
+[![GitHub Actions Status](https://github.com/Alxmerino/saturn-app-react/actions/workflows/deploy.yml/badge.svg)](https://github.com/Alxmerino/saturn-app-react/actions/workflows/deploy.yml)
 
 ## Available Scripts
 
