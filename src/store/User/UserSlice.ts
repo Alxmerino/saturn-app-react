@@ -23,7 +23,11 @@ export interface UserState {
 
 const initialState: UserState = {
   isLoggedIn: true,
-  user: null,
+  user: {
+    id: 1,
+    name: 'Rene Merino',
+    email: 'user@email.com',
+  },
   token: null,
   integration: {
     name: null,
