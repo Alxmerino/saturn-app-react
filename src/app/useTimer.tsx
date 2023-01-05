@@ -9,7 +9,7 @@ import {
 const useTimer = (task: Task) => {
   const { timers } = task;
   const totalTaskDuration = useMemo(() => getTimersDuration(timers), [timers]);
-  const activeTimer = timers.find((t) => t.running);
+  const activeTimer = timers ? timers.find((t) => t.running) : undefined;
   const [durationInSeconds, setDurationInSeconds] = useState(
     activeTimer?.durationInSeconds ?? 0
   );
