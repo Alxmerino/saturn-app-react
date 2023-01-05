@@ -99,11 +99,13 @@ const TimerTask = ({
 
   const handleTimerReset = async () => {
     if (confirm('Are you sure you want to reset this Task time entries?')) {
-      try {
-        await resetTask(task.id);
-      } catch (err) {
-        // @todo: Handle errors
-        console.error('Reset Task Error', err);
+      if (task.fromApi) {
+        try {
+          await resetTask(task.id);
+        } catch (err) {
+          // @todo: Handle errors
+          console.error('Reset Task Error', err);
+        }
       }
 
       dispatch(resetTimer(task.id));
@@ -114,11 +116,13 @@ const TimerTask = ({
   const handleTaskDelete = async () => {
     // @todo: Better way to confirm delete?
     if (confirm('Are you sure you want to delete this task?')) {
-      try {
-        await deleteTask(task.id);
-      } catch (err) {
-        // @todo: Handle errors
-        console.error('Delete Task Error', err);
+      if (task.fromApi) {
+        try {
+          await deleteTask(task.id);
+        } catch (err) {
+          // @todo: Handle errors
+          console.error('Delete Task Error', err);
+        }
       }
 
       dispatch(removeTask(task.id));
@@ -138,21 +142,25 @@ const TimerTask = ({
 
   const handleTimerStart = async () => {
     try {
-      const now = new Date();
-      const { data: timerResult } = await createTimer({
-        title: task.title,
-        userId: user.id,
-        taskId: task.id,
-        projectId: task.projectId,
-        running: true,
-        billable: false,
-        duration: '',
-        durationInSeconds: 0,
-        startTime: now.toISOString().slice(0, 19).replace('T', ' '),
-        endTime: now.toISOString().slice(0, 19).replace('T', ' '),
-      });
+      if (task.fromApi) {
+        const now = new Date();
+        const { data: timerResult } = await createTimer({
+          title: task.title,
+          userId: user.id,
+          taskId: task.id,
+          projectId: task.projectId,
+          running: true,
+          billable: false,
+          duration: '',
+          durationInSeconds: 0,
+          startTime: now.toISOString().slice(0, 19).replace('T', ' '),
+          endTime: now.toISOString().slice(0, 19).replace('T', ' '),
+        });
 
-      dispatch(addTimer({ taskId: task.id, timer: { ...timerResult } }));
+        dispatch(addTimer({ taskId: task.id, timer: { ...timerResult } }));
+      } else {
+        dispatch(addTimer({ taskId: task.id }));
+      }
     } catch (err) {
       console.error('Error starting timer', err);
     }
@@ -162,13 +170,16 @@ const TimerTask = ({
     try {
       if (activeTimer?.id) {
         const now = new Date();
-        await updateTimer({
-          id: activeTimer.id,
-          durationInSeconds,
-          duration,
-          running: false,
-          endTime: now.toISOString().slice(0, 19).replace('T', ' '),
-        });
+
+        if (task.fromApi) {
+          await updateTimer({
+            id: activeTimer.id,
+            durationInSeconds,
+            duration,
+            running: false,
+            endTime: now.toISOString().slice(0, 19).replace('T', ' '),
+          });
+        }
 
         dispatch(
           stopTimer({
@@ -196,7 +207,7 @@ const TimerTask = ({
   };
 
   const handleEditableFieldPress = (
-    e: any, // Used any so we can use e.target.value
+    e: any, // Used any, so we can use e.target.value
     field: string
   ) => {
     if (e.key === 'Escape') {
