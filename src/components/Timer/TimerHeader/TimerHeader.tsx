@@ -74,7 +74,7 @@ const TimerHeader = () => {
 
     // Handle task add
     try {
-      const now = new Date().toJSON();
+      const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
       // Create local timer object
       let task: Task = {

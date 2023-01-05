@@ -148,8 +148,8 @@ const TimerTask = ({
         billable: false,
         duration: '',
         durationInSeconds: 0,
-        startTime: now.toJSON(),
-        endTime: now.toJSON(),
+        startTime: now.toISOString().slice(0, 19).replace('T', ' '),
+        endTime: now.toISOString().slice(0, 19).replace('T', ' '),
       });
 
       dispatch(addTimer({ taskId: task.id, timer: { ...timerResult } }));
@@ -167,7 +167,7 @@ const TimerTask = ({
           durationInSeconds,
           duration,
           running: false,
-          endTime: now.toJSON(),
+          endTime: now.toISOString().slice(0, 19).replace('T', ' '),
         });
 
         dispatch(
