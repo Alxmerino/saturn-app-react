@@ -203,7 +203,7 @@ export const getTotalDuration = (durations: Duration[]): string => {
 };
 
 export const getTimersDuration = (timers: TaskTimerItem[]) => {
-  if (!timers.length) return 0;
+  if (!timers || !timers.length) return 0;
 
   return timers
     .map(getTimerEntryDuration)
