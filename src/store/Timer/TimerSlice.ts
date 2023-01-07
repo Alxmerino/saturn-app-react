@@ -61,6 +61,7 @@ export const TimerSlice = createSlice({
           if (!existingTasks.includes(task.id)) {
             state.tasks.push({
               ...task,
+              synced: true,
               createdAt: getTimestamp(task, 'createdAt'),
               updatedAt: getTimestamp(task, 'updatedAt'),
             });

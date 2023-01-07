@@ -47,7 +47,7 @@ export interface Task extends Timestamps {
   plannedTime?: Duration | null;
   projectId?: string | number | null;
   timers: TaskTimerItem[];
-  fromApi?: boolean;
+  synced?: boolean;
   // @todo: deprecate `project`
   project?: Project | null;
   // @todo: deprecate `running`

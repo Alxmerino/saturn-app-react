@@ -99,7 +99,7 @@ const TimerTask = ({
 
   const handleTimerReset = async () => {
     if (confirm('Are you sure you want to reset this Task time entries?')) {
-      if (task.fromApi) {
+      if (task.synced) {
         try {
           await resetTask(task.id);
         } catch (err) {
@@ -116,7 +116,7 @@ const TimerTask = ({
   const handleTaskDelete = async () => {
     // @todo: Better way to confirm delete?
     if (confirm('Are you sure you want to delete this task?')) {
-      if (task.fromApi) {
+      if (task.synced) {
         try {
           await deleteTask(task.id);
         } catch (err) {
@@ -142,7 +142,7 @@ const TimerTask = ({
 
   const handleTimerStart = async () => {
     try {
-      if (task.fromApi) {
+      if (task.synced) {
         const now = new Date();
         const { data: timerResult } = await createTimer({
           title: task.title,
@@ -171,7 +171,7 @@ const TimerTask = ({
       if (activeTimer?.id) {
         const now = new Date();
 
-        if (task.fromApi) {
+        if (task.synced) {
           await updateTimer({
             id: activeTimer.id,
             durationInSeconds,
