@@ -13,7 +13,7 @@ import { TimerTask } from '../index';
 import { Task, TaskTimerItem, User } from '../../../types/types';
 import { isToday, isYesterday, parse } from 'date-fns';
 import {
-  formatDurationString,
+  formatHumanReadableDurationString,
   getTaskTotalDuration,
 } from '../../../services/utils';
 import { useAppSelector } from '../../../app/hooks';
@@ -80,7 +80,7 @@ const TimerList = ({ date, tasks, user }: TimerListProps) => {
           </Text>
           <Text component="strong" fontWeight="bold" sx={{ color: '#3c4858' }}>
             <>
-              <span>{formatDurationString(totalDuration)}</span>
+              <span>{formatHumanReadableDurationString(totalDuration)}</span>
               {totalPlannedTime && <span>/{totalPlannedTime}</span>}
             </>
           </Text>
