@@ -102,7 +102,7 @@ const TimerHeader = () => {
           ...taskResults,
         };
 
-        dispatch(addTask({ ...taskResults, fromApi: true }));
+        dispatch(addTask({ ...taskResults, synced: true }));
       } else {
         console.error('API Create Task error', error);
         dispatch(addTask(task));
