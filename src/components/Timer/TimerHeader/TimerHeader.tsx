@@ -53,10 +53,15 @@ const TimerHeader = () => {
   const handleProjectAdd = async () => {
     let _project = project;
     if (newProject && !isNil(project)) {
-      const { data: projectResult } = await createProject(project);
-      _project = projectResult;
+      const { data: projectResult, error } = await createProject(project);
 
-      dispatch(addProject({ ...projectResult }));
+      if (!error) {
+        _project = projectResult;
+
+        dispatch(addProject({ ...projectResult }));
+      } else {
+        dispatch(addProject(project));
+      }
     }
 
     return _project;
@@ -74,7 +79,7 @@ const TimerHeader = () => {
 
     // Handle task add
     try {
-      const now = new Date().toJSON();
+      const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
       // Create local timer object
       let task: Task = {
@@ -85,21 +90,25 @@ const TimerHeader = () => {
         timers: [],
       };
 
-      const { data: taskResults } = await createTask({
+      const { data: taskResults, error } = await createTask({
         ...task,
         // API Needs this to create a new time entry
         startTime: now,
         endTime: now,
       });
 
-      task = {
-        ...task,
-        ...taskResults,
-      };
+      if (!error) {
+        task = {
+          ...taskResults,
+        };
 
-      dispatch(addTask(task));
+        dispatch(addTask({ ...taskResults, synced: true }));
+      } else {
+        console.error('API Create Task error', error);
+        dispatch(addTask(task));
+      }
 
-      // API called probably fail so lets add a local timer
+      // API called probably fail so let's add a local timer
       if (!task.timers.length) {
         dispatch(addTimer({ taskId: task.id }));
       }

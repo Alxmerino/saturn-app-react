@@ -47,7 +47,7 @@ export const durationInSecondsToString = (duration: number): string => {
 };
 
 /**
- * Return a Duration object from a human readable time string. e.g. 3h 20m.
+ * Return a Duration object from a human-readable time string. e.g. 3h 20m.
  * Currently only supports hours, minutes, and seconds.
  *
  * @param timeString
@@ -108,7 +108,7 @@ export const getSecondsFromDuration = (duration: Duration): number => {
 };
 
 /**
- * Clean a string an get the duration object
+ * Clean a string and get the duration object
  *
  * @param timeStr
  */
@@ -160,6 +160,27 @@ export const formatDurationString = (duration: number): string => {
     .join(':');
 };
 
+export const formatHumanReadableDurationString = (duration: number): string => {
+  let durationString = '';
+  const hours = Math.floor(duration / 60 / 60);
+  const minutes = Math.floor((duration / 60 / 60 - hours) * 60);
+
+  if (hours) {
+    durationString = `${hours}h`;
+  }
+
+  if (minutes) {
+    durationString +=
+      ' ' +
+      (minutes.toString().length > 1
+        ? minutes.toString()
+        : '0' + minutes.toString()) +
+      'm';
+  }
+
+  return durationString;
+};
+
 export const hasDuration = (duration: Duration): boolean => {
   return Object.keys(duration).length > 0;
 };
@@ -203,7 +224,7 @@ export const getTotalDuration = (durations: Duration[]): string => {
 };
 
 export const getTimersDuration = (timers: TaskTimerItem[]) => {
-  if (!timers.length) return 0;
+  if (!timers || !timers.length) return 0;
 
   return timers
     .map(getTimerEntryDuration)

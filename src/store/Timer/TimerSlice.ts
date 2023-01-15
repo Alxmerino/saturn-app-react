@@ -61,6 +61,7 @@ export const TimerSlice = createSlice({
           if (!existingTasks.includes(task.id)) {
             state.tasks.push({
               ...task,
+              synced: true,
               createdAt: getTimestamp(task, 'createdAt'),
               updatedAt: getTimestamp(task, 'updatedAt'),
             });
@@ -84,7 +85,7 @@ export const TimerSlice = createSlice({
 
       LocalStore.set(reducerName, state);
     },
-    removeTask(state: TimerState, action: PayloadAction<string>) {
+    removeTask(state: TimerState, action: PayloadAction<string | number>) {
       const id = action.payload;
       const taskIndex = state.tasks.findIndex((item) => item.id === id);
 
@@ -269,7 +270,7 @@ export const TimerSlice = createSlice({
         }
       }
     },
-    resetTimer(state: TimerState, action: PayloadAction<string>) {
+    resetTimer(state: TimerState, action: PayloadAction<string | number>) {
       const taskId = action.payload;
       const task = state.tasks.find((item) => item.id === taskId);
 

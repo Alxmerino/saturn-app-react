@@ -41,12 +41,13 @@ interface StartEndTime {
 }
 
 export interface Task extends Timestamps {
-  id: string;
+  id: string | number;
   title: string;
   userId: string | number;
   plannedTime?: Duration | null;
   projectId?: string | number | null;
   timers: TaskTimerItem[];
+  synced?: boolean;
   // @todo: deprecate `project`
   project?: Project | null;
   // @todo: deprecate `running`

@@ -11,6 +11,12 @@ import { api } from '../services/api';
 const { createReduxHistory, routerMiddleware, routerReducer } =
   createReduxHistoryContext({ history: createBrowserHistory() });
 
+let middlewares = [routerMiddleware, api.middleware];
+
+if (process.env.NODE_ENV !== 'production') {
+  middlewares = middlewares.concat([logger]);
+}
+
 export const store = configureStore({
   reducer: combineReducers({
     router: routerReducer,
@@ -22,10 +28,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
-    })
-      .concat(routerMiddleware)
-      .concat(api.middleware)
-      .concat(logger),
+    }).concat(middlewares),
 });
 
 export const history = createReduxHistory(store);
