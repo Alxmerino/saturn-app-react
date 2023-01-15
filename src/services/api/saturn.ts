@@ -11,6 +11,7 @@ import {
   TaskResponse,
   TimerRequest,
   TimerResponse,
+  JIRAWorklogRequest,
 } from '../../types/api';
 
 interface FinalLoginRequest extends LoginRequest {
@@ -186,12 +187,13 @@ export const api: any = createApi({
         body: transformBody(args),
       }),
     }),
-    jiraLogTime: builders.mutation<any, any>({
+    jiraLogTime: builders.mutation<any, JIRAWorklogRequest>({
       query: (args) => ({
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         url: `/integration/jira/issue/${args.project.title}/worklog`,
         method: 'POST',
         body: transformBody(args),
+        transformResponse,
       }),
     }),
   }),

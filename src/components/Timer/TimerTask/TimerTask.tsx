@@ -94,7 +94,9 @@ const TimerTask = ({
   );
   const [timerAnchorEl, setTimerAnchorEl] = useState<null | HTMLElement>(null);
   const timerOpen = Boolean(timerAnchorEl);
-  const canLogTime = !isNil(integration?.name) && !isNil(project?.title);
+  const [canLogTime, setCanLogTime] = useState<boolean>(
+    !isNil(integration?.name) && !isNil(project?.title)
+  );
   const {
     durationInSeconds,
     duration,
@@ -147,32 +149,64 @@ const TimerTask = ({
   const handleTimerLog = async () => {
     try {
       // @todo: Check for integration
-      console.group('Log time');
+      // @todo: Should log from startTime or now?
+      // @todo: Round up to the nearest 5m `taskDurationInSeconds`
       const { startTime } = task.timers[0];
-      const { data, error } = await jiraLogTime({
+      const started = (
+        typeof startTime === 'string' ? startTime : startTime?.toISOString()
+      )?.substr(0, 10);
+
+      const {
+        data: { data },
+        error,
+      } = await jiraLogTime({
         comment: task.title,
-        started:
-          typeof startTime === 'string' ? startTime : startTime?.toISOString(),
+        started,
         timeSpentSeconds: taskDurationInSeconds,
-        projectId: project?.id,
+        project: project,
+        user: integration.metadata.username,
         baseJiraUrl: integration.metadata.baseJiraUrl,
         deviceName: integration.metadata.deviceName,
       });
 
-      if (error && error.status === 401) {
-        console.log('UNATHENTICATED');
+      if (error) {
+        let errorMessage = 'Something went wrong!';
+
+        if (error.status === 401) {
+          errorMessage = 'JIRA Session expired, please log in again!';
+        } else {
+          let tempErrorMessages: string[] = [];
+
+          if (error?.data?.errorMessages.length) {
+            tempErrorMessages = tempErrorMessages.concat(
+              error?.data?.errorMessages
+            );
+          } else if (Array.isArray(error?.data?.errors)) {
+            tempErrorMessages = tempErrorMessages.concat(error?.data?.errors);
+          } else if (typeof error?.data?.errors === 'object') {
+            tempErrorMessages = tempErrorMessages.concat(
+              Object.values(error?.data?.errors)
+            );
+          }
+
+          errorMessage = tempErrorMessages.join('');
+        }
+
         setToast({
           open: true,
-          message: error?.data?.data?.errorMessages.join(''),
+          message: errorMessage,
           severity: 'error',
         });
       }
 
-      console.log('data', { data, error });
-      console.groupEnd();
+      if (data?.length) {
+        setCanLogTime(false);
+        setTimeLogged(true);
+        handleMoreMenuClose();
+      }
     } catch (err) {
       // @todo: Handle errors
-      console.error('Delete Task Error', err);
+      console.error('JIRA Log Error', err);
     }
   };
 
@@ -229,7 +263,7 @@ const TimerTask = ({
       }
     } catch (err) {
       // @todo: Handle error
-      console.log('Error stopping timer', err);
+      console.error('Error stopping timer', err);
     }
   };
 
@@ -468,7 +502,7 @@ const TimerTask = ({
         )}
       </Box>
       <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         open={toast.open}
         autoHideDuration={5000}
         onClose={() => setToast((state) => ({ open: false, message: '' }))}
