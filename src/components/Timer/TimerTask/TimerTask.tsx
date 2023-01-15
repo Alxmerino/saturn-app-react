@@ -150,11 +150,18 @@ const TimerTask = ({
     try {
       // @todo: Check for integration
       // @todo: Should log from startTime or now?
-      // @todo: Round up to the nearest 5m `taskDurationInSeconds`
       const { startTime } = task.timers[0];
       const started = (
         typeof startTime === 'string' ? startTime : startTime?.toISOString()
       )?.substr(0, 10);
+
+      // Round up to the nearest 5m if over x2.5m
+      const fiveMins = 300;
+      const remainder = taskDurationInSeconds % fiveMins;
+      const timeSpentSeconds =
+        remainder >= fiveMins / 2
+          ? taskDurationInSeconds + (fiveMins - remainder)
+          : taskDurationInSeconds;
 
       const {
         data: { data },
@@ -162,7 +169,7 @@ const TimerTask = ({
       } = await jiraLogTime({
         comment: task.title,
         started,
-        timeSpentSeconds: taskDurationInSeconds,
+        timeSpentSeconds,
         project: project,
         user: integration.metadata.username,
         baseJiraUrl: integration.metadata.baseJiraUrl,
