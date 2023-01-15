@@ -1,4 +1,4 @@
-import { DateType, User } from './timer';
+import { DateType, Project, User } from './timer';
 
 /**
  * Requests
@@ -38,6 +38,16 @@ export interface TimerRequest {
   end_time: DateType;
   created_at: DateType;
   updated_at: DateType;
+}
+
+export interface JIRAWorklogRequest {
+  base_jira_url: string;
+  comment: string;
+  device_name: string;
+  project: Project;
+  started: string;
+  time_spent_seconds: number;
+  user: string;
 }
 
 /* eslint-disable-next-line */

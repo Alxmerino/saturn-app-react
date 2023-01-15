@@ -11,6 +11,7 @@ import {
   TaskResponse,
   TimerRequest,
   TimerResponse,
+  JIRAWorklogRequest,
 } from '../../types/api';
 
 interface FinalLoginRequest extends LoginRequest {
@@ -28,7 +29,7 @@ export const api: any = createApi({
       query: (credentials) => ({
         url: 'auth/tokens/create/',
         method: 'POST',
-        body: { ...credentials, device_name: 'web-app' },
+        body: { ...credentials, device_name: 'SaturnWebApp' },
       }),
       transformResponse,
     }),
@@ -40,7 +41,7 @@ export const api: any = createApi({
         url: 'auth/tokens/revoke',
         method: 'DELETE',
         // @todo: Handle device name
-        body: { ...credentials, device_name: 'web-app' },
+        body: { ...credentials, device_name: 'SaturnWebApp' },
       }),
       transformResponse,
     }),
@@ -186,12 +187,13 @@ export const api: any = createApi({
         body: transformBody(args),
       }),
     }),
-    jiraLogTime: builders.mutation<any, any>({
+    jiraLogTime: builders.mutation<any, JIRAWorklogRequest>({
       query: (args) => ({
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         url: `/integration/jira/issue/${args.project.title}/worklog`,
         method: 'POST',
         body: transformBody(args),
+        transformResponse,
       }),
     }),
   }),

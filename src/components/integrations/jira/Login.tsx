@@ -56,6 +56,7 @@ const JIRALogin = ({ open, onClose }: JIRALoginProps) => {
         const { data: _apiIntegration, error } = await createIntegration({
           name: 'JIRA_SERVER',
           metadata: JSON.stringify({
+            username: formData.username,
             deviceName: formData.deviceName,
             baseJiraUrl: formData.baseJiraUrl,
           }),
@@ -67,8 +68,9 @@ const JIRALogin = ({ open, onClose }: JIRALoginProps) => {
             setIntegration({
               integration: {
                 name: 'JIRA_SERVER',
-                // @todo: Make this more generic
+                // @todo: Make this more generic?
                 metadata: {
+                  username: formData.username,
                   baseJiraUrl: formData.baseJiraUrl,
                   deviceName: formData.deviceName,
                 },

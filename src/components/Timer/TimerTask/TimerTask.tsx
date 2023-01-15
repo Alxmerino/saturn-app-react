@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import {
+  Alert,
+  AlertProps,
   Box,
   Divider,
   IconButton,
@@ -8,15 +10,17 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  Snackbar,
   TextField,
 } from '@mui/material';
 import {
-  MoreVert,
-  PlayArrow,
-  Pause,
-  SendTimeExtension,
-  RotateLeft,
+  CloudDone,
   Delete,
+  MoreVert,
+  Pause,
+  PlayArrow,
+  RotateLeft,
+  Update,
 } from '@mui/icons-material';
 
 import { ProjectMenu, Text } from '../../common';
@@ -34,7 +38,6 @@ import {
 import { useAppDispatch, useAppSelector, useTimer } from '../../../app/hooks';
 import {
   useDeleteTaskMutation,
-  useUpdateProjectByTitleMutation,
   useAssignProjectMutation,
   useJiraLogTimeMutation,
   useCreateProjectMutation,
@@ -60,9 +63,9 @@ const TimerTask = ({
 }: TaskItemProps) => {
   const integration = useAppSelector(selectUserIntegration);
   const taskProject = projects.find((p) => p.id === task.projectId) ?? null;
-  const [project, setProject] = useState<Project | null>(taskProject);
-  const [createProject] = useCreateProjectMutation();
   const dispatch = useAppDispatch();
+
+  const [createProject] = useCreateProjectMutation();
   const [deleteTask] = useDeleteTaskMutation();
   const [resetTask] = useResetTaskMutation();
   const [createTimer] = useCreateTimerMutation();
@@ -70,6 +73,17 @@ const TimerTask = ({
   const [assignTimerProject] = useAssignProjectMutation();
   const [jiraLogTime] = useJiraLogTimeMutation();
 
+  const [project, setProject] = useState<Project | null>(taskProject);
+  const [toast, setToast] = useState<{
+    open: boolean;
+    message: string;
+    severity?: undefined | 'success' | 'info' | 'warning' | 'error';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
+  const [timeLogged, setTimeLogged] = useState(false);
   const [projectMenuEl, setProjectMenuEl] = useState<null | HTMLElement>(null);
   const [fieldsEditable, setFieldsEditable] = useState<Record<string, boolean>>(
     {
@@ -80,7 +94,9 @@ const TimerTask = ({
   );
   const [timerAnchorEl, setTimerAnchorEl] = useState<null | HTMLElement>(null);
   const timerOpen = Boolean(timerAnchorEl);
-  const canLogTime = !isNil(integration) && !isNil(project?.title);
+  const [canLogTime, setCanLogTime] = useState<boolean>(
+    !isNil(integration?.name) && !isNil(project?.title)
+  );
   const {
     durationInSeconds,
     duration,
@@ -133,10 +149,71 @@ const TimerTask = ({
   const handleTimerLog = async () => {
     try {
       // @todo: Check for integration
-      await jiraLogTime(task);
+      // @todo: Should log from startTime or now?
+      const { startTime } = task.timers[0];
+      const started = (
+        typeof startTime === 'string' ? startTime : startTime?.toISOString()
+      )?.substr(0, 10);
+
+      // Round up to the nearest 5m if over x2.5m
+      const fiveMins = 300;
+      const remainder = taskDurationInSeconds % fiveMins;
+      const timeSpentSeconds =
+        remainder >= fiveMins / 2
+          ? taskDurationInSeconds + (fiveMins - remainder)
+          : taskDurationInSeconds;
+
+      const {
+        data: { data },
+        error,
+      } = await jiraLogTime({
+        comment: task.title,
+        started,
+        timeSpentSeconds,
+        project: project,
+        user: integration.metadata.username,
+        baseJiraUrl: integration.metadata.baseJiraUrl,
+        deviceName: integration.metadata.deviceName,
+      });
+
+      if (error) {
+        let errorMessage = 'Something went wrong!';
+
+        if (error.status === 401) {
+          errorMessage = 'JIRA Session expired, please log in again!';
+        } else {
+          let tempErrorMessages: string[] = [];
+
+          if (error?.data?.errorMessages.length) {
+            tempErrorMessages = tempErrorMessages.concat(
+              error?.data?.errorMessages
+            );
+          } else if (Array.isArray(error?.data?.errors)) {
+            tempErrorMessages = tempErrorMessages.concat(error?.data?.errors);
+          } else if (typeof error?.data?.errors === 'object') {
+            tempErrorMessages = tempErrorMessages.concat(
+              Object.values(error?.data?.errors)
+            );
+          }
+
+          errorMessage = tempErrorMessages.join('');
+        }
+
+        setToast({
+          open: true,
+          message: errorMessage,
+          severity: 'error',
+        });
+      }
+
+      if (data?.length) {
+        setCanLogTime(false);
+        setTimeLogged(true);
+        handleMoreMenuClose();
+      }
     } catch (err) {
       // @todo: Handle errors
-      console.error('Delete Task Error', err);
+      console.error('JIRA Log Error', err);
     }
   };
 
@@ -193,7 +270,7 @@ const TimerTask = ({
       }
     } catch (err) {
       // @todo: Handle error
-      console.log('Error stopping timer', err);
+      console.error('Error stopping timer', err);
     }
   };
 
@@ -308,124 +385,138 @@ const TimerTask = ({
   }, [durationInSeconds, running]);
 
   return (
-    <Box
-      sx={{
-        py: 1,
-        pr: 2,
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        backgroundColor: running ? 'blue.50' : '',
-        borderBottomWidth: 1,
-        borderBottomStyle: 'solid',
-        borderBottomColor: 'grey.300',
-      }}
-    >
-      <IconButton
-        // color="primary"
-        size="small"
-        sx={{ mr: 1, color: '#3c4858' }}
-        onClick={handleMoreMenuOpen}
-      >
-        <MoreVert />
-      </IconButton>
-      <Menu
-        id="more-menu"
-        anchorEl={timerAnchorEl}
-        open={timerOpen}
-        onClose={handleMoreMenuClose}
-        MenuListProps={{
-          'aria-labelledby': 'basic-button',
-        }}
-      >
-        {canLogTime && (
-          <div>
-            <MenuItem onClick={handleTimerLog}>
-              <ListItemIcon>
-                <SendTimeExtension fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Log Time</ListItemText>
-            </MenuItem>
-            <Divider />
-          </div>
-        )}
-        <MenuItem onClick={handleTimerReset}>
-          <ListItemIcon>
-            <RotateLeft fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Reset</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleTaskDelete}>
-          <ListItemIcon>
-            <Delete fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Delete</ListItemText>
-        </MenuItem>
-      </Menu>
+    <>
       <Box
         sx={{
-          flex: 1,
+          py: 1,
           pr: 2,
-        }}
-      >
-        {fieldsEditable.title ? (
-          <TextField
-            fullWidth
-            hiddenLabel
-            autoFocus
-            id="timer-title"
-            size="small"
-            variant="standard"
-            defaultValue={task.title}
-            onKeyPress={(e) => handleEditableFieldPress(e, 'title')}
-            onBlur={() => handleEditableField('title')}
-          />
-        ) : (
-          <Text
-            onClick={() => handleEditableField('title')}
-            sx={{ cursor: 'pointer', color: '#3c4858' }}
-          >
-            {task.title}
-          </Text>
-        )}
-        <ProjectMenu
-          color="action"
-          project={project}
-          projectMenuEl={projectMenuEl}
-          onOpen={(el: HTMLElement) => setProjectMenuEl(el)}
-          onClose={handleProjectMenuClose}
-        />
-      </Box>
-      <Box
-        sx={{
           display: 'flex',
+          flexWrap: 'wrap',
           alignItems: 'center',
-          marginLeft: 'auto',
+          backgroundColor: running ? 'blue.50' : '',
+          borderBottomWidth: 1,
+          borderBottomStyle: 'solid',
+          borderBottomColor: 'grey.300',
+          position: 'relative',
         }}
       >
-        <>
-          <RenderDuration />
-          {/* <RenderPlannedTime /> */}
-        </>
-
         <IconButton
-          color="primary"
+          // color="primary"
           size="small"
-          sx={{ ml: 1 }}
-          onClick={running ? handleTimerStop : handleTimerStart}
+          sx={{ mr: 1, color: '#3c4858' }}
+          onClick={handleMoreMenuOpen}
         >
-          {running ? <Pause /> : <PlayArrow />}
+          <MoreVert />
         </IconButton>
+        <Menu
+          id="more-menu"
+          anchorEl={timerAnchorEl}
+          open={timerOpen}
+          onClose={handleMoreMenuClose}
+          MenuListProps={{
+            'aria-labelledby': 'basic-button',
+          }}
+        >
+          {canLogTime && (
+            <div>
+              <MenuItem onClick={handleTimerLog}>
+                <ListItemIcon>
+                  <Update fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Log Time</ListItemText>
+              </MenuItem>
+              <Divider />
+            </div>
+          )}
+          <MenuItem onClick={handleTimerReset}>
+            <ListItemIcon>
+              <RotateLeft fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Reset</ListItemText>
+          </MenuItem>
+          <MenuItem onClick={handleTaskDelete}>
+            <ListItemIcon>
+              <Delete fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Delete</ListItemText>
+          </MenuItem>
+        </Menu>
+        <Box
+          sx={{
+            flex: 1,
+            pr: 2,
+          }}
+        >
+          {fieldsEditable.title ? (
+            <TextField
+              fullWidth
+              hiddenLabel
+              autoFocus
+              id="timer-title"
+              size="small"
+              variant="standard"
+              defaultValue={task.title}
+              onKeyPress={(e) => handleEditableFieldPress(e, 'title')}
+              onBlur={() => handleEditableField('title')}
+            />
+          ) : (
+            <Text
+              onClick={() => handleEditableField('title')}
+              sx={{ cursor: 'pointer', color: '#3c4858' }}
+            >
+              {task.title}
+            </Text>
+          )}
+          <ProjectMenu
+            color="action"
+            project={project}
+            projectMenuEl={projectMenuEl}
+            onOpen={(el: HTMLElement) => setProjectMenuEl(el)}
+            onClose={handleProjectMenuClose}
+          />
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            marginLeft: 'auto',
+          }}
+        >
+          <>
+            <RenderDuration />
+            {/* <RenderPlannedTime /> */}
+          </>
+
+          <IconButton
+            color="primary"
+            size="small"
+            sx={{ ml: 1 }}
+            onClick={running ? handleTimerStop : handleTimerStart}
+          >
+            {running ? <Pause /> : <PlayArrow />}
+          </IconButton>
+        </Box>
+        {timeLogged && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              right: 4,
+            }}
+          >
+            <CloudDone width="16px" color="success" />
+          </Box>
+        )}
       </Box>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          marginLeft: 'auto',
-          width: '100%',
-        }}
-      ></Box>
-    </Box>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={toast.open}
+        autoHideDuration={5000}
+        onClose={() => setToast((state) => ({ open: false, message: '' }))}
+      >
+        <Alert severity={toast.severity}>{toast.message}</Alert>
+      </Snackbar>
+    </>
   );
 };
 
