@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-
+import { isNil } from 'lodash';
 import {
   Alert,
   AlertProps,
@@ -35,7 +35,12 @@ import {
   addProject,
   updateTimer,
 } from '../../../store/Timer/TimerSlice';
-import { useAppDispatch, useAppSelector, useTimer } from '../../../app/hooks';
+import {
+  useAppDispatch,
+  useAppSelector,
+  useTimer,
+  useTaskApi,
+} from '../../../app/hooks';
 import {
   useDeleteTaskMutation,
   useAssignProjectMutation,
@@ -46,7 +51,6 @@ import {
   useResetTaskMutation,
 } from '../../../services/api';
 import { selectUserIntegration } from '../../../store/User/UserSlice';
-import { isNil } from 'lodash';
 
 export interface TaskItemProps {
   projects: Project[];
@@ -64,6 +68,8 @@ const TimerTask = ({
   const integration = useAppSelector(selectUserIntegration);
   const taskProject = projects.find((p) => p.id === task.projectId) ?? null;
   const dispatch = useAppDispatch();
+
+  const { apiTaskUpdate } = useTaskApi();
 
   const [createProject] = useCreateProjectMutation();
   const [deleteTask] = useDeleteTaskMutation();
@@ -283,7 +289,7 @@ const TimerTask = ({
     });
   };
 
-  const handleEditableFieldPress = (
+  const handleEditableFieldPress = async (
     e: any, // Used any, so we can use e.target.value
     field: string
   ) => {
@@ -300,7 +306,12 @@ const TimerTask = ({
 
       switch (field) {
         case 'title':
-          newTaskProps.title = e.target.value;
+          const { title, errors } = await apiTaskUpdate({
+            id: task.id,
+            title: e.target.value as string,
+          });
+
+          newTaskProps.title = errors ? e.target.value : title;
           break;
       }
 

@@ -106,6 +106,7 @@ export const api: any = createApi({
         url: `/tasks/${id}`,
         method: 'PUT',
         body: transformBody({ ...args }),
+        transformResponse,
       }),
     }),
     deleteTask: builders.mutation<MessageResponse, string | number>({
