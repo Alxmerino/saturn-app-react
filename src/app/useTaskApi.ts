@@ -1,10 +1,29 @@
 import { useEffect } from 'react';
 
 import { Task } from '../types/timer';
-import { useUpdateTaskMutation } from '../services/api';
+import {
+  useDeleteTaskMutation,
+  useResetTaskMutation,
+  useUpdateTaskMutation,
+} from '../services/api';
 
 const useTaskApi = () => {
   const [updateTask] = useUpdateTaskMutation();
+  const [resetTask] = useResetTaskMutation();
+  const [deleteTask] = useDeleteTaskMutation();
+
+  // const [createProject] = useCreateProjectMutation();
+  // const [createTimer] = useCreateTimerMutation();
+  // const [updateTimer] = useUpdateTimerMutation();
+  // const [assignTimerProject] = useAssignProjectMutation();
+  // const [jiraLogTime] = useJiraLogTimeMutation();
+
+  /**
+   * Update Task title or projectId attributes
+   * @param id
+   * @param title
+   * @param projectId
+   */
   const apiTaskUpdate = async ({
     id,
     title,
@@ -25,7 +44,27 @@ const useTaskApi = () => {
     };
   };
 
-  return { apiTaskUpdate };
+  /**
+   * Reset Task's timer entries
+   * @param id
+   */
+  const apiTaskReset = async ({ id }: Pick<Task, 'id'>) => {
+    const { error } = await resetTask(id);
+
+    return !error;
+  };
+
+  /**
+   * Delete a Task
+   * @param id
+   */
+  const apiTaskDelete = async ({ id }: Pick<Task, 'id'>) => {
+    const { error } = await deleteTask(id);
+
+    return !error;
+  };
+
+  return { apiTaskUpdate, apiTaskReset, apiTaskDelete };
 };
 
 export { useTaskApi };
