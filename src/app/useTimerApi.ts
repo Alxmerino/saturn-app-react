@@ -1,0 +1,3 @@
+const useTimerApi = () => {};
+
+export { useTimerApi };

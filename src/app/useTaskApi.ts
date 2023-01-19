@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-
 import { Task } from '../types/timer';
 import {
   useDeleteTaskMutation,
@@ -12,7 +10,6 @@ const useTaskApi = () => {
   const [resetTask] = useResetTaskMutation();
   const [deleteTask] = useDeleteTaskMutation();
 
-  // const [createProject] = useCreateProjectMutation();
   // const [createTimer] = useCreateTimerMutation();
   // const [updateTimer] = useUpdateTimerMutation();
   // const [assignTimerProject] = useAssignProjectMutation();
