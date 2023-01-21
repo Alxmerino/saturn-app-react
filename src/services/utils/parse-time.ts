@@ -217,7 +217,7 @@ export const getTotalDuration = (durations: Duration[]): string => {
   }
 
   if (totalMinutes) {
-    durationStr += `${totalMinutes}${durationMapShort.minutes} `;
+    durationStr += `${totalMinutes}${durationMapShort.minutes}`;
   }
 
   return durationStr;
