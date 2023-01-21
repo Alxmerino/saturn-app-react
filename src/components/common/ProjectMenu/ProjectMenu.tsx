@@ -139,6 +139,7 @@ const ProjectMenu = ({
       onClick={handleProjectColorClick}
       data-color-code={+color}
     >
+      <span className="">Color {colorCodeToNameMap[+color]}</span>
       <Circle
         sx={{
           color: colorMap[colorCodeToNameMap[+color]],
@@ -246,9 +247,11 @@ const ProjectMenu = ({
             value={tempProjectTitle}
           />
           <IconButton
+            id="project-menu-color-selector"
             onClick={handleProjectColorMenuClick}
             disabled={!tempProjectTitle}
           >
+            <span className="sr-only">Select Color</span>
             <FormatColorFill
               sx={{
                 color: colorMap[colorCodeToNameMap[tempColorCode]] ?? '',
@@ -256,12 +259,16 @@ const ProjectMenu = ({
             />
           </IconButton>
           <Button
+            id="project-menu-add"
             onClick={handleProjectMenuClose}
             disabled={!tempProjectTitle}
             kind="primary"
             size="small"
           >
-            <Add />
+            <>
+              <span className="sr-only">Add Project</span>
+              <Add />
+            </>
           </Button>
           <Menu
             id="color-code"
