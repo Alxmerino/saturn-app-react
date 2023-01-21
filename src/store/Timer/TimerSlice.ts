@@ -1,20 +1,21 @@
 import { createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit';
-import { groupBy, isNil, orderBy } from 'lodash';
+import { groupBy, orderBy } from 'lodash';
 
 import { RootState } from '../store';
 import { DateType, Project, Task, TaskTimerItem } from '../../types/types';
 import { format } from 'date-fns';
 import LocalStore from '../../services/utils/local-store';
-import { durationInSecondsToString } from '../../services/utils';
 
 // @todo: Add initial State from server?
 interface TimerState {
+  local: boolean;
   tasks: Task[];
   projects: Project[];
-  [x: string]: Project[] | Task[];
+  [x: string]: Project[] | Task[] | boolean;
 }
 
 const initialState: TimerState = {
+  local: false,
   tasks: [],
   projects: [],
 };
@@ -24,14 +25,15 @@ const reducerName = 'task';
 export const TimerSlice = createSlice({
   name: reducerName,
   initialState() {
+    let state = initialState;
     const localState: TimerState = LocalStore.get(reducerName);
 
     // Parse dates from string to Date
-    if (localState) {
+    if (localState?.local) {
       Object.keys(localState).forEach((state: string) => {
-        const stateItem = localState[state];
+        const stateItem: Project[] | Task[] | boolean = localState[state];
 
-        if (stateItem.length) {
+        if (Array.isArray(stateItem) && stateItem.length) {
           stateItem.forEach((item: Project | Task) => {
             item.createdAt = getTimestamp(item, 'createdAt');
             item.updatedAt = getTimestamp(item, 'updatedAt');
@@ -47,11 +49,18 @@ export const TimerSlice = createSlice({
           });
         }
       });
+
+      state = localState;
     }
 
-    return localState || initialState;
+    return state;
   },
   reducers: {
+    setLocal(state: TimerState, action: PayloadAction<boolean>) {
+      state.local = action.payload;
+
+      LocalStore.set(reducerName, state);
+    },
     addTasks(state: TimerState, action: PayloadAction<Task[]>) {
       const tasks = action.payload;
       const existingTasks = state.tasks.map((p) => p.id);
@@ -314,6 +323,7 @@ export const TimerSlice = createSlice({
 });
 
 export const {
+  setLocal,
   addTasks,
   addTask,
   removeTask,
@@ -330,6 +340,7 @@ export const {
   resetTimer,
 } = TimerSlice.actions;
 
+export const selectIsLocal = (state: RootState) => state.timer.local;
 export const selectProjects = (state: RootState) => state.timer.projects;
 export const selectProjectById =
   (state: RootState) =>

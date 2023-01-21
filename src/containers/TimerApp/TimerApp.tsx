@@ -14,6 +14,7 @@ import { TimerHeader, TimerList } from '../../components/Timer';
 import {
   addProjects,
   addTasks,
+  selectIsLocal,
   selectProjects,
   selectTasksByDate,
 } from '../../store/Timer/TimerSlice';
@@ -24,17 +25,23 @@ const TimerApp = (): JSX.Element => {
   const isLoggedIn: boolean = useAppSelector(selectLoggedIn);
   const tasksByDate = useAppSelector(selectTasksByDate);
   const currentUser = useAppSelector(selectCurrentUser);
+  const isLocal = useAppSelector(selectIsLocal);
   const tasksByDateArray = Object.keys(tasksByDate);
+
   const {
     data: apiProjects,
     isFetching: isFetchingProjects,
     isLoading: isLoadingProjects,
-  } = useGetProjectsQuery();
+  } = useGetProjectsQuery('', {
+    skip: isLocal,
+  });
   const {
     data: apiTasks,
     isFetching: isFetchingTasks,
     isLoading: isLoadingTasks,
-  } = useGetTasksQuery();
+  } = useGetTasksQuery('', {
+    skip: isLocal,
+  });
 
   useEffect(() => {
     if (

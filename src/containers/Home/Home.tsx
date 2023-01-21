@@ -5,8 +5,14 @@ import { push } from 'redux-first-history';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { Button, Text } from '../../components/common';
 import { GenericLayout } from '../../components/layout';
-import { selectLoggedIn } from '../../store/User/UserSlice';
+import {
+  selectLoggedIn,
+  setCredentials,
+  setLogin,
+} from '../../store/User/UserSlice';
 import { Routes } from '../../config/constants';
+import { setLocal } from '../../store/Timer/TimerSlice';
+import { nanoid } from '@reduxjs/toolkit';
 
 const Home = () => {
   const isLoggedIn: boolean = useAppSelector(selectLoggedIn);
@@ -17,6 +23,22 @@ const Home = () => {
 
   const handleSignupClick = () => {
     dispatch(push(Routes.SIGNUP));
+  };
+
+  const handleGuest = () => {
+    dispatch(setLocal(true));
+    dispatch(setLogin());
+    dispatch(
+      setCredentials({
+        user: {
+          id: Date.now(),
+          name: 'guest',
+          email: '',
+        },
+        token: null,
+      })
+    );
+    dispatch(push(Routes.APP));
   };
 
   /**
@@ -39,6 +61,9 @@ const Home = () => {
         </Button>
         <Button onClick={handleSignupClick} kind="primary">
           Signup
+        </Button>
+        <Button onClick={handleGuest} kind="outlined">
+          Use as Guest
         </Button>
       </Stack>
     </GenericLayout>
