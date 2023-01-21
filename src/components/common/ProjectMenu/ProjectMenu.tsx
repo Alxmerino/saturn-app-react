@@ -139,7 +139,7 @@ const ProjectMenu = ({
       onClick={handleProjectColorClick}
       data-color-code={+color}
     >
-      <span className="">Color {colorCodeToNameMap[+color]}</span>
+      <span className="sr-only">Color {colorCodeToNameMap[+color]}</span>
       <Circle
         sx={{
           color: colorMap[colorCodeToNameMap[+color]],
