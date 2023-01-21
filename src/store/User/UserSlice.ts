@@ -36,6 +36,7 @@ const reducerName = 'auth';
 
 function getInitialState() {
   const localState: UserState = LocalStore.get(reducerName, true);
+
   return localState ?? initialState;
 }
 
