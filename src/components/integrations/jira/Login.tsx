@@ -56,7 +56,6 @@ const JIRALogin = ({ open, onClose }: JIRALoginProps) => {
         const { data: _apiIntegration, error } = await createIntegration({
           name: 'JIRA_SERVER',
           metadata: JSON.stringify({
-            username: formData.username,
             deviceName: formData.deviceName,
             baseJiraUrl: formData.baseJiraUrl,
           }),
