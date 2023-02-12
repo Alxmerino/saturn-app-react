@@ -27,6 +27,7 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({
         maxWidth="sm"
         sx={{
           height: '100vh',
+          minWidth: '450px',
         }}
       >
         <CssBaseline />

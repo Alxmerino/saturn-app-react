@@ -8,6 +8,7 @@
     "@mui/icons-material": "^5.4.4",
     "@mui/material": "^5.4.4",
     "@reduxjs/toolkit": "^1.7.2",
+    "@tauri-apps/api": "^1.2.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^7.2.1",
@@ -51,6 +52,7 @@
     ]
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^1.2.3",
     "@types/lodash": "^4.14.182",
     "@types/redux-logger": "^3.0.9",
     "@typescript-eslint/eslint-plugin": "^5.12.0",

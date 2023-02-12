@@ -53,7 +53,7 @@ export const durationInSecondsToString = (duration: number): string => {
  * @param timeString
  */
 export const parseDurationFromString = (timeString: string): Duration => {
-  const timeStrArr = timeString.split(/(?<=[a-zA-Z])(?=[\d])/g);
+  const timeStrArr = timeString.split(/(\d+[a-zA-Z]+)/g);
   const duration: { [x: string]: number } = {};
 
   each(timeStrArr, (str) => {

@@ -65,6 +65,5 @@ export const colorCodeToNameMap: { [x: number]: string } = {
 };
 
 export const API = {
-  BASE_API_URL:
-    process.env.REACT_APP_BASE_API_URL ?? 'https://saturn-api.am.dev/api/v1',
+  BASE_API_URL: process.env.REACT_APP_BASE_API_URL ?? '',
 };
