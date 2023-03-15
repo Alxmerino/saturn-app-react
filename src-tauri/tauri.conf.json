@@ -12,13 +12,7 @@
   },
   "tauri": {
     "allowlist": {
-      "http": {
-        "all": true,
-        "scope": [
-          "https://sarurn.hcog.io/api/*",
-          "https://api.getsaturnapp.com/api/*"
-        ]
-      }
+      "all": false
     },
     "bundle": {
       "active": true,
@@ -63,10 +57,9 @@
       {
         "fullscreen": false,
         "height": 600,
-        "resizable": true,
+        "resizable": false,
         "title": "Saturn Time Tracker",
-        "width": 450,
-        "maxWidth": 800
+        "width": 450
       }
     ]
   }
