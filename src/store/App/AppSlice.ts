@@ -1,20 +1,20 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-enum AppType = 'SaturnWebApp' | 'SaturnTauriApp';
+type AppType = 'SaturnWebApp' | 'SaturnTauriApp';
 
 interface AppState {
   app: AppType;
 }
 
+const initialState: AppState = {
+  app: 'SaturnWebApp',
+};
+
 const reducerName = 'app';
 
 export const AppSlice = createSlice({
   name: reducerName,
-  initialState() {
-    return {
-      app: 'SaturnWebApp',
-    };
-  },
+  initialState,
   reducers: {
     setApp(state: AppState, action: PayloadAction<AppType>) {
       state.app = action.payload;
