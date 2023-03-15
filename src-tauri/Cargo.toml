@@ -1,10 +1,10 @@
 [package]
 name = "app"
 version = "0.1.0"
-description = "Hassle-free time tracking"
-authors = ["rene@amayamedia.com"]
+description = "A Tauri App"
+authors = ["you"]
 license = ""
-repository = "https://github.com/Alxmerino/saturn-app-react"
+repository = ""
 default-run = "app"
 edition = "2021"
 rust-version = "1.59"
@@ -15,11 +15,9 @@ rust-version = "1.59"
 tauri-build = { version = "1.2.1", features = [] }
 
 [dependencies]
-tauri-plugin-localhost = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
-portpicker = "0.1" # used in the example to pick a random free port
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.2.4", features = ["http-all"] }
+tauri = { version = "1.2.4", features = [] }
 
 [features]
 # by default Tauri runs in production mode
