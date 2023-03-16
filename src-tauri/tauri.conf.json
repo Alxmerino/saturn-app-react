@@ -61,6 +61,10 @@
         "title": "Saturn Time Tracker",
         "width": 450
       }
-    ]
+    ],
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true
+    }
   }
 }
