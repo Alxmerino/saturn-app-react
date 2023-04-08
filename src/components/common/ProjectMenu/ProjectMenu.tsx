@@ -227,6 +227,7 @@ const ProjectMenu = ({
         anchorEl={projectMenuEl}
         open={projectMenuOpen}
         onClose={handleProjectMenuClose}
+        tabIndex={0}
         MenuListProps={{
           'aria-labelledby': 'project-menu-button',
         }}
@@ -237,11 +238,15 @@ const ProjectMenu = ({
           }}
         >
           <Input
-            autoFocus={true}
+            id="project-name"
             disableUnderline={true}
             margin="dense"
             placeholder="Project Name"
-            inputProps={{ 'aria-label': 'description' }}
+            inputProps={{
+              'aria-label': 'project-description',
+              autoFocus: true,
+            }}
+            aria-describedby="project-description"
             onChange={handleOnChange}
             onKeyPress={handleOnKeyPress}
             value={tempProjectTitle}
@@ -287,38 +292,31 @@ const ProjectMenu = ({
             {Object.keys(colorCodeToNameMap).map(RenderColorCode)}
           </Menu>
         </MenuItem>
-        {filteredProjects?.length ? (
-          <MenuList
-            dense
-            sx={{
-              maxHeight: 155,
-              overflow: 'auto',
-            }}
-          >
-            {filteredProjects.map((p) => (
-              <MenuItem
-                key={p.id}
-                selected={p.id === project?.id}
-                onClick={() => handleProjectClick(p.id)}
+        {[...filteredProjects]
+          .sort((a, b) => (a.title > b.title ? 1 : a.title < b.title ? -1 : 0))
+          .map((p, i) => (
+            <MenuItem
+              key={p.id}
+              tabIndex={i}
+              selected={p.id === project?.id}
+              onClick={() => handleProjectClick(p.id)}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: '22px !important',
+                }}
               >
-                <ListItemIcon
+                <Circle
                   sx={{
-                    minWidth: '22px !important',
+                    width: 10,
+                    height: 10,
+                    color: colorMap[colorCodeToNameMap[+(p?.colorCode ?? 0)]],
                   }}
-                >
-                  <Circle
-                    sx={{
-                      width: 10,
-                      height: 10,
-                      color: colorMap[colorCodeToNameMap[+(p?.colorCode ?? 0)]],
-                    }}
-                  />
-                </ListItemIcon>
-                <ListItemText>{p.title}</ListItemText>
-              </MenuItem>
-            ))}
-          </MenuList>
-        ) : null}
+                />
+              </ListItemIcon>
+              <ListItemText>{p.title}</ListItemText>
+            </MenuItem>
+          ))}
       </Menu>
     </>
   );
